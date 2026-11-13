@@ -93,9 +93,9 @@
 
 ## ⭐ R1 — Minimum Shippable Detective (target Sat 17:00)
 *Static, real NASA data for the 4 cases. No runtime backend needed → the demo survives venue Wi-Fi failures.*
-- [ ] **(Kauê)** TDD: `-999` filtering + monthly → Annual / Oct–Mar (`2024/25` labels) / Apr–Sep aggregation with correct units (`PRECTOTCORR` = monthly mm/day × days summed; `GWETROOT` × 100) in `src/lib/`
-- [ ] **(Kauê)** TDD: **Mann-Kendall** (S, variance with ties, Z, two-sided p) in `src/lib/stats/`
-- [ ] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
+- [x] **(Kauê)** TDD: `-999` filtering + monthly → Annual / Oct–Mar (`2024/25` labels) / Apr–Sep aggregation with correct units (`PRECTOTCORR` = monthly mm/day × days summed; `GWETROOT` × 100) in `src/lib/`
+- [x] **(Kauê)** TDD: **Mann-Kendall** (S, variance with ties, Z, two-sided p) in `src/lib/stats/`
+- [x] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
 - [ ] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
 - [ ] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
 - [ ] **(Higor & Luis)** Write final case hooks + all dossier microcopy and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts
