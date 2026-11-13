@@ -106,6 +106,7 @@
   3. *By how much?*
   4. *Is it statistically significant?*
 - [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note and shareable `/dossier/:id` route
+- [ ] **(Mylena)** Build **Climate Stripes ("Show Your Stripes"-inspired) Shareable Evidence Card**: annual anomaly stripes (blue–red for temperature; amber–teal for precipitation/soil) inside a Noir Case Card with display toggles (`With Stats & Stamp` vs `Minimal Stripes`, `1:1` vs `9:16` Stories) and **1-click Download PNG** (`html-to-image` / Canvas)
 - [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints, test loading/error states, and hit **C3 UI Freeze (Sun 09:00)** for Higor & Luis
 
 ---
