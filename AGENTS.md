@@ -6,8 +6,9 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
 
 ## 🎯 Core Rules (Mandatory for All Agents & Developers)
 
-### 1. `TASK.md` Is the Single Guide for Work
+### 1. `TASK.md` & `DESIGN.md` Are Mandatory Guides
 - **Always read [`TASK.md`](TASK.md) before starting any task.**
+- **Always read [`DESIGN.md`](DESIGN.md) before designing or editing any UI/UX or frontend component** (it holds the full Old NY Noir Detective Office aesthetic, color tokens, 3-room layout, and *Show Your Stripes* card specs so no context is lost across sessions).
 - **Every change—no matter how minimal—MUST correspond to a task in `TASK.md`.**
   - If no task exists for the change you are about to make, **add a new task to `TASK.md` first** before writing code or modifying files.
   - Mark the task as `[~] (<YourName/Agent>)` while in progress and `[x]` upon completion.
@@ -39,5 +40,6 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
 ## 🛠️ Engineering & Hackathon Standards
 1. **KISS (48-Hour Hackathon Speed):** Favor simple, clean, modular code that ships fast and works reliably in a live demo. Avoid over-engineering.
 2. **Real NASA Data Only:** Never ship mocked data as final output. Integrate real NASA open datasets (**NASA POWER API**, **GISTEMP**, **SMAP**, **MODIS AOD**) and cite them explicitly.
-3. **Scientific Rigor (`Validity`):** The statistical engine (**Mann-Kendall** & **Sen's Slope**) MUST have unit tests verifying correctness against known mathematical baselines.
-4. **Native Bilingual UI (`EN` / `PT-BR`):** Auto-detect browser language (`localStorage` -> `navigator.language` -> `'en'` fallback) and expose a visible toggle in the header.
+3. **Test-Driven Development (TDD) for Critical Logic:**
+   - **Mandatory TDD (`Red -> Green -> Refactor`):** For all critical statistical, scientific, data-parsing, and validation logic (**Mann-Kendall**, **Sen's Slope**, **seasonal aggregation**, **NASA `-999` sentinel filtering**, **D1 input/bounds validation**), **write failing Vitest unit tests FIRST**, confirm they fail, and only then implement the production code to make them pass.
+4. **Native Bilingual UI (`EN` / `PT-BR`):** Auto-detect browser language (`localStorage` -> `navigator.language` -> `'en'` fallback) and expose a visible toggle in the header. Backend must return structured enums/numbers (never hardcoded English prose).
