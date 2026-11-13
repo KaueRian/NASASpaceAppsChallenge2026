@@ -39,7 +39,7 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
 
 ## 🛠️ Engineering & Hackathon Standards
 1. **KISS (48-Hour Hackathon Speed):** Favor simple, clean, modular code that ships fast and works reliably in a live demo. Avoid over-engineering.
-2. **Real NASA Data Only:** Never ship mocked data as final output. Integrate real NASA open datasets (**NASA POWER API**, **GISTEMP**, **SMAP**, **MODIS AOD**) and cite them explicitly.
+2. **Real NASA Data Only:** Never ship mocked data as final output. Use the locked MVP dataset (**NASA POWER API / MERRA-2** for `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT` via `temporal/monthly/point`) and cite it explicitly. Do not add extra NASA APIs unless explicitly requested in `TASK.md`.
 3. **Test-Driven Development (TDD) for Critical Logic:**
    - **Mandatory TDD (`Red -> Green -> Refactor`):** For all critical statistical, scientific, data-parsing, and validation logic (**Mann-Kendall**, **Sen's Slope**, **seasonal aggregation**, **NASA `-999` sentinel filtering**, **D1 input/bounds validation**), **write failing Vitest unit tests FIRST**, confirm they fail, and only then implement the production code to make them pass.
 4. **Native Bilingual UI (`EN` / `PT-BR`):** Auto-detect browser language (`localStorage` -> `navigator.language` -> `'en'` fallback) and expose a visible toggle in the header. Backend must return structured enums/numbers (never hardcoded English prose).

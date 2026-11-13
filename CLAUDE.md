@@ -18,5 +18,5 @@
    - Never commit secrets (`.env*`), dependencies (`node_modules/`, `.venv/`), or build artifacts.
 5. **Project Context (`EarthTrend Detective`):**
    - Challenge: **NASA Space Apps Challenge 2026 — `Be An Earth System Trend Detective!`**
-   - Core Engine: Real NASA open data (**NASA POWER API**, **GISTEMP**, **SMAP**) + unit-tested statistical forensics (**Mann-Kendall** & **Sen's Slope**).
+   - Core Engine: Locked MVP dataset **NASA POWER API / MERRA-2** (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT` via `temporal/monthly/point`) + TDD-verified statistical forensics (**Mann-Kendall** & **Sen's Slope**).
    - UI: Bilingual (`EN` / `PT-BR`) with browser auto-detection and a header language toggle.
