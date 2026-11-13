@@ -84,7 +84,7 @@
 - [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
 - [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
-- [ ] **(Kauê)** Create Cloudflare Worker (`earthtrend-detective`) connected to GitHub and deploy the shell to production
+- [x] **(Kauê)** Create Cloudflare Worker (`nasaspaceappschallenge2026`) connected to GitHub and deploy the shell to production
 - [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
 - [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
 - [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
