@@ -14,7 +14,7 @@
 ## 👥 Team Roster & Ownership
 | Member | Role | Owned Paths / Assets |
 |---|---|---|
-| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.toml`, `src/components/share/` |
+| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.jsonc`, `src/components/share/` |
 | **Mylena** (`Dev 2`) | Frontend UI: Case Board, Dossier, New Investigation, Methods File layout, i18n wiring | `src/components/` (except `share/`), `src/pages/`, `src/styles/` |
 | **Higor & Luis** | **All product copy** (hooks, microcopy, Methods File text, EN + PT), logo/OG image, pitch, slides, 30s video, submission | `src/locales/` (text content), `docs/submission/`, `public/brand/` + external Canva/Drive |
 | **Shared Contract** | Frontend ↔ Backend TypeScript types | `src/types/investigation.ts` |
@@ -81,7 +81,7 @@
 - [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
 - [ ] **(All)** Decide the stage representative (Art. 6.2)
 - [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
-- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.toml`, Vitest, Biome)
+- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
 - [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
 - [ ] **(Kauê)** Create Cloudflare Worker (`earthtrend-detective`) connected to GitHub and deploy the shell to production
@@ -106,7 +106,7 @@
 - [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
-- [ ] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.toml`
+- [ ] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc`
 - [ ] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
 - [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
 - [ ] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
