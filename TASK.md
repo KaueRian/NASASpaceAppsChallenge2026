@@ -49,6 +49,7 @@
 - [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS (`KaueRian/NASASpaceAppsChallenge2026`)
 - [x] **(Kauê)** Create repository governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, English `README.md`)
 - [x] **(Kauê)** Create [`DESIGN.md`](DESIGN.md) blueprint and enforce **TDD** + design-context rules in `AGENTS.md` and `CLAUDE.md`
+- [x] **(Kauê)** Align `.gitignore` (Cloudflare `.wrangler/`, `.dev.vars`, `coverage/`), `README.md`, `AGENTS.md`, and `CLAUDE.md` to locked `NASA POWER / MERRA-2` scope
 - [x] **(All)** Finalize architecture, stack, and whole-team roadmap in `TASK.md`
 - [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
 - [ ] **(All)** Confirm all 4 members are linked to the same official Team ID on the NASA Space Apps portal & fill Team Name in `TASK.md`
@@ -122,7 +123,7 @@
 - [ ] **(Higor & Luis)** Finalize 5–7 slide deck in **PDF (PT-BR)** and save an **offline copy + offline demo/video backup** on the stage laptop
 - [ ] **(Higor & Luis & Stage Rep)** Rehearse the timed 3-minute local pitch at least 2 times
 - [ ] **(Kauê)** Promote `dev -> main`, deploy live demo to **Cloudflare Pages** (`*.pages.dev`) with D1 bound, and verify in incognito window (**C4 Code Freeze Sun 14:00**)
-- [ ] **(Kauê)** Finalize `README.md` with screenshots, live demo URL, architecture overview, and explicit NASA dataset citations
+- [ ] **(Kauê)** Add MIT `LICENSE` file and finalize `README.md` with screenshots, live demo URL, architecture overview, and explicit NASA dataset citations
 
 ---
 
