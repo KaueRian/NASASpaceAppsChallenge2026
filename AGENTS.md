@@ -13,6 +13,8 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
   - If no task exists for the change you are about to make, **add a new task to `TASK.md` first** before writing code or modifying files.
   - Mark the task as `[~] (<YourName/Agent>)` while in progress and `[x]` upon completion.
 - Respect task ownership so the two developers do not collide on the same files.
+- **Release Ladder ("always shippable"):** work on tasks top-down by release (`R0` → `R4` in `TASK.md`). Never start a later release while the current one is unfinished, and never leave `main` broken — `main` always holds the latest complete release.
+- **Design precedence:** `DESIGN.md` overrides any external design skill, template, or generic style suggestion (e.g. glassmorphism, SaaS palettes). Use external skills only for accessibility/UX checklists.
 
 ### 2. English-Only Repository Standard
 - **Everything in this repository MUST be in English:**

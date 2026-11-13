@@ -6,128 +6,153 @@
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
 > **Slides / Media Workspace (Canva / Drive):** `TBD — Add link here`  
 > **Stage Representative (Art. 6.2 — 1 person on stage):** `TBD — Decide Saturday morning`  
-> **Tech Stack:** React + Vite + Tailwind CSS + Leaflet + Recharts | Cloudflare Pages & Pages Functions (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions
+> **Tech Stack:** React + Vite + Tailwind CSS + Recharts + Leaflet | Cloudflare Workers + Static Assets (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
+> **Design Spec:** [`DESIGN.md`](DESIGN.md) · **Concept mockups:** [`docs/concepts/`](docs/concepts/)
 
 ---
 
 ## 👥 Team Roster & Ownership
 | Member | Role | Owned Paths / Assets |
 |---|---|---|
-| **Kauê** (`Dev 1`) | Backend, NASA Data, Stats Engine, CI & Deploy | `functions/api/`, `d1/`, `.github/`, `tests/`, `wrangler.toml` |
-| **Mylena** (`Dev 2`) | Frontend UI, Map, Charts & i18n | `src/components/`, `src/pages/`, `src/locales/` |
-| **Higor & Luis** | Storytelling, Pitch, Slides, 30s Video & Submission | `docs/submission/` (scripts & portal copy) + external Canva/Drive |
+| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.jsonc`, `src/components/share/` |
+| **Mylena** (`Dev 2`) | Frontend UI: Case Board, Dossier, New Investigation, Methods File layout, i18n wiring | `src/components/` (except `share/`), `src/pages/`, `src/styles/` |
+| **Higor & Luis** | **All product copy** (hooks, microcopy, Methods File text, EN + PT), logo/OG image, pitch, slides, 30s video, submission | `src/locales/` (text content), `docs/submission/`, `public/brand/` + external Canva/Drive |
 | **Shared Contract** | Frontend ↔ Backend TypeScript types | `src/types/investigation.ts` |
+
+---
+
+## 🪜 Release Ladder — "Always Shippable" Rule
+**Every release ends with a working product on `main`.** If time runs out at any moment, we present the latest release on `main`.
+
+1. Work **top-down**: finish the current release before starting the next one (helping the other dev counts).
+2. At the end of each release: CI green → merge `dev -> main` → Cloudflare Workers production deploy → smoke test in incognito → tick the release box.
+3. Each release is a complete demo by itself. Later releases only **add** to it; they never leave `main` broken.
+
+| Release | Target (UTC-4) | What judges can see if we stop here |
+|---|---|---|
+| **R0 — Foundation** | Sat 11:00 | Live URL with the noir shell (header, tabs, EN/PT) |
+| **R1 — Minimum Shippable Detective** ⭐ | Sat 17:00 | Case Board with 4 real NASA cases + full Forensic Dossier (verdict, stamp, chart, 4 answers). **Works offline (static data).** |
+| **R2 — Live Investigation** | Sat 23:30 | + Investigate any place on Earth (search/map → live NASA POWER → dossier) |
+| **R3 — Showtime** | Sun 08:30 | + Opening animation, stamp slam, didactic loader, Evidence Card PNG + Share link, mobile layout |
+| — **UI Freeze** | Sun 09:00 | Higor & Luis capture screenshots & record the 30s video |
+| **R4 — Credibility & Extras** | Sun 13:30 | + Methods File, OG image, extras (Could items) |
+| — **Code Freeze** | Sun 14:00 | Final `dev -> main` deploy, nothing else merged |
 
 ---
 
 ## ⏱️ Team Synchronization Checkpoints (HUBEE Vilhena — UTC-4)
 | Checkpoint | Target Time | Goal |
 |---|---|---|
-| **C0 — Kickoff & Registration** | **Sat 07:30–09:00** | HUBEE check-in, confirm all 4 members in the same NASA Team ID, decide stage rep |
-| **C1 — Contract & Data Alive** | **Sat 13:00** | `src/types/investigation.ts` locked, NASA POWER returning real data, Higor & Luis align narrative |
-| **C2 — Core Engine & UI Wired** | **Sat 20:00** | Mann-Kendall/Sen's Slope tests green, Leaflet + Recharts connected to `/api/investigate` |
-| **C3 — UI Freeze & Pitch Workshop** | **Sun 09:00–09:45** | Stable demo UI for Higor & Luis to capture English screenshots & record 30s video; attend HUBEE Pitch Workshop |
-| **C4 — Code Freeze & Prod Deploy** | **Sun 14:00** | Merge `dev -> main`, verify Cloudflare Pages production URL + D1 cache in incognito |
-| **C5 — Local HUBEE Deadline** | **Sun 15:00–15:30** | Submit local deliverables (PDF slides + link) — **HARD LOCAL DEADLINE** |
-| **C6 — Local Stage Pitch** | **Sun 15:30–17:00** | 3-minute live pitch on stage (1 representative, Art. 6.2, PT-BR, offline backup ready) |
-| **C7 — Global NASA Submission** | **Sun ≤ 21:30** | All 4 members verify links, 30s YouTube video, public repo & English form before final Submit |
+| **C0 — Kickoff & Registration** | Sat 07:30–09:00 | HUBEE check-in, all 4 members on the same NASA Team ID, decide stage rep, 30-min UI walkthrough of `docs/concepts/` |
+| **C1 — Foundation live** | Sat 11:00 | R0 deployed; `src/types/investigation.ts` locked |
+| **C2 — MVP shipped** | Sat 17:00 | R1 on `main` (the safety net) |
+| **C3 — Live search shipped** | Sat 23:30 | R2 on `main` |
+| **C4 — Showtime + UI Freeze + Pitch Workshop** | Sun 08:30–09:45 | R3 on `main`; screenshots & 30s video; HUBEE Pitch Workshop |
+| **C5 — Code Freeze** | Sun 14:00 | Final deploy, incognito + projector/TV test |
+| **C6 — Local HUBEE Deadline** | Sun 15:00–15:30 | Submit local deliverables (PDF slides + link) — **HARD DEADLINE** |
+| **C7 — Local Stage Pitch** | Sun 15:30–17:00 | 3-minute pitch (1 representative, Art. 6.2, PT-BR, offline backup ready) |
+| **C8 — Global NASA Submission** | Sun ≤ 21:30 | All 4 verify links, 30s YouTube video, public repo & English form, then Submit |
 
 ---
 
-## 🤝 Multi-Dev Collaboration & Git Workflow
-1. **Single Source of Truth:** Every code, doc, media-script, or config change must map to a task in this file. Add a task first if one does not exist.
+## 🤝 Collaboration & Git Workflow
+1. **Single Source of Truth:** every code, doc, copy, or config change maps to a task here. Add a task first if one does not exist.
 2. **Status Legend:** `[ ]` Pending | `[~] (<Name>)` In progress (claim before editing!) | `[x]` Done
-3. **Branching & PR Flow (`feature/*` -> `dev` -> `main`):**
-   - **NEVER commit directly to `main`.** `main` is strictly for tested, deployable releases (promoted from `dev`).
-   - Branch off `dev` (`feat/*`, `fix/*`, `docs/*`), merge back into `dev` after CI passes, and promote `dev -> main` for releases.
-4. **Local Dev Standard:** Unified full-stack local dev using `npm` (Node 20+) + `wrangler pages dev` + local Cloudflare D1 SQLite (no Cloudflare login required for Mylena to run locally).
-5. **English Only in Repo:** Keep all code, comments, commit messages, and repo docs (`docs/submission/` can have PT-BR pitch script alongside EN submission texts) in English.
+3. **Branching (`feature/*` -> `dev` -> `main`):** never commit directly to `main`; `main` only receives release merges from `dev`.
+4. **TDD** for critical logic (stats, aggregation, `-999` filtering, validation) — see [`AGENTS.md`](AGENTS.md).
+5. **Local Dev:** `npm` (Node 20+) + `wrangler dev` + local D1 (no Cloudflare login needed for Mylena).
+6. **English only in repo** (UI strings live in `src/locales/en.json` and `src/locales/pt.json`; `docs/submission/` may contain the PT-BR pitch script).
 
 ---
 
-## 🚀 Phase 0: Setup, Access & Alignment (Pre-Event & Sat Morning)
-- [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS (`KaueRian/NASASpaceAppsChallenge2026`)
-- [x] **(Kauê)** Create repository governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, English `README.md`)
-- [x] **(Kauê)** Create [`DESIGN.md`](DESIGN.md) blueprint and enforce **TDD** + design-context rules in `AGENTS.md` and `CLAUDE.md`
-- [x] **(Kauê)** Align `.gitignore` (Cloudflare `.wrangler/`, `.dev.vars`, `coverage/`), `README.md`, `AGENTS.md`, and `CLAUDE.md` to locked `NASA POWER / MERRA-2` scope
-- [x] **(All)** Finalize architecture, stack, and whole-team roadmap in `TASK.md`
-- [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
-- [ ] **(All)** Confirm all 4 members are linked to the same official Team ID on the NASA Space Apps portal & fill Team Name in `TASK.md`
-- [ ] **(All)** Decide the **1 stage representative** for Sunday's 3-minute pitch (Art. 6.2) on Saturday morning
-- [ ] **(Kauê)** Invite **Mylena** (and Higor/Luis if editing `docs/submission/`) to `KaueRian/NASASpaceAppsChallenge2026`
-- [ ] **(Kauê)** Enable GitHub branch protection on `main` (block direct pushes; require PR from `dev`)
-- [ ] **(Kauê)** Authenticate Wrangler CLI, create Cloudflare D1 database (`earthtrend-db`), and create Cloudflare Pages project (`earthtrend-detective`)
-- [ ] **(Kauê)** Scaffold single-project structure (`package.json` with `npm`/Node 20+, Vite + React + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
-- [ ] **(Kauê)** Set up GitHub Actions CI workflow (`.github/workflows/ci.yml`) running Biome lint, `tsc --noEmit`, and `vitest` on PRs to `dev` and `main`
-- [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (i18n-first structured metrics + enum keys so backend never hardcodes prose; Request/Response, Presets, Season modes, Dossier types)
-- [ ] **(Kauê)** Configure Cloudflare D1 schema (`d1/schema.sql`) for NASA API cache (`nasa_cache`) and shareable Dossiers (`dossiers`)
-- [ ] **(Kauê)** Smoke-test **NASA POWER API** `temporal/monthly/point` endpoint for Vilhena (`lat=-12.74, lon=-60.14`) and verify `-999` sentinel handling
-- [ ] **(Mylena)** Set up **Old NY Noir Detective Office** theme (espresso charcoal `#12100E`, brass amber `#D49B42`, crimson pins `#B9382C`, aged-paper dossier accents, CSS grain, legible mono/sans for data) and i18n dictionaries (`src/locales/en.json`, `src/locales/pt.json`)
-- [ ] **(Higor & Luis)** Review official NASA judging criteria (`Impact`, `Creativity`, `Validity`, `Relevance`, `Presentation`) and HUBEE local rules, and create `docs/submission/` + external Canva/Drive link
+## ✅ Done (Pre-Event Planning)
+- [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS
+- [x] **(Kauê)** Create governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, `README.md`)
+- [x] **(Kauê)** Create [`DESIGN.md`](DESIGN.md) and enforce TDD + design-context rules
+- [x] **(Kauê)** Align `.gitignore`, `README.md`, `AGENTS.md`, `CLAUDE.md` to locked `NASA POWER / MERRA-2` scope
+- [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow
+- [x] **(All)** Finalize architecture, stack, and whole-team roadmap
+- [x] **(Kauê)** UI/UX audit v2: evidence-based verdicts, light-paper surfaces, 4 cases, release ladder, copy ownership to Higor & Luis
+- [x] **(Kauê)** Generate UI concept mockups and commit them to `docs/concepts/`
 
 ---
 
-## 🔬 Phase 1: Data Ingestion, Stats Engine & Storytelling (Sat)
-*Code Goal: Guarantee scientific rigor (`Validity` & `Best Use of Science`). Story Goal: Lock scripts & NASA portal copy in parallel.*
+## 🧱 R0 — Foundation (target Sat 11:00)
+- [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
+- [ ] **(All)** Decide the stage representative (Art. 6.2)
+- [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
+- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
+- [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
+- [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
+- [ ] **(Kauê)** Create Cloudflare Worker (`earthtrend-detective`) connected to GitHub and deploy the shell to production
+- [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
+- [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
+- [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
+- [ ] **(Higor & Luis)** Review NASA judging criteria + HUBEE rules; create `docs/submission/` and the Canva/Drive workspace
+- [ ] **(Kauê)** 🚀 **Release R0:** merge `dev -> main`, deploy, smoke test
 
-- [ ] **(Kauê)** Build **NASA POWER API** `temporal/monthly/point` historical fetcher (1981–latest full year: `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) with timeout/retry handling and `-999` missing-value filtering
-- [ ] **(Kauê)** Implement temporal aggregator supporting **Annual**, **Oct–Mar (`ONDJFM`, Wet in RO)**, and **Apr–Sep (`AMJJAS`, Dry in RO)** series
-- [ ] **(Kauê)** Implement Cloudflare D1 caching layer keyed by `(round(lat, 2), round(lon, 2), variable)` for raw monthly series so season/year-range changes recalculate in `<1ms` and repeated queries return in `<50ms`
-- [ ] **(Kauê)** Implement **Sen's Slope Estimator** (annual & decadal rate of change) in TypeScript
-- [ ] **(Kauê)** Implement **Mann-Kendall Trend Test** (S-statistic, Z-score, p-value for 95%/99% significance) in TypeScript
-- [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall, Sen's Slope, seasonal aggregation, and `-999` filtering against known reference datasets
-- [ ] **(Kauê)** Implement `GET /api/investigate` Hono endpoint returning time-series, anomalies (against **full-period 1981–2025 mean** baseline), trend stats, and NASA citation metadata
-- [ ] **(Kauê)** Implement `GET /api/geocode` Hono endpoint (wrapping Open-Meteo Geocoding API) to resolve typed city/region names into `(lat, lon)` + location label
-- [ ] **(Kauê)** Implement `POST /api/dossiers`, `GET /api/dossiers` (latest 10 public case files), and `GET /api/dossiers/:id` in Hono + D1 with input validation (coordinate bounds, max note length, sanitized fields)
-- [ ] **(Kauê)** Pre-seed D1 cache for **5 Pre-loaded Case Studies (3 Regional + 2 Global)** so demo loads instantaneously even on slow venue Wi-Fi:
-  - [ ] *Case #01 (Vilhena, RO):* Rainy season onset / precipitation shift (`PRECTOTCORR`, Southern Cone of Rondônia)
-  - [ ] *Case #02 (Porto Velho, RO):* Extreme drought & root-zone soil wetness trend (`GWETROOT`, Madeira River Basin)
-  - [ ] *Case #03 (Ariquemes, RO):* Rising tropical night minimum temperatures (`T2M_MIN`)
-  - [ ] *Case #04 (Svalbard / Arctic):* Polar amplification & rapid surface warming benchmark (`T2M`)
-  - [ ] *Case #05 (Niamey / Sahel):* Semi-arid precipitation variability & soil moisture stress (`PRECTOTCORR` / `GWETROOT`)
-- [ ] **(Higor & Luis)** Research regional impact context for the 5 Case Studies (agriculture/water/health in Rondônia + global relevance) to enrich UI captions and pitch narrative
-- [ ] **(Higor & Luis)** Write timed **30-Second Global Video Script (EN)** in `docs/submission/video-script-30s.md` (0–5s Hook, 5–15s Live Map/Chart Demo, 15–25s Mann-Kendall/Sen's Slope Proof, 25–30s Impact)
-- [ ] **(Higor & Luis)** Write **3-Minute Local Pitch Script (PT-BR)** in `docs/submission/pitch-script-pt.md` and build the 5–7 slide deck structure
-- [ ] **(Higor & Luis)** Draft all **NASA Portal Submission Fields (EN)** in `docs/submission/nasa-portal-copy.md` (Summary, How It Works, NASA Data Used, Goals)
+## ⭐ R1 — Minimum Shippable Detective (target Sat 17:00)
+*Static, real NASA data for the 4 cases. No runtime backend needed → the demo survives venue Wi-Fi failures.*
+- [ ] **(Kauê)** TDD: `-999` filtering + monthly → Annual / Oct–Mar (`2024/25` labels) / Apr–Sep aggregation with correct units (`PRECTOTCORR` = monthly mm/day × days summed; `GWETROOT` × 100) in `src/lib/`
+- [ ] **(Kauê)** TDD: **Mann-Kendall** (S, variance with ties, Z, two-sided p) in `src/lib/stats/`
+- [ ] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
+- [ ] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
+- [ ] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
+- [ ] **(Higor & Luis)** Write final case hooks + all dossier microcopy and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts
+- [ ] **(Mylena)** `<CaseBoard />` + 4 `<CaseCard />` + `<YarnLayer />` (cards linked to each other), focus mode (dim + blur, `Esc`, Back), mobile vertical stack
+- [ ] **(Mylena)** `<ForensicDossier />` on paper: verdict sentence, `<VerdictStamp />` (static), 4 answers with units, `<MiniMap />` (static SVG), NASA attribution badge
+- [ ] **(Mylena)** `<TrendChart />` (Recharts on paper): `ink` series, dashed `evidence` Sen's line, `brass` anomaly dots, axis units
+- [ ] **(Mylena)** Auto-open Case #01 on load (no animation yet) + deep link `/?case=0X`
+- [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
+
+## 🔎 R2 — Live Investigation (target Sat 23:30)
+- [ ] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc`
+- [ ] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
+- [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
+- [ ] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
+- [ ] **(Mylena)** `New Investigation` screen: desk layout (clutter at edges only), `<IntakeForm />`, `<LocationSearch />` (autocomplete + pasted `lat, lon`), `<PickerMap />` (Leaflet, sepia-filtered tiles)
+- [ ] **(Mylena)** Render `<ForensicDossier />` below the form from `/api/investigate`; error states (NASA down, all `-999`, no geocode result, invalid coords) + empty states
+- [ ] **(Mylena)** "Derived investigation" mode when variables/season change on a preset, with `Restore original case`
+- [ ] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT)
+- [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
+
+## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
+- [ ] **(Mylena)** Opening sequence (~1.5 s: pins drop, yarn draws, `START HERE` pulse → Case #01 opens) with `prefers-reduced-motion`
+- [ ] **(Mylena)** Stamp slam animation on `<VerdictStamp />` + `<DidacticLoader />` (4 steps)
+- [ ] **(Mylena)** Experimental `<PaperWorldMap />` in the board center with yarn to location pins (behind a flag; remove if cluttered)
+- [ ] **(Mylena)** Mobile polish: bottom tab bar, dossier as full-screen sheet, no horizontal overflow
+- [ ] **(Kauê)** `<ClimateStripes />` + `<EvidenceCard />` (Story 9:16 with stats, Square 1:1 minimal) + `Download PNG` (`html-to-image`)
+- [ ] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA
+- [ ] **(Kauê)** `<ShareSheet />`: `Copy link` (auto-save), `Download PNG`, native `navigator.share` on mobile; deep link `/investigate?…`
+- [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
+- [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
+
+## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
+*Should first, then Could. Stop at 13:30 no matter what.*
+- [ ] **(Mylena)** **Should:** `<MethodsFile />` binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`, `04. Limitations`) + contextual "How do we know?" links from the dossier
+- [ ] **(Higor & Luis)** **Should:** Methods File text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records)
+- [ ] **(Kauê)** **Should:** OG meta tags (static image) for `/` and `/dossier/:id`
+- [ ] **(Mylena)** **Could:** `REVIEWED` seal on opened cards (`localStorage`)
+- [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
+- [ ] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI
+- [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations)
+- [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
+- [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
+
+**Won't (this hackathon):** 3D globe, daily data, extra NASA datasets, accounts/login, free-text notes.
 
 ---
 
-## 🗺️ Phase 2: "EarthTrend Detective" Noir Office UI, Map & Localization (Sat–Sun Morning)
-*Goal: Memorable first-person Detective Office UX (no character/avatar — the user IS the detective using real NASA data & math tools) before Sunday 09:00 UI Freeze.*
-
-- [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Detective Desk` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
-- [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
-- [ ] **(Mylena)** Build **The Evidence Corkboard**: clean polaroid/index-card preset cards (`Case #`, `Location`, `1-line mystery hook`, `variable badge`, & pin) connected by SVG red yarn/lines on desktop (degrading cleanly to a vertical pinned-card stack on mobile); clicking a pinned card brings `<ForensicDossier />` forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
-- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case Search)**: cluttered desk-paper aesthetic with a **"Case Intake Paper Form"** at the top (type city/place name or coordinates + variable/season/year filters) rendering the shared `<ForensicDossier />` component on aged-paper sheets directly below (with compact Leaflet dark-noir map pin & click-to-adjust, no heavy 3D globe)
-- [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: dedicated 3rd navigation tab styled as a declassified manila binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`)
-- [ ] **(Mylena)** Build forensic tool controls: environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep`), and year-range controls
-- [ ] **(Mylena)** Render interactive **Recharts** time-series chart inside `<ForensicDossier />` using a **Dark Slate forensic plot (`#161412`)** with amber observed line, crimson dashed Sen's Slope trendline, decadal delta, and anomaly highlights
-- [ ] **(Mylena)** Build the reusable **`<ForensicDossier />`** component with rubber-stamp verdict (`PROVEN TREND` vs `NO SIGNIFICANT TREND`), explicit `NASA POWER / MERRA-2` badge, and the 4 challenge answers:
-  1. *What is changing?*
-  2. *Where is it changing?*
-  3. *By how much?*
-  4. *Is it statistically significant?*
-- [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note, shareable `/dossier/:id` route, and **"Recent Case Files"** drawer (latest 10 saved dossiers)
-- [ ] **(Mylena)** Build **Climate Stripes ("Show Your Stripes"-inspired) Shareable Evidence Card**: annual anomaly stripes (against full-period mean; blue–red for temperature, amber–teal for precipitation/soil) inside a Noir Case Card with display toggles (`With Stats & Stamp` vs `Minimal Stripes`, `1:1` vs `9:16` Stories) and **1-click Download PNG** (`html-to-image` / Canvas)
-- [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate`, `/api/geocode`, and `/api/dossiers` endpoints, add thematic `"Decrypting NASA Telemetry..."` loader & error states, and hit **C3 UI Freeze (Sun 09:00)** for Higor & Luis
-
----
-
-## 🎬 Phase 3: Polish, Production Deploy, 30s Video & Pitch Prep (Sun 09:00–15:00)
-*Goal: Complete all deployment and media assets before Sunday 14:00 Code Freeze and 15:00 local deadline.*
-
-- [ ] **(Higor & Luis)** Attend HUBEE **Pitch Workshop (Sun 09:00–09:45)** and refine slides/delivery
-- [ ] **(Higor & Luis)** Capture **4–7 high-resolution UI screenshots (in English)** after UI Freeze for NASA portal & slides
-- [ ] **(Higor & Luis)** Record and edit the **Official 30-Second Pitch Video** (strictly `<= 30s`, English audio or PT-BR audio with hardcoded/CC English subtitles)
-- [ ] **(Higor & Luis)** Upload 30s video to YouTube (`Public` or `Unlisted`) on stable venue Wi-Fi and verify playback
-- [ ] **(Higor & Luis)** Finalize 5–7 slide deck in **PDF (PT-BR)** and save an **offline copy + offline demo/video backup** on the stage laptop
-- [ ] **(Higor & Luis & Stage Rep)** Rehearse the timed 3-minute local pitch at least 2 times
-- [ ] **(Kauê)** Promote `dev -> main`, deploy live demo to **Cloudflare Pages** (`*.pages.dev`) with D1 bound, and verify in incognito window (**C4 Code Freeze Sun 14:00**)
-- [ ] **(Kauê)** Add MIT `LICENSE` file and finalize `README.md` with screenshots, live demo URL, architecture overview, and explicit NASA dataset citations
-
----
-
-## 🏁 Phase 4: Local Pitch & Official NASA Submission (Sun Afternoon/Night)
-- [ ] **(All)** Submit local HUBEE deliverables (PDF slides + project link) between **15:00 and 15:30 UTC-4**
-- [ ] **(Stage Rep + Higor & Luis)** Deliver the 3-minute local pitch at HUBEE (**15:30–17:00 UTC-4**, 1 representative on stage, Art. 6.2)
-- [ ] **(All 4 Members)** Jointly verify public GitHub repo, live Cloudflare Pages URL, YouTube 30s video, screenshots, and English project fields, then submit on the NASA Space Apps portal before **Sunday 21:30 UTC-4**
+## 🎤 Pitch, Video & Submission Track (Higor & Luis — runs in parallel)
+- [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance)
+- [ ] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s board intro, 5–15s case + stamp slam, 15–25s live search, 25–30s impact + share card)
+- [ ] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
+- [ ] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
+- [ ] **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
+- [ ] **(Higor & Luis)** Capture 4–7 English UI screenshots after UI Freeze
+- [ ] **(Higor & Luis)** Record/edit the 30s video (≤ 30s, EN audio or PT audio + EN subtitles) and upload to YouTube; verify playback
+- [ ] **(Higor & Luis)** Final PDF slides (PT-BR) + offline copy of slides, demo video and screenshots on the stage laptop
+- [ ] **(Higor & Luis + Stage Rep)** Rehearse the 3-minute pitch at least twice
+- [ ] **(All)** Submit local HUBEE deliverables (15:00–15:30)
+- [ ] **(Stage Rep)** Deliver the 3-minute pitch (15:30–17:00)
+- [ ] **(All 4)** Verify repo, live URL, video, screenshots, English fields → submit on the NASA portal before Sun 21:30

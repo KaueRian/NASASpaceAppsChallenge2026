@@ -1,83 +1,169 @@
 # 🎨 Design System & UX Blueprint — EarthTrend Detective (`DESIGN.md`)
 
-> **Mandatory Reading for Frontend Developers & AI Agents:** Read this file alongside [`TASK.md`](TASK.md) and [`AGENTS.md`](AGENTS.md) before designing or editing any UI component.
+> **Mandatory reading for frontend developers & AI agents.** Read this file together with [`TASK.md`](TASK.md) and [`AGENTS.md`](AGENTS.md) before designing or editing any UI.
+> **This file overrides any external design skill, template, or generic style recommendation.**
+> Concept mockups live in [`docs/concepts/`](docs/concepts/) — they illustrate mood and layout; this file is the spec when they differ.
 
 ---
 
-## 1. Core Concept & Creative Direction
-- **Theme:** **Old New York Noir Detective Office** (inspired by **Abrams from Deadlock** — gritty, serious, warm brass-lit noir, **never** cartoonish).
-- **First-Person Immersion (No Character / Avatar):**
-  - There is **NO detective character** (no mascot, no face, no voice, no gender).
-  - **The user IS the detective**, using real NASA satellite telemetry and statistical forensics (`Mann-Kendall` & `Sen's Slope`) as investigative tools to prove or disprove climate trends.
-- **Desktop-First Visual Experience + Clean Mobile Adaptation:**
-  - Design the full spatial office experience for desktop/stage projectors (`>= 1024px`).
-  - Degrade cleanly to single-column vertical stacks on mobile (`< 768px`) with zero horizontal overflow (`overflow-x-hidden`).
+## 1. Core Concept
+
+- **Theme:** 1940s **Old New York film-noir detective office**. Inspiration: the gritty, brass-lit noir mood of *Abrams* (Deadlock). **Inspiration only — never use any asset, logo, font, or character from the game.**
+- **Serious and professional, never cartoonish.** It is a scientific tool wearing a noir coat.
+- **First-person, no character:** there is **no detective avatar, mascot, face, voice, or gender**. **The user IS the detective**; NASA data and statistics are their forensic tools.
+- **Core metaphor = legal evidence.** A statistical test does not "prove" anything; it weighs evidence. Our wording follows this exactly (see §5).
+- **Desktop-first visual experience** (stage projector, judges' laptops, 30s video) with a **clean responsive adaptation** for mobile (`< 768px`), zero horizontal overflow.
 
 ---
 
-## 2. Color Palette & Typography
+## 2. Surfaces, Color Tokens & Typography
 
-### Color Tokens
-| Role | Hex | Usage |
+### 2.1 Surface rule (projector-safe)
+**Dark room, light documents.** Backgrounds (room, corkboard, desk) are dark. **Everything that carries information (dossiers, forms, charts, cards) is printed on light aged paper with dark ink.** Light paper stays readable on washed-out projectors and survives YouTube compression.
+
+### 2.2 Color tokens (Tailwind names in backticks)
+| Token | Hex | Usage |
 |---|---|---|
-| **Espresso Charcoal** | `#12100E` | Primary app background / dark room ambiance |
-| **Dark Slate Plot** | `#161412` | Recharts plot panel & dark Leaflet map container |
-| **Aged Manila / Dossier** | `#1E1A16` / `#E8DFC8` | Dark dossier cards (`#1E1A16`) & aged-paper highlights/forms (`#E8DFC8` with `#1A1714` ink) |
-| **Brass Lamp Amber** | `#D49B42` | Active highlights, observed data line, primary accents, focus borders |
-| **Crimson Evidence Pin** | `#B9382C` | Corkboard pins, SVG red yarn lines, Sen's Slope dashed trendline, rubber stamps |
-| **Forensic Emerald** | `#2E8B57` | `PROVEN TREND` statistical significance badge (95% / 99% confidence) |
-| **Muted Slate** | `#7A736B` | `NO SIGNIFICANT TREND` badge, secondary metadata |
+| `room` | `#12100E` | App background, dark room |
+| `board` | `#2A211A` | Corkboard / desk wood surfaces (with subtle texture) |
+| `paper` | `#E8DFC8` | Dossiers, forms, chart backgrounds, cards |
+| `paper-dim` | `#D9CDB0` | Secondary paper, table stripes, inactive tabs |
+| `ink` | `#1A1714` | Primary text and observed data line on paper |
+| `ink-muted` | `#5C544A` | Secondary text on paper (≥ 4.5:1 on `paper`) |
+| `brass` | `#D49B42` | Lamp glow, focus rings, active tab, anomaly highlights |
+| `evidence` | `#B9382C` | Pins, yarn, stamps, Sen's Slope trend line. **Never for small body text on dark backgrounds.** |
+| `smoke` | `#9A928A` | Secondary text on dark `room` backgrounds |
 
-### Typography
-- **Stamps, Case IDs & Noir Headers:** Typewriter / Editorial Serif (`Special Elite`, `Courier Prime`, or `Playfair Display`) — used **sparingly** for Case # headers and ink stamps so readability stays high.
-- **UI Body & Controls:** Clean sans-serif (`Inter`).
-- **Coordinates, p-values, Z-scores & Metrics:** Monospace (`JetBrains Mono`) with tabular numerals.
-- **Textures:** Subtle CSS noise/paper grain and warm radial desk-lamp glow (`#D49B42` at low opacity) — **no heavy 3D/WebGL**.
+**Trend direction colors (separate from significance):**
+| Direction | Token | Hex |
+|---|---|---|
+| Warming | `dir-warm` | `#B9382C` |
+| Cooling | `dir-cool` | `#2F5D8A` |
+| Wetter | `dir-wet` | `#2E7D7A` |
+| Drier | `dir-dry` | `#B07A2A` |
 
----
+- **Significance** is shown by the stamp (§5). **Direction** is shown by an arrow + direction color. **Never rely on color alone** (always text + icon).
 
-## 3. Spatial Navigation & 3 Rooms (Header Tabs)
-Top Noir Header contains:
-1. **Brand:** `EarthTrend Detective`
-2. **Room Tabs:** `Evidence Corkboard` | `Detective Desk` | `Top Secret Manual`
-3. **Language Switcher:** `[ 🇺🇸 EN | 🇧🇷 PT ]` (auto-detects `localStorage` -> `navigator.language` -> `'en'`)
+### 2.3 Typography (exactly 3 families)
+| Family | Usage |
+|---|---|
+| `Playfair Display` | Headings, plain-language verdict sentence |
+| `Courier Prime` | Case IDs, labels, stamps, **all numbers / coordinates / p-values** (monospaced) |
+| `Inter` | UI controls and body text |
 
-### Room 1: `Evidence Corkboard` (Default Entry View)
-- **Desktop (`>= 1024px`):** Textured dark corkboard displaying the **5 Preset Case Studies** (Vilhena, Porto Velho, Ariquemes, Svalbard, Niamey) as **clean polaroid/index cards** (`Case #`, `Location`, `1-line mystery hook`, `variable badge`, and `red pin`), connected by **SVG red yarn/lines**.
-- **Mobile (`< 768px`):** Clean vertical stack of pinned cards (no tangled cross-screen SVG lines).
-- **Focus Interaction:** Clicking any pinned card pulls the shared `<ForensicDossier />` component **into foreground focus** while **dimming and blurring the corkboard behind it**.
-- **Initial Load:** **Case #01 (Vilhena, RO)** auto-opens in foreground focus on initial page load so judges immediately see live NASA data, with a prominent **1-click `"Return to Corkboard"`** button.
-
-### Room 2: `Detective Desk` (New Case & Custom Search)
-- **Aesthetic:** Cluttered old-NY desk papers (CSS paper layers, zero heavy 3D globe).
-- **Top of Desk (`Case Intake Paper Form`):**
-  - Search input to type any **city/region name** (resolved via `/api/geocode`) or **lat, lon coordinates**.
-  - Forensic filters: **Variable** (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), **Season** (`Annual`, `Oct–Mar`, `Apr–Sep`), and **Year Range** (`1981–2025`).
-  - **"Recent Case Files"** drawer/list showing the latest 10 saved public dossiers from Cloudflare D1.
-- **Below on the Desk:** Renders the **exact same `<ForensicDossier />`** component on aged-paper/noir dossier sheets, paired with a compact **CartoDB Dark Matter Leaflet map** showing the pinned coordinate (with click-to-adjust).
-
-### Room 3: `Top Secret Manual` (Methodology)
-- Styled as a **declassified manila binder** with 3 tabs:
-  1. `01. NASA Data` — `NASA POWER / MERRA-2` (`temporal/monthly/point`, `1981–2025`, `-999` handling)
-  2. `02. Mann-Kendall` — Non-parametric trend test (`S`-statistic, `Z`-score, `p`-value)
-  3. `03. Sen's Slope` — Robust median slope estimator & decadal rate of change
+### 2.4 Texture & motion
+- Subtle CSS paper grain / board texture and a warm radial lamp glow (`brass` at low opacity). **No 3D, no WebGL.**
+- All animations respect `prefers-reduced-motion` (show final state instantly).
 
 ---
 
-## 4. Shared `<ForensicDossier />` Component & Shareable Evidence Card
-Reused identically in **both** the Corkboard foreground overlay and below the Detective Desk form:
-1. **Thematic Loading State:** `"Decrypting NASA Telemetry..."` while fetching `/api/investigate`.
-2. **Rubber-Stamp Verdict & Attribution:** `PROVEN TREND` (`p < 0.05` / `p < 0.01`) vs `NO SIGNIFICANT TREND` stamp + explicit `NASA POWER / MERRA-2` citation badge.
-3. **The 4 Challenge Answers (i18n-translated from structured backend enums):**
-   - *What is changing?*
-   - *Where is it changing?*
-   - *By how much?* (Sen's Slope per year & per decade)
-   - *Is it statistically significant?*
-4. **Dark Slate Recharts Plot (`#161412`):**
-   - Observed annual/seasonal series in **Brass Amber (`#D49B42`)**.
-   - **Sen's Slope** trendline in **Crimson dashed (`#B9382C`)**.
-   - Highlighted extreme anomaly years (vs full-period `1981–2025` mean).
-5. **Show Your Stripes-Inspired Shareable Evidence Card (`showyourstripes.info`):**
-   - Annual anomaly vertical stripes (`blue -> crimson` for temperature; `amber -> teal/emerald` for precipitation/soil).
-   - Display toggles: `With Stats & Stamp` vs `Minimal Stripes`, and `1:1` (Square) vs `9:16` (Instagram Stories).
-   - **Actions:** `Download PNG` (1-click via `html-to-image` / Canvas) + `Save & Copy Dossier Link` (`/dossier/:id`).
+## 3. Navigation (Header)
+
+- **Left:** wordmark `EarthTrend Detective`.
+- **Center tabs (functional + thematic):**
+  | EN | PT |
+  |---|---|
+  | `Case Board` | `Quadro de Casos` |
+  | `New Investigation` | `Nova Investigação` |
+  | `Methods File` (with small "CLASSIFIED" seal) | `Arquivo de Métodos` |
+- **Right:** text language toggle `EN | PT` (**no flags**). Detection: `localStorage` → `navigator.language` → `'en'`.
+- **Mobile:** tabs move to a bottom navigation bar.
+- **Deep links:** `/?case=01`…`/?case=04`, `/investigate?lat=&lon=&var=&season=&from=&to=`, `/dossier/:id`.
+
+---
+
+## 4. Screens
+
+### 4.1 `Case Board` (home)
+- Dark textured corkboard with **exactly 4 case files** as clean polaroid/index cards, each showing: `Case #`, location, 1-line hook question, variable badge, red pin, and a `REVIEWED` seal once opened (`localStorage`).
+- **Default links:** crimson yarn connecting the 4 cards to each other.
+- **Experimental (try first, remove if cluttered):** a sepia paper world map pinned in the center (equirectangular SVG, linear lat/lon → x/y), with each card's yarn running to its location pin. Keep it behind a single flag/prop so it can be removed in one line.
+- **Opening sequence (~1.5 s):** board fades in → pins drop → yarn draws (`stroke-dashoffset`) → Case #01 pulses with a `START HERE` tag → Case #01 dossier opens automatically.
+- **Focus mode:** clicking a card opens the `<ForensicDossier />` in the foreground; the board dims + blurs behind it. `Esc`/backdrop/`← Back to Case Board` closes it; focus returns to the card.
+- **Mobile:** vertical stack of pinned cards (no yarn, no map); the dossier opens as a full-screen sheet.
+
+#### The 4 preset cases (hooks must be validated against real data before final copy)
+| # | Location | Variable | Default season | Draft hook |
+|---|---|---|---|---|
+| 01 | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | "Is the dry season getting drier?" |
+| 02 | Porto Velho, RO, Brazil | `GWETROOT` | Annual | "Is the Madeira basin soil drying out?" |
+| 03 | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | "Are tropical nights getting hotter?" |
+| 04 | Svalbard, Arctic | `T2M` | Annual | "How fast is the Arctic warming?" |
+
+- If a case returns `INSUFFICIENT EVIDENCE` with real data, keep **at most one** inconclusive case on purpose ("not every suspect is guilty") and reorder so the strongest case is #01.
+- If the user changes variable/season inside a preset, the dossier becomes a "Derived investigation from Case #0X" with a `Restore original case` button.
+
+### 4.2 `New Investigation`
+- Dark desk with decorative clutter **only at the edges** (papers, coffee ring, pen). The working area stays clean.
+- **Case Intake Form** (paper): location search with autocomplete (up to 5 candidates: city, state, country) **or** pasted `lat, lon`; selects for Variable, Season, Years; primary button `Open Investigation`.
+- **Leaflet map** next to the form for picking/adjusting the point (CartoDB tiles with a CSS `sepia + contrast + brightness` filter to match the era). Leaflet is used **only on this screen**.
+- The `<ForensicDossier />` renders below the form.
+- Year range: default full period; **minimum 15 years** (show a warning below that).
+
+### 4.3 `Methods File`
+- Declassified manila binder with tabs: `01. NASA Data` · `02. Mann-Kendall` · `03. Sen's Slope` · `04. Limitations`.
+- Plain-language first, formula second.
+- `Limitations` must mention: MERRA-2 reanalysis (~50 km grid, not a weather station), serial autocorrelation, and short-record caveats.
+- Every dossier answer links contextually here ("How do we know? → §02").
+
+---
+
+## 5. `<ForensicDossier />` (shared component)
+
+Used identically in Case Board focus mode, New Investigation, and `/dossier/:id`. Printed on `paper`.
+
+1. **Didactic loader (step by step):** `Requesting MERRA-2 archive…` → `Discarding missing readings (-999)…` → `Running Mann-Kendall test…` → `Estimating Sen's slope…`. Presets load instantly from static JSON.
+2. **Plain-language verdict sentence (top, i18n template):** e.g. *"Night-time minimum temperatures in Ariquemes rose +1.1 °C since 1981. Strong evidence (99% confidence)."* This is the most important element for non-experts and the video.
+3. **Verdict stamp ("stamp slam" animation: scale 1.4 → 1 with slight rotation):**
+   | Condition | EN | PT | Ink |
+   |---|---|---|---|
+   | p < 0.01 | `STRONG EVIDENCE` | `EVIDÊNCIA FORTE` | `evidence` |
+   | p < 0.05 | `EVIDENCE CONFIRMED` | `EVIDÊNCIA CONFIRMADA` | `evidence` |
+   | p ≥ 0.05 | `INSUFFICIENT EVIDENCE` | `EVIDÊNCIA INSUFICIENTE` | `ink-muted` |
+4. **The 4 challenge answers:**
+   - **What?** variable + unit
+   - **Where?** location label + coordinates + **static SVG mini-map** (same style as the board)
+   - **How much?** **headline = total change over the period** (e.g. `+1.1 °C since 1981`); secondary = per decade
+   - **Significant?** Mann-Kendall `p`, `Z`, confidence level, direction arrow
+5. **Chart (Recharts, on paper):** observed series in `ink`, Sen's Slope trend in dashed `evidence`, extreme anomalies (|z| > 1.5 vs full-period mean) as `brass` dots, units on axes. A text summary doubles as the chart's accessible description.
+6. **Climate stripes strip** at the bottom (see §6).
+7. **Attribution badge:** `Source: NASA POWER / MERRA-2` + data retrieval date.
+8. **Actions:** `Share` (opens share sheet) and `← Back`.
+
+### 5.1 Units & aggregation (must match the backend)
+| Variable | Unit shown | Annual / seasonal aggregation |
+|---|---|---|
+| `T2M`, `T2M_MIN` | °C | Mean of monthly values |
+| `PRECTOTCORR` | mm (total) | **Sum** of (monthly mm/day × days in month) |
+| `GWETROOT` | Soil Wetness Index (0–100 %) | Mean of monthly values × 100 |
+
+- Seasons are labeled **by months only** (`Annual`, `Oct–Mar`, `Apr–Sep`). Oct–Mar is labeled `2024/25`. Incomplete seasons are dropped.
+- Numbers use `Intl.NumberFormat` per locale (`1.2` EN / `1,2` PT).
+
+### 5.2 States
+- Errors (themed but clear): NASA timeout/unavailable, all values `-999` (e.g. `GWETROOT` over ocean → "No evidence available for this variable here"), geocoding no result, invalid coordinates.
+- Empty states for search and lists.
+
+---
+
+## 6. Share Flow & Evidence Card
+
+- **One `Share` button** → share sheet with: `Copy link` (auto-saves the dossier to D1), `Download PNG`, and native `Share…` on mobile (`navigator.share` with file, when supported).
+- **Evidence Card** (inspired by *Show Your Stripes*, showyourstripes.info), exactly **2 variants**:
+  1. **Story 9:16 (with stats):** case title, full-width yearly stripes, total change headline, verdict stamp, NASA credit, QR code + short URL.
+  2. **Square 1:1 (minimal stripes):** stripes + location + years + small credit.
+- Stripe palettes: temperature `dir-cool → dir-warm`; precipitation/soil `dir-dry → dir-wet`. Centered on the full-period mean.
+- `/dossier/:id` page: read-only dossier + CTA "Open your own investigation". Static OG image for link previews.
+- **No free-text fields are ever stored or displayed publicly.**
+
+---
+
+## 7. Accessibility Checklist
+- WCAG AA contrast for all text (`ink` on `paper`, `smoke` on `room`).
+- Modal focus trap, `Esc` closes, focus returns to trigger.
+- All cards and tabs keyboard-navigable; visible `brass` focus ring.
+- Never color-only meaning (text + arrow + stamp).
+- `prefers-reduced-motion` respected.
+
+## 8. Component Inventory
+`<AppHeader />` · `<LanguageToggle />` · `<CaseBoard />` · `<CaseCard />` · `<YarnLayer />` · `<PaperWorldMap />` (experimental) · `<ForensicDossier />` · `<VerdictStamp />` · `<TrendChart />` · `<MiniMap />` · `<ClimateStripes />` · `<DidacticLoader />` · `<IntakeForm />` · `<LocationSearch />` · `<PickerMap />` (Leaflet) · `<ShareSheet />` · `<EvidenceCard />` · `<MethodsFile />`
