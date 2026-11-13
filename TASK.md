@@ -95,12 +95,12 @@
 
 - [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Detective Desk` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
-- [ ] **(Mylena)** Build **The Evidence Corkboard**: pinned preset case cards connected by SVG red yarn/lines on desktop (degrading cleanly to a vertical pinned-card stack on mobile); clicking a pinned card brings the case forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
-- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case Search)**: cluttered desk-paper aesthetic with a **"Case Intake Paper Form"** at the top (type city/place name or coordinates + variable/season/year filters) and the **Forensic Report, Recharts & compact Leaflet dark-noir map pin** appearing on aged-paper dossier sheets directly below (supporting click-on-map adjustment too, no heavy 3D globe)
-- [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: declassified folder view explaining **NASA POWER / MERRA-2** data, **Mann-Kendall**, and **Sen's Slope** formulas
+- [ ] **(Mylena)** Build **The Evidence Corkboard**: clean polaroid/index-card preset cards (`Case #`, `Location`, `1-line mystery hook`, `variable badge`, & pin) connected by SVG red yarn/lines on desktop (degrading cleanly to a vertical pinned-card stack on mobile); clicking a pinned card brings `<ForensicDossier />` forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
+- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case Search)**: cluttered desk-paper aesthetic with a **"Case Intake Paper Form"** at the top (type city/place name or coordinates + variable/season/year filters) rendering the shared `<ForensicDossier />` component on aged-paper sheets directly below (with compact Leaflet dark-noir map pin & click-to-adjust, no heavy 3D globe)
+- [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: dedicated 3rd navigation tab styled as a declassified manila binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`)
 - [ ] **(Mylena)** Build forensic tool controls: environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep`), and year-range controls
-- [ ] **(Mylena)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights on aged-paper/noir forensic styling
-- [ ] **(Mylena)** Build the **"Forensic Case Dossier"** card with rubber-stamp verdict (`PROVEN TREND` vs `NO SIGNIFICANT TREND`), explicit `NASA POWER / MERRA-2` badge, and the 4 challenge answers:
+- [ ] **(Mylena)** Render interactive **Recharts** time-series chart inside `<ForensicDossier />` using a **Dark Slate forensic plot (`#161412`)** with amber observed line, crimson dashed Sen's Slope trendline, decadal delta, and anomaly highlights
+- [ ] **(Mylena)** Build the reusable **`<ForensicDossier />`** component with rubber-stamp verdict (`PROVEN TREND` vs `NO SIGNIFICANT TREND`), explicit `NASA POWER / MERRA-2` badge, and the 4 challenge answers:
   1. *What is changing?*
   2. *Where is it changing?*
   3. *By how much?*
