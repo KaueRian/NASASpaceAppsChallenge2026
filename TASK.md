@@ -81,10 +81,10 @@
 - [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
 - [ ] **(All)** Decide the stage representative (Art. 6.2)
 - [ ] **(Kauê)** Invite Mylena, Higor & Luis as collaborators; enable branch protection on `main`
-- [ ] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
-- [ ] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
+- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
+- [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
 - [ ] **(Kauê)** Create Cloudflare Pages project (`earthtrend-detective`) and deploy the shell to production
-- [ ] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
+- [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
 - [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
 - [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
 - [ ] **(Higor & Luis)** Review NASA judging criteria + HUBEE rules; create `docs/submission/` and the Canva/Drive workspace
