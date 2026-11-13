@@ -21,7 +21,10 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
 - *(Exception: The application UI itself supports both `en` and `pt` via i18n dictionaries, and local Vilhena pitch slides may be exported in PT-BR).*
 
 ### 3. Git & GitHub Best Practices
-- **Branching:** Prefer short-lived feature branches (`feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`) or clearly separated module ownership when working in parallel.
+- **Branching (`feature/*` -> `dev` -> `main`):**
+  - **NEVER commit directly to `main` (or `dev`).**
+  - Always create short-lived feature branches from `dev` (`feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`), merge them into `dev` once complete, and promote `dev` -> `main` for stable releases/deploys.
+  - Keep module ownership clearly separated when working in parallel.
 - **Conventional Commits:** Always use clear, lowercase Conventional Commit messages in English:
   - `feat: add Mann-Kendall statistical significance test`
   - `fix: handle missing values in NASA POWER API response`

@@ -13,10 +13,10 @@
    - `[ ]` Pending
    - `[~] (<Name>)` In progress (claim it before editing!)
    - `[x]` Done
-3. **Branching & PR Flow (Zero Conflict):**
-   - `main` is always clean and deployable (connected to Cloudflare Pages).
-   - Work on short-lived feature branches (`feat/stats-engine`, `feat/map-ui`, etc.), then merge into `main`.
-   - Separate file ownership: `Kauê` owns `functions/api/`, `db/`, and `tests/`; `Dev 2` owns `src/components/`, `src/locales/`, and `src/pages/`. Both share `src/types/investigation.ts`.
+3. **Branching & PR Flow (`feature/*` -> `dev` -> `main`):**
+   - **NEVER commit directly to `main`.** `main` is strictly for tested, deployable releases (promoted from `dev`).
+   - Always branch off `dev` using short-lived feature branches (`feat/stats-engine`, `feat/map-ui`, `docs/gitflow`, etc.), merge back into `dev`, and then merge `dev` -> `main`.
+   - Separate file ownership: `Kauê` owns `functions/api/`, `d1/`, and `tests/`; `Dev 2` owns `src/components/`, `src/locales/`, and `src/pages/`. Both share `src/types/investigation.ts`.
 4. **English Only:** Keep all tasks, code, comments, docs, and commit messages in English.
 
 ---
@@ -24,6 +24,7 @@
 ## 🚀 Phase 0: Setup & Pre-Event
 - [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS (`KaueRian/NASASpaceAppsChallenge2026`)
 - [x] **(Kauê)** Create repository governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, English `README.md`)
+- [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
 - [x] **(Both)** Finalize architecture & stack (Cloudflare Pages + Hono + D1 SQLite + React/Vite/Tailwind + Leaflet + Recharts)
 - [ ] **(Kauê)** Scaffold single-project structure (`package.json`, Vite + React + Tailwind, Wrangler/Pages Functions, Vitest)
 - [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (Request/Response types for both devs)
