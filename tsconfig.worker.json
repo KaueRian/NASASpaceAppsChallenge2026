@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["functions", "src/types", "src/lib"]
+  "include": ["src/worker", "src/types", "src/lib"]
 }

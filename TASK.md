@@ -6,7 +6,7 @@
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
 > **Slides / Media Workspace (Canva / Drive):** `TBD — Add link here`  
 > **Stage Representative (Art. 6.2 — 1 person on stage):** `TBD — Decide Saturday morning`  
-> **Tech Stack:** React + Vite + Tailwind CSS + Recharts + Leaflet | Cloudflare Pages & Pages Functions (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
+> **Tech Stack:** React + Vite + Tailwind CSS + Recharts + Leaflet | Cloudflare Workers + Static Assets (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
 > **Design Spec:** [`DESIGN.md`](DESIGN.md) · **Concept mockups:** [`docs/concepts/`](docs/concepts/)
 
 ---
@@ -14,7 +14,7 @@
 ## 👥 Team Roster & Ownership
 | Member | Role | Owned Paths / Assets |
 |---|---|---|
-| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `functions/api/`, `d1/`, `tests/`, `.github/`, `wrangler.toml`, `src/components/share/` |
+| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.toml`, `src/components/share/` |
 | **Mylena** (`Dev 2`) | Frontend UI: Case Board, Dossier, New Investigation, Methods File layout, i18n wiring | `src/components/` (except `share/`), `src/pages/`, `src/styles/` |
 | **Higor & Luis** | **All product copy** (hooks, microcopy, Methods File text, EN + PT), logo/OG image, pitch, slides, 30s video, submission | `src/locales/` (text content), `docs/submission/`, `public/brand/` + external Canva/Drive |
 | **Shared Contract** | Frontend ↔ Backend TypeScript types | `src/types/investigation.ts` |
@@ -25,7 +25,7 @@
 **Every release ends with a working product on `main`.** If time runs out at any moment, we present the latest release on `main`.
 
 1. Work **top-down**: finish the current release before starting the next one (helping the other dev counts).
-2. At the end of each release: CI green → merge `dev -> main` → Cloudflare Pages production deploy → smoke test in incognito → tick the release box.
+2. At the end of each release: CI green → merge `dev -> main` → Cloudflare Workers production deploy → smoke test in incognito → tick the release box.
 3. Each release is a complete demo by itself. Later releases only **add** to it; they never leave `main` broken.
 
 | Release | Target (UTC-4) | What judges can see if we stop here |
@@ -60,7 +60,7 @@
 2. **Status Legend:** `[ ]` Pending | `[~] (<Name>)` In progress (claim before editing!) | `[x]` Done
 3. **Branching (`feature/*` -> `dev` -> `main`):** never commit directly to `main`; `main` only receives release merges from `dev`.
 4. **TDD** for critical logic (stats, aggregation, `-999` filtering, validation) — see [`AGENTS.md`](AGENTS.md).
-5. **Local Dev:** `npm` (Node 20+) + `wrangler pages dev` + local D1 (no Cloudflare login needed for Mylena).
+5. **Local Dev:** `npm` (Node 20+) + `wrangler dev` + local D1 (no Cloudflare login needed for Mylena).
 6. **English only in repo** (UI strings live in `src/locales/en.json` and `src/locales/pt.json`; `docs/submission/` may contain the PT-BR pitch script).
 
 ---
@@ -81,9 +81,10 @@
 - [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
 - [ ] **(All)** Decide the stage representative (Art. 6.2)
 - [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
-- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
+- [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.toml`, Vitest, Biome)
+- [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
-- [ ] **(Kauê)** Create Cloudflare Pages project (`earthtrend-detective`) and deploy the shell to production
+- [ ] **(Kauê)** Create Cloudflare Worker (`earthtrend-detective`) connected to GitHub and deploy the shell to production
 - [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
 - [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
 - [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
