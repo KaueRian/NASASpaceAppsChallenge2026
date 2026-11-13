@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "earthtrend-detective",
+  "name": "nasaspaceappschallenge2026",
   "main": "src/worker/index.ts",
   "compatibility_date": "2025-10-01",
   "assets": {
