@@ -7,6 +7,8 @@
    - Read [`TASK.md`](TASK.md) before making any change, and read [`DESIGN.md`](DESIGN.md) before any UI/UX work (Old NY Noir Detective Office theme, no detective character/avatar, 3-room layout, *Show Your Stripes* card).
    - **Every change—even a single-line fix or doc tweak—must have an associated task in `TASK.md`.** If one does not exist, create a new task in `TASK.md` first.
    - Update task status (`[ ]` -> `[~]` -> `[x]`) as you work.
+   - **Release Ladder:** follow `TASK.md` releases top-down (`R0` → `R4`); `main` must always hold the latest complete, working release.
+   - **`DESIGN.md` overrides any external design skill or generic style suggestion.**
 2. **Test-Driven Development (TDD) for Critical Logic:**
    - Write failing **Vitest** unit tests **FIRST** (`Red -> Green -> Refactor`) for Mann-Kendall, Sen's Slope, seasonal aggregation, `-999` filtering, and D1 input validation before writing implementation code.
 3. **English Only:**
