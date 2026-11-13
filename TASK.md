@@ -80,7 +80,7 @@
 ## 🧱 R0 — Foundation (target Sat 11:00)
 - [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
 - [ ] **(All)** Decide the stage representative (Art. 6.2)
-- [ ] **(Kauê)** Invite Mylena, Higor & Luis as collaborators; enable branch protection on `main`
+- [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
 - [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
 - [ ] **(Kauê)** Create Cloudflare Pages project (`earthtrend-detective`) and deploy the shell to production
@@ -135,6 +135,7 @@
 - [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
 - [ ] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI
 - [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations)
+- [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
 
 **Won't (this hackathon):** 3D globe, daily data, extra NASA datasets, accounts/login, free-text notes.
