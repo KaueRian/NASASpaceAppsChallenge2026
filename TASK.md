@@ -73,7 +73,7 @@
 - [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow
 - [x] **(All)** Finalize architecture, stack, and whole-team roadmap
 - [x] **(Kauê)** UI/UX audit v2: evidence-based verdicts, light-paper surfaces, 4 cases, release ladder, copy ownership to Higor & Luis
-- [ ] **(Kauê)** Generate UI concept mockups and commit them to `docs/concepts/`
+- [x] **(Kauê)** Generate UI concept mockups and commit them to `docs/concepts/`
 
 ---
 
