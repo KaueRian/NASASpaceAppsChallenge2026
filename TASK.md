@@ -60,7 +60,7 @@
 - [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (i18n-first structured metrics + enum keys so backend never hardcodes prose; Request/Response, Presets, Season modes, Dossier types)
 - [ ] **(Kauê)** Configure Cloudflare D1 schema (`d1/schema.sql`) for NASA API cache (`nasa_cache`) and shareable Dossiers (`dossiers`)
 - [ ] **(Kauê)** Smoke-test **NASA POWER API** `temporal/monthly/point` endpoint for Vilhena (`lat=-12.74, lon=-60.14`) and verify `-999` sentinel handling
-- [ ] **(Mylena)** Set up dark investigative UI theme and i18n dictionaries (`src/locales/en.json`, `src/locales/pt.json`)
+- [ ] **(Mylena)** Set up **Old NY Noir Detective Office** theme (espresso charcoal `#12100E`, brass amber `#D49B42`, crimson pins `#B9382C`, aged-paper dossier accents, CSS grain, legible mono/sans for data) and i18n dictionaries (`src/locales/en.json`, `src/locales/pt.json`)
 - [ ] **(Higor & Luis)** Review official NASA judging criteria (`Impact`, `Creativity`, `Validity`, `Relevance`, `Presentation`) and HUBEE local rules, and create `docs/submission/` + external Canva/Drive link
 
 ---
@@ -89,20 +89,21 @@
 
 ---
 
-## 🗺️ Phase 2: "EarthTrend Detective" UI, Map & Localization (Sat–Sun Morning)
-*Goal: Engaging investigative UX, interactive dark map, and seamless bilingual support before Sunday 09:00 UI Freeze.*
+## 🗺️ Phase 2: "EarthTrend Detective" Noir Office UI, Map & Localization (Sat–Sun Morning)
+*Goal: Memorable first-person Detective Office UX (no character/avatar — the user IS the detective using real NASA data & math tools) before Sunday 09:00 UI Freeze.*
 
-- [ ] **(Mylena)** Build Header with **"EarthTrend Detective"** branding and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
+- [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Desk Map` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
-- [ ] **(Mylena)** Integrate **Leaflet (`react-leaflet`)** with CartoDB Dark Matter tiles, auto-loading **Case #01 (Vilhena, RO)** on initial page load + click-to-investigate anywhere on Earth (displaying preset name or formatted coordinates)
-- [ ] **(Mylena)** Add the 5 preset Case Study pins on the map (3 Rondônia + 2 Global) with quick-jump selector cards
-- [ ] **(Mylena)** Build environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep` with clear hemisphere/RO labels), and year-range controls
-- [ ] **(Mylena)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights
-- [ ] **(Mylena)** Build the **"Investigative Dossier / Forensic Report"** card answering the 4 challenge questions + explicit NASA dataset citation badge (`NASA POWER / MERRA-2`):
+- [ ] **(Mylena)** Build **The Evidence Corkboard**: pinned preset case cards connected by SVG red yarn/lines; clicking a pinned card brings the case forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
+- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case / Custom Investigation)**: cluttered desk-paper aesthetic housing the interactive **Leaflet (`react-leaflet`)** CartoDB Dark Matter map + 5 preset pins + click-anywhere-on-Earth or coordinate search
+- [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: declassified folder view explaining **NASA POWER / MERRA-2** data, **Mann-Kendall**, and **Sen's Slope** formulas
+- [ ] **(Mylena)** Build forensic tool controls: environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep`), and year-range controls
+- [ ] **(Mylena)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights on aged-paper/noir forensic styling
+- [ ] **(Mylena)** Build the **"Forensic Case Dossier"** card with rubber-stamp verdict (`PROVEN TREND` vs `NO SIGNIFICANT TREND`), explicit `NASA POWER / MERRA-2` badge, and the 4 challenge answers:
   1. *What is changing?*
   2. *Where is it changing?*
   3. *By how much?*
-  4. *Is it statistically significant? ("Proven Trend" vs. "No Significant Trend" badge)*
+  4. *Is it statistically significant?*
 - [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note and shareable `/dossier/:id` route
 - [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints, test loading/error states, and hit **C3 UI Freeze (Sun 09:00)** for Higor & Luis
 
