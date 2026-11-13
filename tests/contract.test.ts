@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { app } from "../functions/api/[[route]]";
 import {
   CASE_PRESET_IDS,
   MIN_ANALYSIS_YEARS,
@@ -8,6 +7,7 @@ import {
   VARIABLE_IDS,
   VARIABLE_UNIT_MAP,
 } from "../src/types/investigation";
+import { app } from "../src/worker/index";
 
 describe("R0 shared contract and API health", () => {
   it("defines the 4 locked variables and canonical units", () => {
