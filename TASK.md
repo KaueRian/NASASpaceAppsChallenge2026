@@ -20,7 +20,7 @@
    - **NEVER commit directly to `main`.** `main` is strictly for tested, deployable releases (promoted from `dev`).
    - Always branch off `dev` using short-lived feature branches (`feat/stats-engine`, `feat/map-ui`, `docs/gitflow`, etc.), merge back into `dev` via PR (or after CI passes), and then merge `dev` -> `main`.
    - Separate file ownership: `Kauê` owns `functions/api/`, `d1/`, `.github/`, and `tests/`; `Mylena` owns `src/components/`, `src/locales/`, and `src/pages/`. Both share `src/types/investigation.ts`.
-4. **Local Dev Standard:** Unified full-stack local dev using `wrangler pages dev` + local Cloudflare D1 SQLite.
+4. **Local Dev Standard:** Unified full-stack local dev using `npm` (Node 20+) + `wrangler pages dev` + local Cloudflare D1 SQLite (no Cloudflare login required for Mylena to run locally).
 5. **English Only:** Keep all tasks, code, comments, docs, and commit messages in English.
 
 ---
@@ -33,9 +33,9 @@
 - [ ] **(Kauê)** Invite **Mylena** as collaborator on `KaueRian/NASASpaceAppsChallenge2026` (add GitHub handle once confirmed)
 - [ ] **(Kauê)** Enable GitHub branch protection on `main` (block direct pushes; require PR from `dev`)
 - [ ] **(Kauê)** Authenticate Wrangler CLI, create Cloudflare D1 database (`earthtrend-db`), and create Cloudflare Pages project (`earthtrend-detective`)
-- [ ] **(Kauê)** Scaffold single-project structure (`package.json`, Vite + React + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
+- [ ] **(Kauê)** Scaffold single-project structure (`package.json` with `npm`/Node 20+, Vite + React + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
 - [ ] **(Kauê)** Set up GitHub Actions CI workflow (`.github/workflows/ci.yml`) running Biome lint, `tsc --noEmit`, and `vitest` on PRs to `dev` and `main`
-- [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (Request/Response, Presets, Season modes, Dossier types)
+- [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (i18n-first structured metrics + enum keys so backend never hardcodes prose; Request/Response, Presets, Season modes, Dossier types)
 - [ ] **(Kauê)** Configure Cloudflare D1 schema (`d1/schema.sql`) for NASA API cache (`nasa_cache`) and shareable Dossiers (`dossiers`)
 - [ ] **(Kauê)** Smoke-test **NASA POWER API** historical endpoint for Vilhena (`lat=-12.74, lon=-60.14`) and verify `-999` sentinel handling
 - [ ] **(Mylena)** Set up dark investigative UI theme and i18n dictionaries (`src/locales/en.json`, `src/locales/pt.json`)
@@ -45,9 +45,9 @@
 ## 🔬 Phase 1: Data Ingestion & Statistical Forensics Engine (`functions/api/` & `tests/`)
 *Goal: Guarantee scientific rigor for NASA's `Validity` and `Best Use of Science` criteria.*
 
-- [ ] **(Kauê)** Build **NASA POWER API** historical fetcher (1981–latest full year: `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) with timeout/retry handling and `-999` missing-value filtering
-- [ ] **(Kauê)** Implement temporal aggregator supporting **Annual**, **Wet Season (Oct–Apr)**, and **Dry Season (May–Sep)** series
-- [ ] **(Kauê)** Implement Cloudflare D1 caching layer so repeated or preset queries return in `<50ms`
+- [ ] **(Kauê)** Build **NASA POWER API** `temporal/monthly/point` historical fetcher (1981–latest full year: `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) with timeout/retry handling and `-999` missing-value filtering
+- [ ] **(Kauê)** Implement temporal aggregator supporting **Annual**, **Oct–Mar (`ONDJFM`, Wet in RO)**, and **Apr–Sep (`AMJJAS`, Dry in RO)** series
+- [ ] **(Kauê)** Implement Cloudflare D1 caching layer keyed by `(round(lat, 2), round(lon, 2), variable)` for raw monthly series so season/year-range changes recalculate in `<1ms` and repeated queries return in `<50ms`
 - [ ] **(Kauê)** Implement **Sen's Slope Estimator** (annual & decadal rate of change) in TypeScript
 - [ ] **(Kauê)** Implement **Mann-Kendall Trend Test** (S-statistic, Z-score, p-value for 95%/99% significance) in TypeScript
 - [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall, Sen's Slope, seasonal aggregation, and `-999` filtering against known reference datasets
@@ -67,9 +67,9 @@
 
 - [ ] **(Mylena)** Build Header with **"EarthTrend Detective"** branding and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
-- [ ] **(Mylena)** Integrate **Leaflet (`react-leaflet`)** with CartoDB Dark Matter tiles + click-to-investigate anywhere on Earth
+- [ ] **(Mylena)** Integrate **Leaflet (`react-leaflet`)** with CartoDB Dark Matter tiles, auto-loading **Case #01 (Vilhena, RO)** on initial page load + click-to-investigate anywhere on Earth (displaying preset name or formatted coordinates)
 - [ ] **(Mylena)** Add the 5 preset Case Study pins on the map (3 Rondônia + 2 Global) with quick-jump selector cards
-- [ ] **(Mylena)** Build environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Wet` / `Dry`), and year-range controls
+- [ ] **(Mylena)** Build environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep` with clear hemisphere/RO labels), and year-range controls
 - [ ] **(Mylena)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights
 - [ ] **(Mylena)** Build the **"Investigative Dossier / Forensic Report"** card answering the 4 challenge questions + explicit NASA dataset citation badge (`NASA POWER / MERRA-2`):
   1. *What is changing?*
@@ -77,7 +77,7 @@
   3. *By how much?*
   4. *Is it statistically significant? ("Proven Trend" vs. "No Significant Trend" badge)*
 - [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note and shareable `/dossier/:id` route
-- [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints and test loading/error states
+- [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints, test loading/error states, and freeze core demo UI for **Higor & Luis** to capture screenshots & 30s video
 
 ---
 
