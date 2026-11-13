@@ -1,4 +1,4 @@
-import type { ConfidenceLevel } from "../../types/investigation";
+import type { ConfidenceLevel } from "../../types/investigation.ts";
 
 export interface MannKendallResult {
   s: number;

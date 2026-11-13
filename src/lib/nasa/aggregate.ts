@@ -3,7 +3,7 @@ import {
   NASA_MISSING_VALUE,
   type SeasonId,
   type VariableId,
-} from "../../types/investigation";
+} from "../../types/investigation.ts";
 
 export interface MonthlyReading {
   year: number;

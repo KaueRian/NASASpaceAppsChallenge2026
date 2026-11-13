@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:cf": "npm run build && wrangler dev",
     "build": "vite build",
+    "build:presets": "node --experimental-strip-types scripts/build-presets.ts",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "lint": "biome check .",
