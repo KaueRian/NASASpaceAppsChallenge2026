@@ -74,9 +74,9 @@
 - [ ] **(Kauê)** Implement **Sen's Slope Estimator** (annual & decadal rate of change) in TypeScript
 - [ ] **(Kauê)** Implement **Mann-Kendall Trend Test** (S-statistic, Z-score, p-value for 95%/99% significance) in TypeScript
 - [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall, Sen's Slope, seasonal aggregation, and `-999` filtering against known reference datasets
-- [ ] **(Kauê)** Implement `GET /api/investigate` Hono endpoint returning time-series, trend stats, anomalies, and NASA citation metadata
+- [ ] **(Kauê)** Implement `GET /api/investigate` Hono endpoint returning time-series, anomalies (against **full-period 1981–2025 mean** baseline), trend stats, and NASA citation metadata
 - [ ] **(Kauê)** Implement `GET /api/geocode` Hono endpoint (wrapping Open-Meteo Geocoding API) to resolve typed city/region names into `(lat, lon)` + location label
-- [ ] **(Kauê)** Implement `POST /api/dossiers` and `GET /api/dossiers/:id` in Hono + D1 (saving coordinates, label, variable, season, year range, investigator note, and stats snapshot)
+- [ ] **(Kauê)** Implement `POST /api/dossiers`, `GET /api/dossiers` (latest 10 public case files), and `GET /api/dossiers/:id` in Hono + D1 with input validation (coordinate bounds, max note length, sanitized fields)
 - [ ] **(Kauê)** Pre-seed D1 cache for **5 Pre-loaded Case Studies (3 Regional + 2 Global)** so demo loads instantaneously even on slow venue Wi-Fi:
   - [ ] *Case #01 (Vilhena, RO):* Rainy season onset / precipitation shift (`PRECTOTCORR`, Southern Cone of Rondônia)
   - [ ] *Case #02 (Porto Velho, RO):* Extreme drought & root-zone soil wetness trend (`GWETROOT`, Madeira River Basin)
@@ -95,7 +95,7 @@
 
 - [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Detective Desk` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
-- [ ] **(Mylena)** Build **The Evidence Corkboard**: pinned preset case cards connected by SVG red yarn/lines; clicking a pinned card brings the case forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
+- [ ] **(Mylena)** Build **The Evidence Corkboard**: pinned preset case cards connected by SVG red yarn/lines on desktop (degrading cleanly to a vertical pinned-card stack on mobile); clicking a pinned card brings the case forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
 - [ ] **(Mylena)** Build **The Messy Detective Desk (New Case Search)**: cluttered desk-paper aesthetic with a **"Case Intake Paper Form"** at the top (type city/place name or coordinates + variable/season/year filters) and the **Forensic Report, Recharts & compact Leaflet dark-noir map pin** appearing on aged-paper dossier sheets directly below (supporting click-on-map adjustment too, no heavy 3D globe)
 - [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: declassified folder view explaining **NASA POWER / MERRA-2** data, **Mann-Kendall**, and **Sen's Slope** formulas
 - [ ] **(Mylena)** Build forensic tool controls: environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep`), and year-range controls
@@ -105,9 +105,9 @@
   2. *Where is it changing?*
   3. *By how much?*
   4. *Is it statistically significant?*
-- [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note and shareable `/dossier/:id` route
-- [ ] **(Mylena)** Build **Climate Stripes ("Show Your Stripes"-inspired) Shareable Evidence Card**: annual anomaly stripes (blue–red for temperature; amber–teal for precipitation/soil) inside a Noir Case Card with display toggles (`With Stats & Stamp` vs `Minimal Stripes`, `1:1` vs `9:16` Stories) and **1-click Download PNG** (`html-to-image` / Canvas)
-- [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints, test loading/error states, and hit **C3 UI Freeze (Sun 09:00)** for Higor & Luis
+- [ ] **(Mylena)** Add "Save & Share Dossier" modal/button with optional investigator note, shareable `/dossier/:id` route, and **"Recent Case Files"** drawer (latest 10 saved dossiers)
+- [ ] **(Mylena)** Build **Climate Stripes ("Show Your Stripes"-inspired) Shareable Evidence Card**: annual anomaly stripes (against full-period mean; blue–red for temperature, amber–teal for precipitation/soil) inside a Noir Case Card with display toggles (`With Stats & Stamp` vs `Minimal Stripes`, `1:1` vs `9:16` Stories) and **1-click Download PNG** (`html-to-image` / Canvas)
+- [ ] **(Kauê & Mylena)** Connect frontend UI to `/api/investigate`, `/api/geocode`, and `/api/dossiers` endpoints, add thematic `"Decrypting NASA Telemetry..."` loader & error states, and hit **C3 UI Freeze (Sun 09:00)** for Higor & Luis
 
 ---
 
