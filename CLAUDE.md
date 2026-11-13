@@ -10,6 +10,7 @@
 2. **English Only:**
    - All code, comments, documentation, commit messages, branch names, and PR descriptions in this repository MUST be written in **English**.
 3. **Git & GitHub Best Practices:**
+   - **Branching (`feature/*` -> `dev` -> `main`):** Never commit directly to `main`. Branch from `dev` (`feat/*`, `fix/*`, `docs/*`), merge into `dev`, and promote `dev` -> `main` for production deploys.
    - Use **Conventional Commits** (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
    - Work in small, atomic commits and avoid editing files owned by the other developer without coordination.
    - Never commit secrets (`.env*`), dependencies (`node_modules/`, `.venv/`), or build artifacts.
