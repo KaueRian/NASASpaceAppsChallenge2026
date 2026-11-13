@@ -2,34 +2,39 @@
 
 > **Challenge:** `Be An Earth System Trend Detective!` (NASA Space Apps Challenge 2026 — Vilhena, RO, Brazil)  
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
-> **Tech Stack:** React + Vite + Tailwind CSS + Leaflet + Recharts | Cloudflare Pages & Pages Functions (Hono + TypeScript) | Cloudflare D1 (SQLite)  
-> **Developers:** **Kauê** (`Dev 1 — Backend, NASA Data & Stats`) & **Teammate** (`Dev 2 — Frontend, Map, Charts & i18n`)
+> **Tech Stack:** React + Vite + Tailwind CSS + Leaflet + Recharts | Cloudflare Pages & Pages Functions (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
+> **Developers:** **Kauê** (`Dev 1 — Backend, NASA Data, Stats & Infra`) & **Dev 2 (`TBD — Add Name & GitHub Handle`)** (`Frontend, Map, Charts & i18n`)
 
 ---
 
 ## 🤝 Multi-Dev Collaboration & Git Workflow
-1. **Task-Driven Rule:** Every code, doc, or config change—no matter how small—must map to a task in this file. If a task does not exist yet, add it here before starting work.
+1. **Task-Driven Rule (Single Source of Truth):** Every code, doc, or config change—no matter how small—must map to a task in this file. If a task does not exist yet, add it here before starting work.
 2. **Status Legend:**
    - `[ ]` Pending
    - `[~] (<Name>)` In progress (claim it before editing!)
    - `[x]` Done
 3. **Branching & PR Flow (`feature/*` -> `dev` -> `main`):**
    - **NEVER commit directly to `main`.** `main` is strictly for tested, deployable releases (promoted from `dev`).
-   - Always branch off `dev` using short-lived feature branches (`feat/stats-engine`, `feat/map-ui`, `docs/gitflow`, etc.), merge back into `dev`, and then merge `dev` -> `main`.
-   - Separate file ownership: `Kauê` owns `functions/api/`, `d1/`, and `tests/`; `Dev 2` owns `src/components/`, `src/locales/`, and `src/pages/`. Both share `src/types/investigation.ts`.
-4. **English Only:** Keep all tasks, code, comments, docs, and commit messages in English.
+   - Always branch off `dev` using short-lived feature branches (`feat/stats-engine`, `feat/map-ui`, `docs/gitflow`, etc.), merge back into `dev` via PR (or after CI passes), and then merge `dev` -> `main`.
+   - Separate file ownership: `Kauê` owns `functions/api/`, `d1/`, `.github/`, and `tests/`; `Dev 2` owns `src/components/`, `src/locales/`, and `src/pages/`. Both share `src/types/investigation.ts`.
+4. **Local Dev Standard:** Unified full-stack local dev using `wrangler pages dev` + local Cloudflare D1 SQLite.
+5. **English Only:** Keep all tasks, code, comments, docs, and commit messages in English.
 
 ---
 
-## 🚀 Phase 0: Setup & Pre-Event
+## 🚀 Phase 0: Setup, Access & Alignment
 - [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS (`KaueRian/NASASpaceAppsChallenge2026`)
 - [x] **(Kauê)** Create repository governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, English `README.md`)
-- [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
 - [x] **(Both)** Finalize architecture & stack (Cloudflare Pages + Hono + D1 SQLite + React/Vite/Tailwind + Leaflet + Recharts)
-- [ ] **(Kauê)** Scaffold single-project structure (`package.json`, Vite + React + Tailwind, Wrangler/Pages Functions, Vitest)
-- [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (Request/Response types for both devs)
-- [ ] **(Kauê)** Configure Cloudflare D1 schema (`d1/schema.sql`) for NASA API cache and shareable Dossiers
-- [ ] **(Kauê)** Smoke-test **NASA POWER API** historical endpoint for Vilhena (`lat=-12.74, lon=-60.14`)
+- [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
+- [ ] **(Kauê)** Add Dev 2's name & GitHub handle to `TASK.md` and invite collaborator to `KaueRian/NASASpaceAppsChallenge2026`
+- [ ] **(Kauê)** Enable GitHub branch protection on `main` (block direct pushes; require PR from `dev`)
+- [ ] **(Kauê)** Authenticate Wrangler CLI, create Cloudflare D1 database (`earthtrend-db`), and create Cloudflare Pages project (`earthtrend-detective`)
+- [ ] **(Kauê)** Scaffold single-project structure (`package.json`, Vite + React + Tailwind, Hono Pages Functions, `wrangler.toml`, Vitest, Biome)
+- [ ] **(Kauê)** Set up GitHub Actions CI workflow (`.github/workflows/ci.yml`) running Biome lint, `tsc --noEmit`, and `vitest` on PRs to `dev` and `main`
+- [ ] **(Kauê)** Define shared TypeScript API contract in `src/types/investigation.ts` (Request/Response, Presets, Season modes, Dossier types)
+- [ ] **(Kauê)** Configure Cloudflare D1 schema (`d1/schema.sql`) for NASA API cache (`nasa_cache`) and shareable Dossiers (`dossiers`)
+- [ ] **(Kauê)** Smoke-test **NASA POWER API** historical endpoint for Vilhena (`lat=-12.74, lon=-60.14`) and verify `-999` sentinel handling
 - [ ] **(Dev 2)** Set up dark investigative UI theme and i18n dictionaries (`src/locales/en.json`, `src/locales/pt.json`)
 
 ---
@@ -37,16 +42,20 @@
 ## 🔬 Phase 1: Data Ingestion & Statistical Forensics Engine (`functions/api/` & `tests/`)
 *Goal: Guarantee scientific rigor for NASA's `Validity` and `Best Use of Science` criteria.*
 
-- [ ] **(Kauê)** Build **NASA POWER API** historical fetcher (1981–present: `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`)
-- [ ] **(Kauê)** Implement Cloudflare D1 caching layer so repeated or preset queries return in <50ms
-- [ ] **(Kauê)** Implement **Sen's Slope Estimator** (annual/decadal rate of change) in TypeScript
+- [ ] **(Kauê)** Build **NASA POWER API** historical fetcher (1981–latest full year: `T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) with timeout/retry handling and `-999` missing-value filtering
+- [ ] **(Kauê)** Implement temporal aggregator supporting **Annual**, **Wet Season (Oct–Apr)**, and **Dry Season (May–Sep)** series
+- [ ] **(Kauê)** Implement Cloudflare D1 caching layer so repeated or preset queries return in `<50ms`
+- [ ] **(Kauê)** Implement **Sen's Slope Estimator** (annual & decadal rate of change) in TypeScript
 - [ ] **(Kauê)** Implement **Mann-Kendall Trend Test** (S-statistic, Z-score, p-value for 95%/99% significance) in TypeScript
-- [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall and Sen's Slope math against known reference datasets
-- [ ] **(Kauê)** Implement `POST /api/dossiers` and `GET /api/dossiers/:id` in Hono + D1 for shareable public links
-- [ ] **(Kauê)** Prepare **3 Pre-loaded Regional Case Studies (Rondônia / Brazil)**:
-  - [ ] *Case #01:* Rainy season onset / precipitation shift in Vilhena (Southern Cone of Rondônia)
-  - [ ] *Case #02:* Extreme drought & soil wetness trend in the Madeira River Basin (Porto Velho)
-  - [ ] *Case #03:* Rising tropical night minimum temperatures (`T2M_MIN`) in Ariquemes / RO
+- [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall, Sen's Slope, seasonal aggregation, and `-999` filtering against known reference datasets
+- [ ] **(Kauê)** Implement `GET /api/investigate` Hono endpoint returning time-series, trend stats, anomalies, and NASA citation metadata
+- [ ] **(Kauê)** Implement `POST /api/dossiers` and `GET /api/dossiers/:id` in Hono + D1 (saving coordinates, label, variable, season, year range, investigator note, and stats snapshot)
+- [ ] **(Kauê)** Pre-seed D1 cache for **5 Pre-loaded Case Studies (3 Regional + 2 Global)** so demo loads instantaneously even on slow venue Wi-Fi:
+  - [ ] *Case #01 (Vilhena, RO):* Rainy season onset / precipitation shift (`PRECTOTCORR`, Southern Cone of Rondônia)
+  - [ ] *Case #02 (Porto Velho, RO):* Extreme drought & root-zone soil wetness trend (`GWETROOT`, Madeira River Basin)
+  - [ ] *Case #03 (Ariquemes, RO):* Rising tropical night minimum temperatures (`T2M_MIN`)
+  - [ ] *Case #04 (Svalbard / Arctic):* Polar amplification & rapid surface warming benchmark (`T2M`)
+  - [ ] *Case #05 (Niamey / Sahel):* Semi-arid precipitation variability & soil moisture stress (`PRECTOTCORR` / `GWETROOT`)
 
 ---
 
@@ -56,27 +65,28 @@
 - [ ] **(Dev 2)** Build Header with **"EarthTrend Detective"** branding and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Dev 2)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
 - [ ] **(Dev 2)** Integrate **Leaflet (`react-leaflet`)** with CartoDB Dark Matter tiles + click-to-investigate anywhere on Earth
-- [ ] **(Dev 2)** Add preset Case Study pins on the map (Vilhena, Porto Velho, Ariquemes)
-- [ ] **(Dev 2)** Build environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`) and year-range controls
-- [ ] **(Dev 2)** Render interactive **Recharts** time-series chart with Sen's Slope trendline and anomaly highlights
-- [ ] **(Dev 2)** Build the **"Investigative Dossier / Forensic Report"** card answering the 4 challenge questions:
+- [ ] **(Dev 2)** Add the 5 preset Case Study pins on the map (3 Rondônia + 2 Global) with quick-jump selector cards
+- [ ] **(Dev 2)** Build environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Wet` / `Dry`), and year-range controls
+- [ ] **(Dev 2)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights
+- [ ] **(Dev 2)** Build the **"Investigative Dossier / Forensic Report"** card answering the 4 challenge questions + explicit NASA dataset citation badge (`NASA POWER / MERRA-2`):
   1. *What is changing?*
   2. *Where is it changing?*
   3. *By how much?*
   4. *Is it statistically significant? ("Proven Trend" vs. "No Significant Trend" badge)*
-- [ ] **(Both)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints
+- [ ] **(Dev 2)** Add "Save & Share Dossier" modal/button with optional investigator note and shareable `/dossier/:id` route
+- [ ] **(Both)** Connect frontend UI to `/api/investigate` and `/api/dossiers` endpoints and test loading/error states
 
 ---
 
 ## 🎬 Phase 3: Polish, 30s Video & Local Pitch
 *Goal: Complete all submission assets before Sunday 14:00 local departure!*
 
-- [ ] **(Kauê)** Deploy live demo to **Cloudflare Pages** (`*.pages.dev`) with D1 bound and verify in incognito window
-- [ ] **(Kauê)** Finalize `README.md` with screenshots, live demo URL, and explicit NASA dataset citations
+- [ ] **(Kauê)** Promote `dev` -> `main`, deploy live demo to **Cloudflare Pages** (`*.pages.dev`) with D1 bound, and verify in incognito window
+- [ ] **(Kauê)** Finalize `README.md` with screenshots, live demo URL, architecture diagram, and explicit NASA dataset citations
 - [ ] **(Dev 2)** Prepare local pitch slide deck in PDF (5–7 slides in PT-BR for the 3-minute HUBEE presentation)
 - [ ] **(Both)** Record and edit the **Official 30-Second Pitch Video** (max **30s**, English audio or PT-BR audio with mandatory English subtitles)
 - [ ] **(Kauê)** Upload 30s video to YouTube (Public or Unlisted) while on stable venue Wi-Fi
-- [ ] **(Both)** Draft complete project submission fields on the NASA Space Apps portal (in English)
+- [ ] **(Both)** Draft complete project submission fields on the NASA Space Apps portal (in English) and verify team roster registration
 
 ---
 
