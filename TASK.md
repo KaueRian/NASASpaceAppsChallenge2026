@@ -48,6 +48,7 @@
 ## 🚀 Phase 0: Setup, Access & Alignment (Pre-Event & Sat Morning)
 - [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS (`KaueRian/NASASpaceAppsChallenge2026`)
 - [x] **(Kauê)** Create repository governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, English `README.md`)
+- [x] **(Kauê)** Create [`DESIGN.md`](DESIGN.md) blueprint and enforce **TDD** + design-context rules in `AGENTS.md` and `CLAUDE.md`
 - [x] **(All)** Finalize architecture, stack, and whole-team roadmap in `TASK.md`
 - [x] **(Kauê)** Configure `feature/* -> dev -> main` branching workflow in `dev`, `AGENTS.md`, `CLAUDE.md`, and `TASK.md`
 - [ ] **(All)** Confirm all 4 members are linked to the same official Team ID on the NASA Space Apps portal & fill Team Name in `TASK.md`
