@@ -75,6 +75,7 @@
 - [ ] **(Kauê)** Implement **Mann-Kendall Trend Test** (S-statistic, Z-score, p-value for 95%/99% significance) in TypeScript
 - [ ] **(Kauê)** Write Vitest unit tests verifying Mann-Kendall, Sen's Slope, seasonal aggregation, and `-999` filtering against known reference datasets
 - [ ] **(Kauê)** Implement `GET /api/investigate` Hono endpoint returning time-series, trend stats, anomalies, and NASA citation metadata
+- [ ] **(Kauê)** Implement `GET /api/geocode` Hono endpoint (wrapping Open-Meteo Geocoding API) to resolve typed city/region names into `(lat, lon)` + location label
 - [ ] **(Kauê)** Implement `POST /api/dossiers` and `GET /api/dossiers/:id` in Hono + D1 (saving coordinates, label, variable, season, year range, investigator note, and stats snapshot)
 - [ ] **(Kauê)** Pre-seed D1 cache for **5 Pre-loaded Case Studies (3 Regional + 2 Global)** so demo loads instantaneously even on slow venue Wi-Fi:
   - [ ] *Case #01 (Vilhena, RO):* Rainy season onset / precipitation shift (`PRECTOTCORR`, Southern Cone of Rondônia)
@@ -92,10 +93,10 @@
 ## 🗺️ Phase 2: "EarthTrend Detective" Noir Office UI, Map & Localization (Sat–Sun Morning)
 *Goal: Memorable first-person Detective Office UX (no character/avatar — the user IS the detective using real NASA data & math tools) before Sunday 09:00 UI Freeze.*
 
-- [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Desk Map` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
+- [ ] **(Mylena)** Build Noir Header with **"EarthTrend Detective"** branding, room navigation (`Evidence Corkboard` | `Detective Desk` | `Top Secret Manual`), and language switcher `[ 🇺🇸 EN | 🇧🇷 PT ]`
 - [ ] **(Mylena)** Implement automatic language detection (`localStorage` -> `navigator.language` -> `'en'` fallback)
 - [ ] **(Mylena)** Build **The Evidence Corkboard**: pinned preset case cards connected by SVG red yarn/lines; clicking a pinned card brings the case forward into foreground focus while dimming/blurring the background (auto-opening **Case #01 Vilhena** on initial load with 1-click return to Corkboard)
-- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case / Custom Investigation)**: cluttered desk-paper aesthetic housing the interactive **Leaflet (`react-leaflet`)** CartoDB Dark Matter map + 5 preset pins + click-anywhere-on-Earth or coordinate search
+- [ ] **(Mylena)** Build **The Messy Detective Desk (New Case Search)**: cluttered desk-paper aesthetic with a **"Case Intake Paper Form"** at the top (type city/place name or coordinates + variable/season/year filters) and the **Forensic Report, Recharts & compact Leaflet dark-noir map pin** appearing on aged-paper dossier sheets directly below (supporting click-on-map adjustment too, no heavy 3D globe)
 - [ ] **(Mylena)** Build **Top Secret / Classified Methodology Manual**: declassified folder view explaining **NASA POWER / MERRA-2** data, **Mann-Kendall**, and **Sen's Slope** formulas
 - [ ] **(Mylena)** Build forensic tool controls: environmental variable selector (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT`), season selector (`Annual` / `Oct–Mar` / `Apr–Sep`), and year-range controls
 - [ ] **(Mylena)** Render interactive **Recharts** time-series chart with Sen's Slope trendline, decadal delta, and anomaly highlights on aged-paper/noir forensic styling
