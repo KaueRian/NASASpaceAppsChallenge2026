@@ -4,10 +4,10 @@ import type {
   TrendStats,
   VariableId,
   VerdictLevel,
-} from "../../types/investigation";
-import type { AggregatedPoint } from "../nasa/aggregate";
-import { mannKendallTest } from "./mannKendall";
-import { sensSlope } from "./sensSlope";
+} from "../../types/investigation.ts";
+import type { AggregatedPoint } from "../nasa/aggregate.ts";
+import { mannKendallTest } from "./mannKendall.ts";
+import { sensSlope } from "./sensSlope.ts";
 
 function mapVerdict(confidenceLevel: 99 | 95 | 0): VerdictLevel {
   if (confidenceLevel === 99) return "STRONG_EVIDENCE";

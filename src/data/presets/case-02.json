@@ -1,0 +1,407 @@
+{
+  "id": "02",
+  "location": {
+    "label": "Porto Velho, RO, Brazil",
+    "lat": -8.76,
+    "lon": -63.9
+  },
+  "variable": "GWETROOT",
+  "defaultSeason": "annual",
+  "hookKey": "cases.02.hook",
+  "result": {
+    "presetId": "02",
+    "location": {
+      "label": "Porto Velho, RO, Brazil",
+      "lat": -8.76,
+      "lon": -63.9
+    },
+    "variable": "GWETROOT",
+    "unit": "pct",
+    "season": "annual",
+    "stats": {
+      "mannKendallS": -546,
+      "mannKendallVariance": 10443.3333,
+      "zScore": -5.3331,
+      "pValue": 0,
+      "confidenceLevel": 99,
+      "senSlopePerYear": -0.32417,
+      "senSlopePerDecade": -3.2417,
+      "totalChangeOverPeriod": -14.263,
+      "fullPeriodMean": 73.904,
+      "fullPeriodStdDev": 5.863,
+      "startYear": 1981,
+      "endYear": 2025,
+      "nYears": 45,
+      "verdict": "STRONG_EVIDENCE",
+      "direction": "drier"
+    },
+    "series": [
+      {
+        "year": 1981,
+        "label": "1981",
+        "value": 79.75,
+        "trendValue": 81.1975,
+        "zScore": 0.997,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1982,
+        "label": "1982",
+        "value": 83.5,
+        "trendValue": 80.8733,
+        "zScore": 1.637,
+        "isExtremeAnomaly": true
+      },
+      {
+        "year": 1983,
+        "label": "1983",
+        "value": 75.83,
+        "trendValue": 80.5492,
+        "zScore": 0.329,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1984,
+        "label": "1984",
+        "value": 79.17,
+        "trendValue": 80.225,
+        "zScore": 0.898,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1985,
+        "label": "1985",
+        "value": 81.17,
+        "trendValue": 79.9008,
+        "zScore": 1.239,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1986,
+        "label": "1986",
+        "value": 82,
+        "trendValue": 79.5767,
+        "zScore": 1.381,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1987,
+        "label": "1987",
+        "value": 78.75,
+        "trendValue": 79.2525,
+        "zScore": 0.827,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1988,
+        "label": "1988",
+        "value": 75.92,
+        "trendValue": 78.9283,
+        "zScore": 0.344,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1989,
+        "label": "1989",
+        "value": 79.17,
+        "trendValue": 78.6042,
+        "zScore": 0.898,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1990,
+        "label": "1990",
+        "value": 77.83,
+        "trendValue": 78.28,
+        "zScore": 0.67,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1991,
+        "label": "1991",
+        "value": 76.17,
+        "trendValue": 77.9558,
+        "zScore": 0.387,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1992,
+        "label": "1992",
+        "value": 70.25,
+        "trendValue": 77.6317,
+        "zScore": -0.623,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1993,
+        "label": "1993",
+        "value": 77.58,
+        "trendValue": 77.3075,
+        "zScore": 0.627,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1994,
+        "label": "1994",
+        "value": 76.08,
+        "trendValue": 76.9833,
+        "zScore": 0.371,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1995,
+        "label": "1995",
+        "value": 78,
+        "trendValue": 76.6592,
+        "zScore": 0.699,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1996,
+        "label": "1996",
+        "value": 76.17,
+        "trendValue": 76.335,
+        "zScore": 0.387,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1997,
+        "label": "1997",
+        "value": 77.67,
+        "trendValue": 76.0108,
+        "zScore": 0.642,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1998,
+        "label": "1998",
+        "value": 68.5,
+        "trendValue": 75.6867,
+        "zScore": -0.922,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 1999,
+        "label": "1999",
+        "value": 75.92,
+        "trendValue": 75.3625,
+        "zScore": 0.344,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2000,
+        "label": "2000",
+        "value": 75.92,
+        "trendValue": 75.0383,
+        "zScore": 0.344,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2001,
+        "label": "2001",
+        "value": 80.67,
+        "trendValue": 74.7142,
+        "zScore": 1.154,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2002,
+        "label": "2002",
+        "value": 80.08,
+        "trendValue": 74.39,
+        "zScore": 1.053,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2003,
+        "label": "2003",
+        "value": 78.08,
+        "trendValue": 74.0658,
+        "zScore": 0.712,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2004,
+        "label": "2004",
+        "value": 74.75,
+        "trendValue": 73.7417,
+        "zScore": 0.144,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2005,
+        "label": "2005",
+        "value": 67.75,
+        "trendValue": 73.4175,
+        "zScore": -1.05,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2006,
+        "label": "2006",
+        "value": 78.25,
+        "trendValue": 73.0933,
+        "zScore": 0.741,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2007,
+        "label": "2007",
+        "value": 74,
+        "trendValue": 72.7692,
+        "zScore": 0.016,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2008,
+        "label": "2008",
+        "value": 71.92,
+        "trendValue": 72.445,
+        "zScore": -0.338,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2009,
+        "label": "2009",
+        "value": 80.08,
+        "trendValue": 72.1208,
+        "zScore": 1.053,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2010,
+        "label": "2010",
+        "value": 71.5,
+        "trendValue": 71.7967,
+        "zScore": -0.41,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2011,
+        "label": "2011",
+        "value": 74.17,
+        "trendValue": 71.4725,
+        "zScore": 0.045,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2012,
+        "label": "2012",
+        "value": 75.17,
+        "trendValue": 71.1483,
+        "zScore": 0.216,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2013,
+        "label": "2013",
+        "value": 65.83,
+        "trendValue": 70.8242,
+        "zScore": -1.377,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2014,
+        "label": "2014",
+        "value": 70.5,
+        "trendValue": 70.5,
+        "zScore": -0.581,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2015,
+        "label": "2015",
+        "value": 60.92,
+        "trendValue": 70.1758,
+        "zScore": -2.214,
+        "isExtremeAnomaly": true
+      },
+      {
+        "year": 2016,
+        "label": "2016",
+        "value": 67.83,
+        "trendValue": 69.8517,
+        "zScore": -1.036,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2017,
+        "label": "2017",
+        "value": 67.33,
+        "trendValue": 69.5275,
+        "zScore": -1.121,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2018,
+        "label": "2018",
+        "value": 71.58,
+        "trendValue": 69.2033,
+        "zScore": -0.396,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2019,
+        "label": "2019",
+        "value": 68.92,
+        "trendValue": 68.8792,
+        "zScore": -0.85,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2020,
+        "label": "2020",
+        "value": 75.58,
+        "trendValue": 68.555,
+        "zScore": 0.286,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2021,
+        "label": "2021",
+        "value": 66,
+        "trendValue": 68.2308,
+        "zScore": -1.348,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2022,
+        "label": "2022",
+        "value": 73.33,
+        "trendValue": 67.9067,
+        "zScore": -0.098,
+        "isExtremeAnomaly": false
+      },
+      {
+        "year": 2023,
+        "label": "2023",
+        "value": 63.33,
+        "trendValue": 67.5825,
+        "zScore": -1.803,
+        "isExtremeAnomaly": true
+      },
+      {
+        "year": 2024,
+        "label": "2024",
+        "value": 61,
+        "trendValue": 67.2583,
+        "zScore": -2.201,
+        "isExtremeAnomaly": true
+      },
+      {
+        "year": 2025,
+        "label": "2025",
+        "value": 61.75,
+        "trendValue": 66.9342,
+        "zScore": -2.073,
+        "isExtremeAnomaly": true
+      }
+    ],
+    "source": {
+      "provider": "NASA POWER / MERRA-2",
+      "resolution": "temporal/monthly/point",
+      "retrievedAt": "2026-11-13"
+    },
+    "cached": true
+  }
+}
