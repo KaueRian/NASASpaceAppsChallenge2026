@@ -1,5 +1,6 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { Hono } from "hono";
+import { handleCreateDossier, handleGetDossier, handleListDossiers } from "./routes/dossiers.ts";
 import { handleGeocode } from "./routes/geocode.ts";
 import { handleInvestigate } from "./routes/investigate.ts";
 
@@ -24,6 +25,9 @@ app.get("/api/health", (c) => {
 
 app.get("/api/investigate", handleInvestigate);
 app.get("/api/geocode", handleGeocode);
+app.get("/api/dossiers", handleListDossiers);
+app.post("/api/dossiers", handleCreateDossier);
+app.get("/api/dossiers/:id", handleGetDossier);
 
 app.all("/api/*", (c) => {
   return c.json({ ok: false, message: "API endpoint not found" }, 404);
