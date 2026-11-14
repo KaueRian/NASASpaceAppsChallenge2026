@@ -14,11 +14,11 @@
    - *Como eliminamos o ruído sazonal?* **Estratificação de Janela Sazonal** (`Anual`, `Out–Mar`, `Abr–Set`).
    - *Quanto mudou?* **Estimador de Inclinação de Sen (*Sen's Slope*)**.
    - *É significativo?* **Teste Não-Paramétrico de Mann-Kendall** ($p < 0.01$ = Evidência Forte).
-4. **Slide 4 — As Descobertas Reais em Rondônia vs. Ártico (`1981–2025`):**
-   - **Caso #01 — Vilhena (Estação Seca Abr–Set):** **`-234,5 mm`** em 45 anos (`-53,3 mm/década`, $p = 0,00013$).
-   - **Caso #02 — Porto Velho (Bacia do Madeira):** **`-14,3 pontos (%)`** de umidade na zona radicular ($p < 0,00001$).
-   - **Caso #03 — Ariquemes (Noites Tropicais):** **`+1,82 °C`** nas temperaturas mínimas ($p = 0,000001$).
-   - **Caso #04 — Svalbard (Contraste Ártico):** **`+3,50 °C`** — provando como processos globais geram velocidades e direções diferentes em cada região.
+4. **Slide 4 — As Descobertas Reais nas 4 Escalas (`Vilhena → Rondônia → Brasil → Mundo`, `1981–2025`):**
+   - **Caso #01 — Vilhena, RO (Estação Seca Abr–Set, `PRECTOTCORR`):** **`-234,5 mm`** em 45 anos (`-53,3 mm/década`, $p = 0,00013$).
+   - **Caso #02 — Ariquemes, RO (Noites Tropicais, `T2M_MIN`):** **`+1,82 °C`** nas temperaturas mínimas noturnas ($p = 0,000001$).
+   - **Caso #03 — Corumbá / Pantanal, MS (Brasil, `GWETROOT`):** **`-5,60 pontos (%)`** de umidade na zona radicular ($p = 0,000024$).
+   - **Caso #04 — Svalbard (Contraste Ártico Global, `T2M`):** **`+3,50 °C`** — provando como processos globais geram velocidades e direções diferentes em cada região.
 5. **Slide 5 — Demonstração Visual (`<ForensicDossier />` + `<SatelliteTimelapse />` + `<EvidenceCard />`):**
    - Print de alto contraste do Dossiê em papel, busca ao vivo para qualquer município brasileiro (Sugestão #2 do Manual da Banca) e Timelapse de Satélite NASA GIBS.
 6. **Slide 6 — Rigor Científico (`Correlação ≠ Causalidade`) & Missão Amazônia (ODS 6, 13 e 15):**
@@ -40,11 +40,11 @@
 > Primeiro, nós resolvemos a maior armadilha da ciência de dados climáticos: **isolamos as janelas sazonais** — separando estação chuvosa de estação seca — para que o ciclo normal do ano não contamine a conta.  
 > Depois, aplicamos dois métodos matemáticos consagrados: o **Estimador de Sen's Slope**, que calcula **o quanto mudou** sem ser distorcido por anos extremos, e o teste não-paramétrico de **Mann-Kendall**, que calcula o valor-$p$ e crava o carimbo no dossiê: **Evidência Forte (99% de confiança)**, **Evidência Confirmada (95%)** ou **Evidência Insuficiente**."
 
-### [1:15 – 2:05] 3. O Que Descobrimos em Rondônia (Slide 4 e 5)
-> "E o que os dados reais da NASA revelaram aqui na nossa casa?  
+### [1:15 – 2:05] 3. O Que Descobrimos nas 4 Escalas (Slide 4 e 5)
+> "E o que os dados reais da NASA revelaram partindo da nossa cidade para o mundo?  
 > - **Caso #01, aqui em Vilhena:** entre abril e setembro, a nossa estação seca perdeu **234 milímetros de chuva** desde 1981 — uma queda de **53 milímetros por década**, com 99% de confiança estatística. Isso explica na matemática a pressão sobre a janela da safrinha!  
-> - **Caso #02, em Porto Velho:** a umidade do solo na zona das raízes caiu **14,3 pontos percentuais** em 45 anos.  
-> - **Caso #03, em Ariquemes:** as temperaturas mínimas noturnas subiram **1,82 °C**.  
+> - **Caso #02, em Rondônia (Ariquemes):** as temperaturas mínimas noturnas subiram **1,82 °C**, aumentando o estresse térmico humano e agrícola.  
+> - **Caso #03, no Brasil (Corumbá, no Pantanal):** a umidade do solo na zona das raízes caiu **5,60 pontos percentuais** em 45 anos, agravando a vulnerabilidade às queimadas.  
 > - E no **Caso #04, em Svalbard no Ártico**, o aquecimento chega a **3,50 °C** — demonstrando na prática o que o desafio da NASA pede: como processos globais geram velocidades e direções diferentes em cada ponto da Terra."
 
 ### [2:05 – 2:40] 4. Busca Ao Vivo, Missão Amazônia & Educação (Slide 6)

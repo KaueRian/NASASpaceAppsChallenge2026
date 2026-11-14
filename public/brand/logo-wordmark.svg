@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 64" width="420" height="64">
+  <title>EarthTrend Detective Wordmark</title>
+  <rect width="420" height="64" rx="8" fill="#121212" />
+  <g transform="translate(8, 8)">
+    <rect width="48" height="48" rx="8" fill="#1C1C1E" stroke="#2E2E30" stroke-width="1.5" />
+    <path d="M9 35 L18 29 L26 32 L34 18 L40 12" fill="none" stroke="#EDEDEA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <line x1="9" y1="37" x2="40" y2="14" stroke="#C1472E" stroke-width="2.5" stroke-dasharray="3 2.5" stroke-linecap="round" />
+    <circle cx="40" cy="12" r="3" fill="#C1472E" />
+  </g>
+  <text x="68" y="32" fill="#EDEDEA" font-family="Georgia, serif" font-size="22" font-weight="bold">EarthTrend Detective</text>
+  <text x="68" y="49" fill="#9B9B98" font-family="Courier New, monospace" font-size="11" letter-spacing="1.5">NASA POWER · MANN-KENDALL · SEN'S SLOPE</text>
+</svg>

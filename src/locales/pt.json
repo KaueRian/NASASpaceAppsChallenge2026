@@ -5,10 +5,170 @@
     "cases": "Casos",
     "methods": "Método"
   },
+  "hero": {
+    "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · MOTOR DE EVIDÊNCIA ESTATÍSTICA",
+    "title": "Separando tendências climáticas reais do ruído meteorológico de curto prazo.",
+    "subtitle": "Investigue 45 anos de registros de satélites e reanálise da NASA em qualquer ponto da Terra usando o teste não-paramétrico de Mann-Kendall e o estimador de Sen's Slope — desenvolvido para pesquisadores, estudantes e gestores públicos.",
+    "ctaInvestigate": "Iniciar Investigação",
+    "ctaCases": "Ver Casos em Destaque"
+  },
   "cases": {
-    "01": { "hook": "A estação seca está ficando mais seca?" },
-    "02": { "hook": "O solo da bacia do Madeira está secando?" },
-    "03": { "hook": "As noites tropicais estão mais quentes?" },
-    "04": { "hook": "Com que rapidez o Ártico está esquentando?" }
+    "sectionTitle": "Casos em Destaque",
+    "sectionSubtitle": "Quatro investigações reais de 45 anos (1981–2025) cobrindo Vilhena, Rondônia, Brasil e o Ártico — uma para cada variável da NASA POWER.",
+    "scaleBadge": {
+      "local": "Caso #01 · Escala Local Sede (Vilhena, RO)",
+      "state": "Caso #02 · Escala Estadual (Rondônia)",
+      "national": "Caso #03 · Escala Nacional (Brasil)",
+      "global": "Caso #04 · Referência Global (Ártico)"
+    },
+    "openAction": "Carregar Investigação",
+    "alreadyViewed": "Revisado",
+    "derivedBanner": "Derivado do Caso #{{id}}",
+    "restoreAction": "Restaurar caso original",
+    "01": {
+      "title": "Vilhena, RO, Brasil",
+      "region": "Transição Cerrado–Amazônia (Chapada dos Parecis / Cone Sul)",
+      "hook": "A estação seca de Vilhena está perdendo chuvas críticas?",
+      "headline": "A precipitação acumulada na estação seca (Abr–Set) em Vilhena caiu 234,5 mm desde 1981 (-53,3 mm/década).",
+      "context": "Portal da Amazônia Ocidental e polo agrícola do Cone Sul de Rondônia. A perda consistente de chuva entre abril e setembro agrava o déficit hídrico na janela da safrinha e eleva o risco de incêndios florestais na transição Cerrado–Amazônia (ODS 6, 13 e 15 da ONU; complementar às séries de cobertura do solo do MapBiomas)."
+    },
+    "02": {
+      "title": "Ariquemes, RO, Brasil",
+      "region": "Vale do Jamari, Região Central de Rondônia",
+      "hook": "As noites tropicais em Rondônia estão ficando persistentemente mais quentes?",
+      "headline": "A temperatura mínima noturna anual em Ariquemes subiu +1,82 °C desde 1981 (+0,41 °C/década).",
+      "context": "Noites tropicais mais quentes reduzem o resfriamento fisiológico noturno de trabalhadores rurais e rebanhos, além de elevar o estresse térmico sobre culturas perenes amazônicas como o café robusta e o cacau."
+    },
+    "03": {
+      "title": "Corumbá (Pantanal), MS, Brasil",
+      "region": "Bacia do Alto Paraguai · Maior Planície Alagável do Mundo",
+      "hook": "O bioma Pantanal está perdendo umidade na zona radicular do solo?",
+      "headline": "O índice anual de umidade do solo na zona radicular em Corumbá caiu -5,60 pontos percentuais desde 1981 (-1,27 pts/década).",
+      "context": "O ressecamento multidecadal do solo no Pantanal reduz o nível do lençol freático, amplifica temporadas severas de incêndios e ameaça a biodiversidade e a segurança hídrica no centro da América do Sul (ODS 6 e 15 da ONU)."
+    },
+    "04": {
+      "title": "Svalbard, Ártico",
+      "region": "Arquipélago do Alto Ártico (78° N)",
+      "hook": "Qual é a velocidade real da amplificação polar no Ártico?",
+      "headline": "A temperatura média anual do ar em Svalbard saltou +3,50 °C desde 1981 (+0,79 °C/década).",
+      "context": "Referência científica global da amplificação polar: o Alto Ártico aquece de três a quatro vezes mais rápido que a média planetária, acelerando o recuo do gelo marinho e o degelo do permafrost (ODS 13 da ONU)."
+    }
+  },
+  "variables": {
+    "T2M": {
+      "label": "Temperatura Média do Ar (2m)",
+      "shortLabel": "Temp. Média (T2M)",
+      "unit": "°C"
+    },
+    "T2M_MIN": {
+      "label": "Temperatura Mínima Noturna (2m)",
+      "shortLabel": "Temp. Mínima Noturna (T2M_MIN)",
+      "unit": "°C"
+    },
+    "PRECTOTCORR": {
+      "label": "Precipitação Total Corrigida",
+      "shortLabel": "Precipitação (PRECTOTCORR)",
+      "unit": "mm"
+    },
+    "GWETROOT": {
+      "label": "Índice de Umidade do Solo na Zona Radicular",
+      "shortLabel": "Umidade Radicular do Solo (GWETROOT)",
+      "unit": "%"
+    }
+  },
+  "seasons": {
+    "annual": "Anual (Jan–Dez)",
+    "oct_mar": "Estação Chuvosa (Out–Mar)",
+    "apr_sep": "Estação Seca (Abr–Set)"
+  },
+  "verdict": {
+    "STRONG_EVIDENCE": "Evidência forte · p < 0,01 (99% de confiança)",
+    "EVIDENCE_CONFIRMED": "Evidência confirmada · p < 0,05 (95% de confiança)",
+    "INSUFFICIENT_EVIDENCE": "Evidência insuficiente · p ≥ 0,05 (sem tendência estatisticamente significativa)",
+    "direction": {
+      "warming": "Tendência de aquecimento",
+      "cooling": "Tendência de resfriamento",
+      "wetter": "Tendência de aumento hídrico",
+      "drier": "Tendência de ressecamento",
+      "neutral": "Sem tendência direcional"
+    },
+    "sentence": {
+      "warming": "{{variable}} ({{season}}) em {{location}} subiu {{totalChange}} {{unit}} entre {{startYear}} e {{endYear}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+      "cooling": "{{variable}} ({{season}}) em {{location}} caiu {{totalChange}} {{unit}} entre {{startYear}} e {{endYear}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+      "wetter": "{{variable}} ({{season}}) em {{location}} aumentou {{totalChange}} {{unit}} entre {{startYear}} e {{endYear}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+      "drier": "{{variable}} ({{season}}) em {{location}} diminuiu {{totalChange}} {{unit}} entre {{startYear}} e {{endYear}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+      "neutral": "{{variable}} ({{season}}) em {{location}} não apresentou mudança direcional estatisticamente significativa entre {{startYear}} e {{endYear}} (Sen's slope {{perDecade}} {{unit}}/década, p = {{pValue}})."
+    },
+    "causationNote": "Salvaguarda científica: o teste de Mann-Kendall comprova se uma tendência direcional observada é estatisticamente distinta de flutuações aleatórias; ele não prova isoladamente uma causa física única. Combine séries climáticas com dados de uso da terra (ex.: MapBiomas) para atribuição regional."
+  },
+  "form": {
+    "sectionTitle": "Console de Investigação",
+    "locationLabel": "Localidade ou Coordenadas",
+    "locationPlaceholder": "Busque um município (ex.: Vilhena, Manaus, Corumbá) ou cole lat, lon",
+    "latLabel": "Latitude (°N / °S)",
+    "lonLabel": "Longitude (°L / °O)",
+    "variableLabel": "Variável do Sistema Terrestre",
+    "seasonLabel": "Recorte Sazonal",
+    "startYearLabel": "Ano Inicial",
+    "endYearLabel": "Ano Final",
+    "submitButton": "Executar Investigação",
+    "runningButton": "Analisando Série NASA POWER…",
+    "minYearsWarning": "São necessários pelo menos 15 anos completos para um teste de tendência de Mann-Kendall confiável.",
+    "viewAsLabel": "Visualizar gráfico como",
+    "viewLine": "Linha + Tendência de Sen",
+    "viewBars": "Barras Sazonais",
+    "viewStripes": "Faixas Climáticas",
+    "methodologyPipeline": "NASA POWER → {{nYears}} anos ({{startYear}}–{{endYear}}) → Mann-Kendall & Sen's Slope → {{verdict}}",
+    "expandMethod": "Ver método e estatísticas desta análise",
+    "fullMethodLink": "Ler metodologia completa e limitações"
+  },
+  "actions": {
+    "copyLink": "Copiar Link de Compartilhamento",
+    "linkCopied": "Link Copiado!",
+    "downloadPng": "Baixar Card PNG",
+    "downloadCsv": "Baixar Série CSV",
+    "copyCitation": "Copiar Citação Científica",
+    "citationCopied": "Citação Copiada!",
+    "openTimelapse": "Inspecionar Timelapse de Satélite NASA GIBS (2000–2025)"
+  },
+  "errors": {
+    "INVALID_COORDINATES": "Coordenadas inválidas. Informe latitude entre -90 e 90 e longitude entre -180 e 180.",
+    "INVALID_VARIABLE": "Selecione uma das quatro variáveis suportadas da NASA POWER (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
+    "INVALID_SEASON": "Selecione um recorte sazonal válido (Anual, Out–Mar ou Abr–Set).",
+    "INSUFFICIENT_YEARS": "Menos de 15 anos sazonais completos disponíveis neste intervalo. Amplie o período para executar o Mann-Kendall.",
+    "NO_DATA_ALL_MISSING": "Sem observações válidas para esta variável neste ponto (a NASA POWER retornou -999, ex.: umidade do solo sobre o oceano).",
+    "NASA_UPSTREAM_TIMEOUT": "O arquivo da NASA POWER demorou muito para responder. Tente novamente em alguns segundos.",
+    "NASA_UPSTREAM_ERROR": "Não foi possível conectar ao serviço NASA POWER / MERRA-2 agora. Os Casos em Destaque seguem disponíveis offline.",
+    "GEOCODE_NOT_FOUND": "Nenhum município ou localidade encontrado. Tente outro nome ou digite latitude e longitude diretamente.",
+    "DOSSIER_NOT_FOUND": "Este link de investigação compartilhada não foi encontrado.",
+    "EMPTY_SEARCH": "Selecione um Caso em Destaque abaixo ou informe qualquer coordenada da Terra para começar."
+  },
+  "methods": {
+    "title": "Metodologia Científica e Limitações",
+    "subtitle": "Como o EarthTrend Detective processa os registros NASA POWER / MERRA-2 e avalia a significância estatística.",
+    "backToHome": "← Voltar para a Investigação",
+    "nasaData": {
+      "title": "01. Fonte de Dados — NASA POWER & MERRA-2",
+      "body": "Todas as séries são extraídas do arquivo agroclimatológico NASA Prediction Of Worldwide Energy Resources (POWER) (`temporal/monthly/point`), derivado da reanálise MERRA-2 da NASA GMAO e observações orbitais cobrindo 1981–2025."
+    },
+    "aggregation": {
+      "title": "02. Agregação Sazonal e Controle de Qualidade",
+      "body": "Leituras mensais brutas iguais a `-999` (dados ausentes ou máscara oceânica para variáveis terrestres) são descartadas antes do cálculo. Recortes sazonais incompletos são removidos para que anos parciais nunca distorçam o final da linha de tendência. Temperaturas (`T2M`, `T2M_MIN`) utilizam médias sazonais em °C; precipitação (`PRECTOTCORR`) soma `mm/dia × dias do mês` em milímetros totais sazonais; umidade do solo na zona radicular (`GWETROOT`) converte o índice adimensional `[0–1]` para `0–100%`."
+    },
+    "mannKendall": {
+      "title": "03. Teste Não-Paramétrico de Tendência de Mann-Kendall",
+      "body": "Séries climáticas frequentemente apresentam distribuições assimétricas e extremos (como anos de El Niño / La Niña). O teste de Mann-Kendall avalia todas as comparações par-a-par `sinal(x_j - x_i)` para `j > i`, aplica correção de variância para empates e calcula o escore `Z` e o `p`-valor bilateral (`p < 0,01` = Evidência Forte; `p < 0,05` = Evidência Confirmada; `p ≥ 0,05` = Evidência Insuficiente)."
+    },
+    "sensSlope": {
+      "title": "04. Inclinação Mediana de Theil-Sen & Intervalo de Confiança de 95%",
+      "body": "Enquanto o Mann-Kendall responde se a tendência é estatisticamente significativa, o estimador de Sen's Slope calcula a velocidade real da mudança tomando a mediana de todas as inclinações entre pares `(x_j - x_i) / (t_j - t_i)`, acompanhada pelo intervalo de confiança de 95% de Gilbert / Hollander-Wolfe e pelo R² da regressão linear."
+    },
+    "limitations": {
+      "title": "05. Limitações Científicas e Salvaguardas de Interpretação",
+      "gridItem": "Grade Espacial MERRA-2 (~50 km): Os valores representam uma célula regional de ~0,5° × 0,625°, e não um pluviômetro isolado de fazenda ou estação de microclima urbano.",
+      "causationItem": "Correlação vs. Causalidade: Um p-valor significativo no teste de Mann-Kendall comprova que houve uma mudança direcional na série observada acima do ruído aleatório; ele não isola sozinho se a causa física é o efeito estufa global, o desmatamento regional ou oscilações oceânicas decadais.",
+      "regionalItem": "Contraste Regional e Contexto Amazônico: Mudanças climáticas globais não atuam de forma uniforme — diferentes regiões e estações podem aquecer ou secar em ritmos distintos. Em Rondônia e no Pantanal, combinar as tendências climáticas da NASA POWER com séries de uso e cobertura da terra (como o MapBiomas) apoia a educação ambiental nas escolas e o planejamento territorial alinhado aos ODS 6 (Água Potável), 13 (Ação Climática) e 15 (Vida Terrestre).",
+      "autocorrelationItem": "Autocorrelação Serial e Período Mínimo: Autocorrelação positiva de lag-1 (`r1`) pode inflar o escore Z em séries curtas. O EarthTrend Detective exige o mínimo estrito de 15 anos (`n ≥ 15`) e sinaliza séries menores que 30 anos ou com alta autocorrelação lag-1."
+    }
   }
 }
