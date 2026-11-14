@@ -137,9 +137,12 @@
 - [x] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
 - [x] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results) — ready if free-text location search is used
 - [x] **(Kauê)** TDD: request/response validation (`src/lib/validation/investigate.ts`, `tests/validation.test.ts`, `tests/workerApi.test.ts`: coordinate bounds, allowed variables/seasons, year range)
-- [ ] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine (or `/api/investigate`), with browser-side caching; minimum 15 years validation
-- [ ] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
-- [ ] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
+- [x] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine (or `/api/investigate`), with browser-side caching; minimum 15 years validation
+  - *Note (Mylena):* added `leaflet`+`react-leaflet@5` (not installed before, despite the tech-stack line) + `<LocationPicker />` (search via `/api/geocode`, manual lat/lon, click-to-pick map — OSM tiles, not CARTO, which now requires an API key). Reuses Kauê's `investigateClientSide`/`validateInvestigateQuery` as-is. Race protection via a request-id ref (stale submit/preset-switch responses are ignored). Error display is minimal (`errors.*` text only) — full illustrated error/empty states are the next task.
+- [x] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
+  - *Note (Mylena):* a bordered notice block (title + the existing `errors.*` message + "still showing the previous result below") replaces the one-line error text; "More options" auto-opens for errors fixable there (year range, coordinates). DESIGN.md groups error/empty as one concept — no separate empty state exists since Investigation always has a valid preset result to fall back to.
+- [x] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
+  - *Note (Mylena):* any successful live submit while a preset is loaded flips to "derived" (banner + restore button, using Kauê's existing `cases.derivedBanner`/`cases.restoreAction` copy) — not just variable/season specifically, since editing location/years counts too.
 - [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
 - [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
 
@@ -161,7 +164,8 @@
 - [ ] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`localStorage`)
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
 - [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
-- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers (`src/components/share/SatelliteTimelapse.tsx`)
+- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber**
+- [ ] **(Kauê)** Upgrade `<SatelliteTimelapse />` with a default-open **"Before vs. After" (`2000` vs. `2025` side-by-side comparison)** + Timelapse mode toggle (`True Color` & `NDVI`), Dark Editorial styling, full PT/EN i18n, and wire it directly below `<TrendChart />` inside `<Investigation />`
 - [x] **(Kauê)** Create formal scientific provenance & audit document (`docs/science/AUDIT.md`) + upgrade `README.md` to Global Winner format (scientific scope disclaimer, *Signature Moment*, 4-scale verified table, 3-tier offline-first architecture, mathematical provenance matrix)
 - [ ] **(Kauê)** Register custom domain via GoDaddy Global Offer (`earthtrend.us` / `earthtrend.co` / `earthtrend.space`) and bind Custom Domain in Cloudflare Workers (`wrangler.jsonc`)
 - [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` and full scientific `README.md` created; final live URL/screenshots added at Code Freeze)
