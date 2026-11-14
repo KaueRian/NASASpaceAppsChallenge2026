@@ -189,4 +189,57 @@ describe("Worker API routes", () => {
     const errJson = (await notFoundRes.json()) as ApiErrorResponse;
     expect(errJson.code).toBe("GEOCODE_NOT_FOUND");
   });
+
+  it("POST /api/dossiers creates a structured dossier and GET /api/dossiers/:id retrieves it", async () => {
+    const monthly = buildMonthlyPayload(1981, 2025);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ properties: { parameter: { T2M: monthly } } }), {
+          status: 200,
+        }),
+      ),
+    );
+
+    const createRes = await app.request(
+      "/api/dossiers",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lat: -12.7406,
+          lon: -60.1458,
+          locationLabel: "Vilhena, RO https://spam.example",
+          variable: "T2M",
+          season: "annual",
+          startYear: 1981,
+          endYear: 2025,
+        }),
+      },
+      buildMockEnv(),
+    );
+
+    expect(createRes.status).toBe(201);
+    const created = (await createRes.json()) as {
+      id: string;
+      createdAt: string;
+      result: InvestigationResult;
+    };
+    expect(created.id).toMatch(/^et-[a-f0-9]{10}$/);
+    expect(created.result.location.label).toBe("Vilhena, RO");
+
+    const getRes = await app.request(`/api/dossiers/${created.id}`, {}, buildMockEnv());
+    expect(getRes.status).toBe(200);
+    const fetched = (await getRes.json()) as { id: string };
+    expect(fetched.id).toBe(created.id);
+
+    const listRes = await app.request("/api/dossiers", {}, buildMockEnv());
+    expect(listRes.status).toBe(200);
+    const listJson = (await listRes.json()) as { ok: boolean; dossiers: Array<{ id: string }> };
+    expect(listJson.ok).toBe(true);
+    expect(listJson.dossiers.some((d) => d.id === created.id)).toBe(true);
+
+    const missingRes = await app.request("/api/dossiers/et-0000000000", {}, buildMockEnv());
+    expect(missingRes.status).toBe(404);
+  });
 });

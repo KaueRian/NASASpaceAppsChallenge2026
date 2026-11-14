@@ -82,13 +82,13 @@
 - **Focus mode:** clicking a card opens the `<ForensicDossier />` in the foreground; the board dims + blurs behind it. `Esc`/backdrop/`← Back to Case Board` closes it; focus returns to the card.
 - **Mobile:** vertical stack of pinned cards (no yarn, no map); the dossier opens as a full-screen sheet.
 
-#### The 4 preset cases (hooks must be validated against real data before final copy)
-| # | Location | Variable | Default season | Draft hook |
-|---|---|---|---|---|
-| 01 | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | "Is the dry season getting drier?" |
-| 02 | Porto Velho, RO, Brazil | `GWETROOT` | Annual | "Is the Madeira basin soil drying out?" |
-| 03 | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | "Are tropical nights getting hotter?" |
-| 04 | Svalbard, Arctic | `T2M` | Annual | "How fast is the Arctic warming?" |
+#### The 4 preset cases (verified against real NASA POWER `1981–2025` data)
+| # | Location | Variable | Default season | Real Verdict (`1981–2025`) | Total Shift (`n=45`) | Draft hook |
+|---|---|---|---|---|---|---|
+| 01 | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | `STRONG_EVIDENCE` (`p=0.000131`) | `-234.46 mm` (`-53.29/dec`) | "Is the dry season getting drier?" |
+| 02 | Porto Velho, RO, Brazil | `GWETROOT` | Annual | `STRONG_EVIDENCE` (`p<0.000001`) | `-14.26 pts` (`-3.24/dec`) | "Is the Madeira basin soil drying out?" |
+| 03 | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | `STRONG_EVIDENCE` (`p=0.000001`) | `+1.82 °C` (`+0.41/dec`) | "Are tropical nights getting hotter?" |
+| 04 | Svalbard, Arctic | `T2M` | Annual | `STRONG_EVIDENCE` (`p<0.000001`) | `+3.50 °C` (`+0.79/dec`) | "How fast is the Arctic warming?" |
 
 - If a case returns `INSUFFICIENT EVIDENCE` with real data, keep **at most one** inconclusive case on purpose ("not every suspect is guilty") and reorder so the strongest case is #01.
 - If the user changes variable/season inside a preset, the dossier becomes a "Derived investigation from Case #0X" with a `Restore original case` button.
@@ -102,8 +102,12 @@
 
 ### 4.3 `Methods File`
 - Declassified manila binder with tabs: `01. NASA Data` · `02. Mann-Kendall` · `03. Sen's Slope` · `04. Limitations`.
-- Plain-language first, formula second.
-- `Limitations` must mention: MERRA-2 reanalysis (~50 km grid, not a weather station), serial autocorrelation, and short-record caveats.
+- Plain-language first, formula second (designed for high-school/university environmental education and public decision-making, per the HUBEE Challenge Manual).
+- `Limitations` must mention:
+  1. **MERRA-2 reanalysis (~50 km grid)**, not a single point weather station;
+  2. **Correlation vs. Causation:** Mann-Kendall proves statistical significance of a directional trend in observed data, not single-cause attribution;
+  3. **Regional Contrast & Land-Cover Context:** how global processes can drive different rates or opposite trends across regions, and how climate trends in Rondônia complement land-use/forest-cover monitoring (e.g., *MapBiomas*) and **UN SDGs 6, 13, and 15**;
+  4. **Serial autocorrelation** and **short-record caveats** (minimum 15 years enforced).
 - Every dossier answer links contextually here ("How do we know? → §02").
 
 ---

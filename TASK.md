@@ -65,6 +65,19 @@
 
 ---
 
+## 🌿 HUBEE Local Challenge Manual Alignment (Challenge #2 — *Missão Amazônia*)
+*Extracted from the official Vilhena participant manual (`MANUAL DOS DESAFIOS - Participantes.pdf`). Keep these 5 points visible across UI copy, Methods File, README, and Pitch:*
+1. **Official Recommended Data:** `NASA POWER` (implemented), `NASA Earthdata`, `NASA Giovanni`.
+2. **HUBEE Idea #2 Match:** Brazilian municipal temperature & precipitation evolution panel starting with **historical data from Vilhena, RO** (our Case #01) and expanding across Amazonian/global municipalities (`New Investigation`).
+3. **Scientific Guardrail (`Correlation ≠ Causation`):** Explicitly state in the Dossier & `04. Limitations` that Mann-Kendall proves **statistical significance of an observed trend**, not single-cause attribution, and highlight how **regional trends can move at different rates or opposite directions** under global climate processes.
+4. **Complementary Amazon & Education Context:** Reference land-cover context (*MapBiomas* in Rondônia) in regional case narratives and highlight usability for **environmental education in schools** and local climate adaptation research.
+5. **UN SDGs (*Missão Amazônia*):**
+   - **SDG 6 (Clean Water & Sanitation):** Precipitation (`PRECTOTCORR`) & root-zone soil moisture (`GWETROOT`) for water-resource planning.
+   - **SDG 13 (Climate Action):** 45-year historical series (`1981–2025`) supporting territorial climate adaptation.
+   - **SDG 15 (Life on Land):** Forest ecosystem monitoring and conservation in the Cerrado–Amazon transition.
+
+---
+
 ## ✅ Done (Pre-Event Planning)
 - [x] **(Kauê)** Initialize Git repository and push to GitHub via HTTPS
 - [x] **(Kauê)** Create governance files (`TASK.md`, `AGENTS.md`, `CLAUDE.md`, `.gitignore`, `README.md`)
@@ -98,7 +111,7 @@
 - [x] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
 - [x] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
 - [x] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
-- [ ] **(Higor & Luis)** Write final case hooks + all dossier microcopy and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts
+- [ ] **(Higor & Luis)** Write final case hooks + all dossier microcopy and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts (include regional Amazon/Rondônia context, school/research usability, and explicit note that statistical trend ≠ direct single-cause causation per the HUBEE Challenge Manual)
 - [ ] **(Mylena)** `<CaseBoard />` + 4 `<CaseCard />` + `<YarnLayer />` (cards linked to each other), focus mode (dim + blur, `Esc`, Back), mobile vertical stack
 - [ ] **(Mylena)** `<ForensicDossier />` on paper: verdict sentence, `<VerdictStamp />` (static), 4 answers with units, `<MiniMap />` (static SVG), NASA attribution badge
 - [ ] **(Mylena)** `<TrendChart />` (Recharts on paper): `ink` series, dashed `evidence` Sen's line, `brass` anomaly dots, axis units
@@ -121,21 +134,21 @@
 - [ ] **(Mylena)** Stamp slam animation on `<VerdictStamp />` + `<DidacticLoader />` (4 steps)
 - [ ] **(Mylena)** Experimental `<PaperWorldMap />` in the board center with yarn to location pins (behind a flag; remove if cluttered)
 - [ ] **(Mylena)** Mobile polish: bottom tab bar, dossier as full-screen sheet, no horizontal overflow
-- [ ] **(Kauê)** `<ClimateStripes />` + `<EvidenceCard />` (Story 9:16 with stats, Square 1:1 minimal) + `Download PNG` (`html-to-image`)
-- [ ] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA
-- [ ] **(Kauê)** `<ShareSheet />`: `Copy link` (auto-save), `Download PNG`, native `navigator.share` on mobile; deep link `/investigate?…`
+- [x] **(Kauê)** `<ClimateStripes />` + `<EvidenceCard />` (Story 9:16 with stats, Square 1:1 minimal) + `Download PNG` (HTML5 Canvas PNG generator in `src/components/share/`)
+- [~] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA (API endpoints + tests ready in `src/worker/routes/dossiers.ts`; `/dossier/:id` view wiring next)
+- [x] **(Kauê)** `<ShareSheet />`: `Copy link` (auto-save), `Download PNG`, native `navigator.share` on mobile; deep link `/investigate?…` (`src/components/share/ShareSheet.tsx`)
 - [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
 - [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
 - [ ] **(Mylena)** **Should:** `<MethodsFile />` binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`, `04. Limitations`) + contextual "How do we know?" links from the dossier
-- [ ] **(Higor & Luis)** **Should:** Methods File text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records)
+- [ ] **(Higor & Luis)** **Should:** Methods File text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records, **correlation vs. causation**, and opposite regional trends driven by global processes)
 - [ ] **(Kauê)** **Should:** OG meta tags (static image) for `/` and `/dossier/:id`
 - [ ] **(Mylena)** **Could:** `REVIEWED` seal on opened cards (`localStorage`)
 - [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
-- [ ] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI
-- [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations)
+- [~] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI (`GET /api/dossiers` endpoint implemented in `src/worker/routes/dossiers.ts`)
+- [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations, **Missão Amazônia & ODS 6/13/15 alignment**)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
 
@@ -144,7 +157,7 @@
 ---
 
 ## 🎤 Pitch, Video & Submission Track (Higor & Luis — runs in parallel)
-- [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance)
+- [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance + **Missão Amazônia: ODS 6, ODS 13, ODS 15, MapBiomas land-use context & environmental education in schools**)
 - [ ] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s board intro, 5–15s case + stamp slam, 15–25s live search, 25–30s impact + share card)
 - [ ] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
 - [ ] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
