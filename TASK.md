@@ -5,7 +5,7 @@
 > **Official Team Name / ID:** `TBD — Fill on Saturday morning`  
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
 > **Slides / Media Workspace (Canva / Drive):** `TBD — Add link here`  
-> **Stage Representative (Art. 6.2 — 1 person on stage):** `TBD — Decide Saturday morning`  
+> **Stage Representative (Art. 6.2 — 1 person on stage):** **Higor** (Stage Pitch) · **Luis** (Slides & Visual Deck)  
 > **Tech Stack:** React + Vite + Tailwind CSS + Recharts + Leaflet | Cloudflare Workers + Static Assets (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
 > **Design Spec:** [`DESIGN.md`](DESIGN.md) · **Concept mockups:** [`docs/concepts/`](docs/concepts/)
 
@@ -96,7 +96,7 @@
 
 ## 🧱 R0 — Foundation (target Sat 11:00)
 - [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
-- [ ] **(All)** Decide the stage representative (Art. 6.2)
+- [x] **(All)** Decide the stage representative (Art. 6.2): **Higor** (3-minute stage pitch) & **Luis** (Slide deck)
 - [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
 - [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
 - [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
