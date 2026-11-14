@@ -35,12 +35,26 @@ export function CitySearchInput({ currentLabel, onSelect, className }: CitySearc
     return () => clearTimeout(handle);
   }, [query]);
 
+  const selectCandidate = (candidate: GeocodeCandidate) => {
+    onSelect(candidate);
+    setQuery("");
+    setCandidates([]);
+  };
+
   return (
     <div className={`relative inline-block ${className ?? ""}`}>
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          // this field lives inside the investigation <form> — Enter must pick a
+          // suggestion, never submit with the old location still in place.
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (candidates.length > 0) selectCandidate(candidates[0]);
+          }
+        }}
         placeholder={currentLabel ?? t("form.locationPlaceholder")}
         className="w-full border-b border-accent bg-transparent px-1 py-0.5 font-display text-lg text-text placeholder:text-text-muted focus:outline-none"
       />
@@ -50,11 +64,7 @@ export function CitySearchInput({ currentLabel, onSelect, className }: CitySearc
             <li key={candidate.label}>
               <button
                 type="button"
-                onClick={() => {
-                  onSelect(candidate);
-                  setQuery("");
-                  setCandidates([]);
-                }}
+                onClick={() => selectCandidate(candidate)}
                 className="block w-full whitespace-nowrap px-3 py-2 text-left font-sans text-sm text-text hover:bg-bg"
               >
                 {candidate.label}

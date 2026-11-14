@@ -136,6 +136,12 @@
     "phrasePrefix": "The",
     "phraseIn": "in"
   },
+  "chart": {
+    "legendObserved": "Observed",
+    "legendTrend": "Sen's trend",
+    "legendAnomaly": "Anomaly (|z| > 1.5)",
+    "anomalyTag": "Anomaly"
+  },
   "investigation": {
     "yearsLabel": "Years",
     "ciPerYear": "95% CI (per year)",
