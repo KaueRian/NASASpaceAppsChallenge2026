@@ -5,7 +5,7 @@
 > **Official Team Name / ID:** `TBD — Fill on Saturday morning`  
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
 > **Slides / Media Workspace (Canva / Drive):** `TBD — Add link here`  
-> **Stage Representative (Art. 6.2 — 1 person on stage):** `TBD — Decide Saturday morning`  
+> **Stage Representative (Art. 6.2 — 1 person on stage):** **Higor** (Stage Pitch) · **Luis** (Slides & Visual Deck)  
 > **Tech Stack:** React + Vite + Tailwind CSS + Recharts + Leaflet | Cloudflare Workers + Static Assets (Hono + TypeScript) | Cloudflare D1 (SQLite) | Biome + Vitest + GitHub Actions  
 > **Design Spec:** [`DESIGN.md`](DESIGN.md) · **Concept mockups:** [`docs/concepts/`](docs/concepts/)
 
@@ -95,8 +95,8 @@
 ---
 
 ## 🧱 R0 — Foundation (target Sat 11:00)
-- [ ] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
-- [ ] **(All)** Decide the stage representative (Art. 6.2)
+- [x] **(All)** Confirm all 4 members on the same NASA Space Apps Team ID; fill Team Name above
+- [x] **(All)** Decide the stage representative (Art. 6.2): **Higor** (3-minute stage pitch) & **Luis** (Slide deck)
 - [x] **(Kauê)** Invite Mylena, Higor & Luis as collaborators on `KaueRian/NASASpaceAppsChallenge2026`
 - [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
 - [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
@@ -165,7 +165,9 @@
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
 - [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
 - [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers (`src/components/share/SatelliteTimelapse.tsx`)
-- [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` created; final screenshots/live URL added at Code Freeze)
+- [x] **(Kauê)** Create formal scientific provenance & audit document (`docs/science/AUDIT.md`) + upgrade `README.md` to Global Winner format (scientific scope disclaimer, *Signature Moment*, 4-scale verified table, 3-tier offline-first architecture, mathematical provenance matrix)
+- [ ] **(Kauê)** Register custom domain via GoDaddy Global Offer (`earthtrend.us` / `earthtrend.co` / `earthtrend.space`) and bind Custom Domain in Cloudflare Workers (`wrangler.jsonc`)
+- [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` and full scientific `README.md` created; final live URL/screenshots added at Code Freeze)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
 
