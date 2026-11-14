@@ -1,21 +1,47 @@
+import { useEffect, useRef, useState } from "react";
+import { AppHeader, type SectionId } from "./components/AppHeader";
+
+type View = "home" | "methods";
+
 export function App() {
+  const [view, setView] = useState<View>("home");
+  const pendingScrollRef = useRef<SectionId | null>(null);
+
+  useEffect(() => {
+    if (view === "home" && pendingScrollRef.current) {
+      const id = pendingScrollRef.current;
+      pendingScrollRef.current = null;
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [view]);
+
+  const navigateSection = (id: SectionId) => {
+    if (view !== "home") {
+      pendingScrollRef.current = id;
+      setView("home");
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <main className="min-h-screen bg-bg text-text flex items-center justify-center p-6">
-      <section className="max-w-xl w-full bg-surface text-text rounded-sm p-10 border border-border">
-        <p className="font-mono text-xs tracking-widest uppercase text-text-muted mb-3">
-          NASA Space Apps Challenge 2026 · Vilhena, RO
-        </p>
-        <h1 className="font-display text-4xl mb-4">EarthTrend Detective</h1>
-        <p className="font-sans text-sm text-text-muted leading-relaxed mb-8">
-          R0 Foundation shell deployed. Climate trend forensics powered by NASA POWER / MERRA-2
-          monthly records (1981–2025), Mann-Kendall significance testing, and Sen&apos;s Slope.
-        </p>
-        <div className="border-t border-border pt-4">
-          <span className="font-mono text-xs uppercase tracking-wide text-accent">
-            Foundation active · R0
-          </span>
-        </div>
-      </section>
-    </main>
+    <div className="min-h-screen bg-bg text-text">
+      <AppHeader
+        onNavigateSection={navigateSection}
+        onNavigateMethods={() => setView("methods")}
+        onNavigateHome={() => setView("home")}
+      />
+      <main className="p-6">
+        {view === "methods" ? (
+          <p className="font-sans text-text-muted">
+            Methods page placeholder — built in a later task.
+          </p>
+        ) : (
+          <p className="font-sans text-text-muted">
+            Home page placeholder — Hero / Investigation / CasesGrid land in later tasks.
+          </p>
+        )}
+      </main>
+    </div>
   );
 }

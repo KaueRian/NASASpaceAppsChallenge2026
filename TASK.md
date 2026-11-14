@@ -92,8 +92,9 @@
 - [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
 - [x] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
   - *Note (Mylena):* implemented as the "Dark Editorial" palette (`bg`/`surface`/`text`/`text-muted`/`accent`/`border`) instead of the noir `room`/`board`/`paper`/`brass`/`evidence` tokens — see `DESIGN.md` update needed before other components rely on the old names.
-- [ ] **(Mylena)** `<AppHeader />` with 3 links (`Investigate`/`Cases` scroll to a home section, `Methods` opens `<MethodsPage />`) + `<LanguageToggle />` (`EN | PT`) + i18n setup (`en.json`, `pt.json`)
+- [x] **(Mylena)** `<AppHeader />` with 3 links (`Investigate`/`Cases` scroll to a home section, `Methods` opens `<MethodsPage />`) + `<LanguageToggle />` (`EN | PT`) + i18n setup (`en.json`, `pt.json`)
   - *Note (Mylena):* default locale is `pt` unless a different value is already saved in `localStorage` — no `navigator.language` detection for now (kept commented in code as a future option). The attention-grabbing `<Hero />` treatment is prototyped separately before implementing for real.
+  - *Note (Mylena):* `src/locales/en.json`/`pt.json`'s 4 `cases.0N.hook` strings are my draft placeholders (DESIGN.md §4.3's draft hooks) — final copy is Higor & Luis's to write, per their R1 task below.
 - [ ] **(Higor & Luis)** Review NASA judging criteria + HUBEE rules; create `docs/submission/` and the Canva/Drive workspace
 - [ ] **(Kauê)** 🚀 **Release R0:** merge `dev -> main`, deploy, smoke test
 
