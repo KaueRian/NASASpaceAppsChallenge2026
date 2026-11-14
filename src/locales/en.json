@@ -10,7 +10,8 @@
     "title": "Separating real climate trends from year-to-year weather noise.",
     "subtitle": "Investigate 45 years of NASA satellite & reanalysis records anywhere on Earth using non-parametric Mann-Kendall significance tests and Sen's Slope estimation — built for researchers, students, and public decision-makers.",
     "ctaInvestigate": "Start Investigation",
-    "ctaCases": "Explore Featured Cases"
+    "ctaCases": "Explore Featured Cases",
+    "stripesCaption": "Case #01 · Vilhena, RO · Apr–Sep Rainfall Anomaly Barcode (1981–2025 · −234.5 mm · p = 0.000131)"
   },
   "cases": {
     "sectionTitle": "Featured Cases",
@@ -210,8 +211,19 @@
       "title": "04. Theil-Sen Median Slope & 95% Confidence Interval",
       "body": "While Mann-Kendall determines whether a trend is statistically significant, Sen's Slope estimates how fast the variable is changing by taking the median of all pairwise slopes `(x_j - x_i) / (t_j - t_i)`, accompanied by a 95% Gilbert / Hollander-Wolfe rank confidence interval and Ordinary Least Squares R²."
     },
+    "formulas": {
+      "title": "05. Mathematical Provenance & Benjamini-Hochberg FDR",
+      "body": "All statistical tests run deterministically in TypeScript without external black-box dependencies. When scanning all 4 NASA POWER variables simultaneously at a single location, raw p-values are adjusted using the Benjamini-Hochberg (1995) step-up False Discovery Rate (FDR, α = 0.05) procedure to prevent multiple-testing false positives."
+    },
+    "validationTable": {
+      "title": "06. Empirical 4-Scale Validation Probes (1981–2025, n = 45)",
+      "colLocation": "Location (Scale)",
+      "colVariable": "Variable (Window)",
+      "colSlope": "Sen's Slope (95% CI / dec)",
+      "colStats": "Z / p / R² / r₁"
+    },
     "limitations": {
-      "title": "05. Scientific Limitations & Interpretation Guardrails",
+      "title": "07. Scientific Limitations & Interpretation Guardrails",
       "gridItem": "MERRA-2 Spatial Grid (~50 km): Values represent a ~0.5° × 0.625° regional grid cell, not an isolated farm rain gauge or urban microclimate station.",
       "causationItem": "Correlation vs. Causation: A statistically significant Mann-Kendall p-value proves that a directional shift occurred in the observed series above random noise; it does not isolate whether the driver is global greenhouse forcing, regional deforestation, or decadal ocean oscillations.",
       "regionalItem": "Regional Contrast & Amazon Context: Global climate change does not act uniformly — different regions and seasons can warm or dry at distinct rates. In Rondônia and the Pantanal, pairing NASA POWER climate trends with land-use series (such as MapBiomas) supports environmental education and territorial planning aligned with UN SDGs 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land).",

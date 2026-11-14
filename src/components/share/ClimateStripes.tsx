@@ -5,6 +5,7 @@ export interface ClimateStripesProps {
   variable: VariableId;
   height?: number;
   className?: string;
+  tone?: "light" | "dark";
 }
 
 const TEMP_PALETTE = [
@@ -49,18 +50,21 @@ export function ClimateStripes({
   variable,
   height = 56,
   className = "",
+  tone = "light",
 }: ClimateStripesProps) {
   if (series.length === 0) return null;
 
   const firstLabel = series[0]?.label ?? "";
   const lastLabel = series[series.length - 1]?.label ?? "";
+  const borderClass = tone === "dark" ? "border-border" : "border-[#14110F]/25";
+  const labelClass = tone === "dark" ? "text-text-muted" : "text-[#5C5346]";
 
   return (
     <div className={className}>
       <svg
         viewBox={`0 0 ${series.length * 10} ${height}`}
         preserveAspectRatio="none"
-        className="w-full overflow-hidden rounded-sm border border-[#14110F]/25"
+        className={`w-full overflow-hidden rounded-sm border ${borderClass}`}
         style={{ height }}
         role="img"
         aria-label={`Climate anomaly stripes from ${firstLabel} to ${lastLabel}`}
@@ -78,7 +82,7 @@ export function ClimateStripes({
           </rect>
         ))}
       </svg>
-      <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-[#5C5346]">
+      <div className={`mt-1 flex items-center justify-between font-mono text-[11px] ${labelClass}`}>
         <span>{firstLabel}</span>
         <span>ANOMALY STRIPES (Z-SCORE)</span>
         <span>{lastLabel}</span>

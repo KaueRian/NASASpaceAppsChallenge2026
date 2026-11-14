@@ -84,8 +84,7 @@ export function LocationPicker({ lat, lon, onChange }: LocationPickerProps) {
         center={[lat, lon]}
         zoom={5}
         scrollWheelZoom={false}
-        style={{ height: 320 }}
-        className="map-dark-tiles border border-border"
+        className="map-dark-tiles h-56 w-full border border-border sm:h-72"
       >
         <TileLayer
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

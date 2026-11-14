@@ -92,7 +92,7 @@ export function CitySearchInput({
         className="w-full border-b border-accent bg-transparent px-1 py-0.5 font-display text-lg text-text placeholder:text-text focus:placeholder:text-text-muted focus:outline-none"
       />
       {isOpen && (candidates.length > 0 || onPickOnMap) && (
-        <div className="absolute left-0 z-20 mt-1 max-h-72 w-72 overflow-y-auto border border-border bg-surface shadow-lg">
+        <div className="absolute left-0 z-20 mt-1 max-h-72 w-72 max-w-[calc(100vw-3rem)] overflow-y-auto border border-border bg-surface shadow-lg">
           {query.trim().length < 3 && candidates.length > 0 && (
             <p className="border-b border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
               {t("form.quickLocationsTitle")}

@@ -18,12 +18,16 @@ export function AppHeader({
 
   return (
     <header className="border-b border-border bg-bg">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-4">
-        <button type="button" onClick={onNavigateHome} className="font-display text-lg text-text">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:gap-x-6 sm:px-6 sm:py-4">
+        <button
+          type="button"
+          onClick={onNavigateHome}
+          className="font-display text-base text-text sm:text-lg"
+        >
           {t("nav.wordmark")}
         </button>
 
-        <nav className="flex flex-wrap items-center gap-6 font-sans text-sm text-text-muted">
+        <nav className="flex flex-wrap items-center gap-4 font-sans text-sm text-text-muted sm:gap-6">
           <button
             type="button"
             onClick={() => onNavigateSection("investigation")}

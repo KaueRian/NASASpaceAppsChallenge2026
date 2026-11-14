@@ -9,6 +9,13 @@ import type { CasePresetId } from "./types/investigation";
 
 type View = "home" | "methods";
 
+function scrollToSection(id: string) {
+  const prefersReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById(id)?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" });
+}
+
 export function App() {
   const [view, setView] = useState<View>("home");
   const [presetId, setPresetId] = useState<CasePresetId>("01");
@@ -18,7 +25,7 @@ export function App() {
     if (view === "home" && pendingScrollRef.current) {
       const id = pendingScrollRef.current;
       pendingScrollRef.current = null;
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      scrollToSection(id);
     }
   }, [view]);
 
@@ -28,22 +35,22 @@ export function App() {
       setView("home");
       return;
     }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    scrollToSection(id);
   };
 
   const selectPreset = (id: CasePresetId) => {
     setPresetId(id);
-    document.getElementById("investigation")?.scrollIntoView({ behavior: "smooth" });
+    scrollToSection("investigation");
   };
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen overflow-x-clip bg-bg text-text">
       <AppHeader
         onNavigateSection={navigateSection}
         onNavigateMethods={() => setView("methods")}
         onNavigateHome={() => setView("home")}
       />
-      <main className="p-6">
+      <main className="mx-auto max-w-5xl">
         {view === "methods" ? (
           <MethodsPage onNavigateHome={() => setView("home")} />
         ) : (

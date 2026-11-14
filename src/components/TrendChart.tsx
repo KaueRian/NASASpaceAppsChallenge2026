@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useI18n } from "../i18n/i18n";
 import { UNIT_SUFFIX } from "../lib/resultDisplay";
-import type { SeriesPoint, VariableUnit } from "../types/investigation";
+import type { SeriesPoint, VariableId, VariableUnit } from "../types/investigation";
+import { ClimateStripes } from "./share/ClimateStripes";
+
+export type ChartViewMode = "line" | "bars" | "stripes";
 
 interface TrendChartProps {
   series: readonly SeriesPoint[];
   unit: VariableUnit;
+  variable?: VariableId;
 }
 
 const WIDTH = 760;
@@ -15,9 +19,10 @@ const PADDING_RIGHT = 16;
 const PADDING_TOP = 24;
 const PADDING_BOTTOM = 36;
 
-export function TrendChart({ series, unit }: TrendChartProps) {
+export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) {
   const { t, formatNumber } = useI18n();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<ChartViewMode>("line");
 
   if (series.length === 0) {
     return null;
@@ -51,130 +56,191 @@ export function TrendChart({ series, unit }: TrendChartProps) {
   const hovered = hoveredIndex !== null ? series[hoveredIndex] : undefined;
   const tooltipLeftPct = hovered ? (xAt(hoveredIndex as number) / WIDTH) * 100 : 0;
   const tooltipTopPct = hovered ? (yAt(hovered.value) / HEIGHT) * 100 : 0;
+  const barWidth = Math.max(4, Math.min(12, xStep * 0.68));
+  const baselineY = PADDING_TOP + plotHeight;
 
   return (
     <div className="relative">
-      <div className="mb-3 flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
-          {t("chart.legendTrend")}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
-          {t("chart.legendAnomaly")}
-        </span>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
+            {t("chart.legendTrend")}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
+            {t("chart.legendAnomaly")}
+          </span>
+        </div>
+
+        <fieldset
+          aria-label={t("form.viewAsLabel")}
+          className="inline-flex w-full flex-wrap items-center gap-1 border border-border bg-bg p-0.5 font-mono text-[10px] uppercase tracking-wide sm:w-auto"
+        >
+          {(
+            [
+              { id: "line", label: t("form.viewLine") },
+              { id: "bars", label: t("form.viewBars") },
+              { id: "stripes", label: t("form.viewStripes") },
+            ] as const
+          ).map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              aria-pressed={viewMode === mode.id}
+              onClick={() => setViewMode(mode.id)}
+              className={`px-2 py-1 transition-colors motion-reduce:transition-none ${
+                viewMode === mode.id ? "bg-surface text-accent" : "text-text-muted hover:text-text"
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </fieldset>
       </div>
 
-      <svg
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="w-full"
-        role="img"
-        aria-label={`Line chart: observed values${unitSuffix ? ` in ${unitSuffix}` : ""} from ${first.label} to ${last.label}, with the Sen's Slope trend line and marked anomalies.`}
-      >
-        {[min, (min + max) / 2, max].map((value) => (
-          <g key={value}>
-            <line
-              x1={PADDING_LEFT}
-              y1={yAt(value)}
-              x2={WIDTH - PADDING_RIGHT}
-              y2={yAt(value)}
-              stroke="var(--color-border)"
-              strokeWidth={1}
-              strokeDasharray={value === min ? undefined : "2 4"}
-            />
-            <text
-              x={PADDING_LEFT - 8}
-              y={yAt(value) + 3}
-              fill="var(--color-text-muted)"
-              fontSize={10}
-              fontFamily="Courier Prime, monospace"
-              textAnchor="end"
-            >
-              {formatNumber(value, { maximumFractionDigits: 0 })}
-            </text>
-          </g>
-        ))}
+      {viewMode === "stripes" ? (
+        <div className="py-2">
+          <ClimateStripes series={series} variable={variable} height={180} tone="dark" />
+        </div>
+      ) : (
+        <>
+          <svg
+            viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+            className="w-full"
+            role="img"
+            aria-label={`Chart (${viewMode}): observed values${unitSuffix ? ` in ${unitSuffix}` : ""} from ${first.label} to ${last.label}, with the Sen's Slope trend line and marked anomalies.`}
+          >
+            {[min, (min + max) / 2, max].map((value) => (
+              <g key={value}>
+                <line
+                  x1={PADDING_LEFT}
+                  y1={yAt(value)}
+                  x2={WIDTH - PADDING_RIGHT}
+                  y2={yAt(value)}
+                  stroke="var(--color-border)"
+                  strokeWidth={1}
+                  strokeDasharray={value === min ? undefined : "2 4"}
+                />
+                <text
+                  x={PADDING_LEFT - 8}
+                  y={yAt(value) + 3}
+                  fill="var(--color-text-muted)"
+                  fontSize={10}
+                  fontFamily="Courier Prime, monospace"
+                  textAnchor="end"
+                >
+                  {formatNumber(value, { maximumFractionDigits: 0 })}
+                </text>
+              </g>
+            ))}
 
-        <polyline
-          points={observedPoints}
-          fill="none"
-          stroke="var(--color-text)"
-          strokeWidth={1.5}
-        />
-        <polyline
-          points={trendPoints}
-          fill="none"
-          stroke="var(--color-accent)"
-          strokeWidth={1.5}
-          strokeDasharray="6 5"
-        />
-
-        {series.map((point, index) => (
-          <g key={point.year}>
-            {point.isExtremeAnomaly && (
-              <circle cx={xAt(index)} cy={yAt(point.value)} r={3.5} fill="var(--color-accent)" />
-            )}
-            {hoveredIndex === index && (
-              <circle
-                cx={xAt(index)}
-                cy={yAt(point.value)}
-                r={4.5}
+            {viewMode === "line" ? (
+              <polyline
+                points={observedPoints}
                 fill="none"
                 stroke="var(--color-text)"
                 strokeWidth={1.5}
               />
+            ) : (
+              series.map((point, index) => {
+                const topY = yAt(point.value);
+                const barHeight = Math.max(2, baselineY - topY);
+                return (
+                  <rect
+                    key={point.year}
+                    x={xAt(index) - barWidth / 2}
+                    y={topY}
+                    width={barWidth}
+                    height={barHeight}
+                    fill={
+                      point.isExtremeAnomaly ? "var(--color-accent)" : "var(--color-text-muted)"
+                    }
+                    opacity={hoveredIndex === index ? 1 : 0.78}
+                  />
+                );
+              })
             )}
-            {/* larger invisible hit target, easier to hover/tap than the 3.5px dot — purely
-                decorative mouse-hover tooltip trigger, the data is already in the chart's aria-label */}
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative hover-only affordance, not essential, not keyboard-reachable by design */}
-            <circle
-              cx={xAt(index)}
-              cy={yAt(point.value)}
-              r={10}
-              fill="transparent"
-              style={{ cursor: "pointer" }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() =>
-                setHoveredIndex((current) => (current === index ? null : current))
-              }
+
+            <polyline
+              points={trendPoints}
+              fill="none"
+              stroke="var(--color-accent)"
+              strokeWidth={1.5}
+              strokeDasharray="6 5"
             />
-          </g>
-        ))}
 
-        <text
-          x={PADDING_LEFT}
-          y={HEIGHT - PADDING_BOTTOM + 20}
-          fill="var(--color-text-muted)"
-          fontSize={11}
-          fontFamily="Courier Prime, monospace"
-        >
-          {first.label}
-        </text>
-        <text
-          x={WIDTH - PADDING_RIGHT}
-          y={HEIGHT - PADDING_BOTTOM + 20}
-          fill="var(--color-text-muted)"
-          fontSize={11}
-          fontFamily="Courier Prime, monospace"
-          textAnchor="end"
-        >
-          {last.label}
-        </text>
-      </svg>
+            {series.map((point, index) => (
+              <g key={point.year}>
+                {viewMode === "line" && point.isExtremeAnomaly && (
+                  <circle
+                    cx={xAt(index)}
+                    cy={yAt(point.value)}
+                    r={3.5}
+                    fill="var(--color-accent)"
+                  />
+                )}
+                {hoveredIndex === index && (
+                  <circle
+                    cx={xAt(index)}
+                    cy={yAt(point.value)}
+                    r={4.5}
+                    fill="none"
+                    stroke="var(--color-text)"
+                    strokeWidth={1.5}
+                  />
+                )}
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative hover-only affordance, not essential, not keyboard-reachable by design */}
+                <circle
+                  cx={xAt(index)}
+                  cy={yAt(point.value)}
+                  r={10}
+                  fill="transparent"
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() =>
+                    setHoveredIndex((current) => (current === index ? null : current))
+                  }
+                />
+              </g>
+            ))}
 
-      {hovered && (
-        <div
-          className="pointer-events-none absolute -translate-x-1/2 -translate-y-[120%] whitespace-nowrap border border-border bg-surface px-2 py-1 font-mono text-xs text-text"
-          style={{ left: `${tooltipLeftPct}%`, top: `${tooltipTopPct}%` }}
-        >
-          <p>
-            {hovered.label}: {formatValue(hovered.value)}
-          </p>
-          {hovered.isExtremeAnomaly && <p className="text-accent">{t("chart.anomalyTag")}</p>}
-        </div>
+            <text
+              x={PADDING_LEFT}
+              y={HEIGHT - PADDING_BOTTOM + 20}
+              fill="var(--color-text-muted)"
+              fontSize={11}
+              fontFamily="Courier Prime, monospace"
+            >
+              {first.label}
+            </text>
+            <text
+              x={WIDTH - PADDING_RIGHT}
+              y={HEIGHT - PADDING_BOTTOM + 20}
+              fill="var(--color-text-muted)"
+              fontSize={11}
+              fontFamily="Courier Prime, monospace"
+              textAnchor="end"
+            >
+              {last.label}
+            </text>
+          </svg>
+
+          {hovered && (
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 -translate-y-[120%] whitespace-nowrap border border-border bg-surface px-2 py-1 font-mono text-xs text-text"
+              style={{ left: `${tooltipLeftPct}%`, top: `${tooltipTopPct}%` }}
+            >
+              <p>
+                {hovered.label}: {formatValue(hovered.value)}
+              </p>
+              {hovered.isExtremeAnomaly && <p className="text-accent">{t("chart.anomalyTag")}</p>}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
