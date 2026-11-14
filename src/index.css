@@ -27,6 +27,19 @@
   --font-mono: "Courier Prime", ui-monospace, "SFMono-Regular", monospace;
 }
 
+/* Guard mobile viewports against stray wide tables/dropdowns and honor motion preferences. */
+html,
+body {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* Dark-mode trick for the free OpenStreetMap tiles (no API key, unlike CARTO's dark
    basemap): invert only the tile pane, leave markers/overlays untouched. */
 .map-dark-tiles .leaflet-tile-pane {

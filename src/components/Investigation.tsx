@@ -210,7 +210,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
   const recommendedSeasonForCurrent = getRecommendedSeason(query.variable, query.lat);
 
   return (
-    <section id="investigation" className="border-b border-border px-6 py-10">
+    <section id="investigation" className="border-b border-border px-4 py-8 sm:px-6 sm:py-10">
       {isDerived && (
         <div className="mb-3 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wide text-text-muted">
           <span>{t("cases.derivedBanner", { id: presetId })}</span>
@@ -220,14 +220,17 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mb-8 space-y-3 border border-border bg-surface p-4">
-        <div className="flex flex-wrap items-center gap-2 font-display text-lg text-text">
+      <form
+        onSubmit={handleSubmit}
+        className="mb-8 space-y-3 border border-border bg-surface p-3 sm:p-4"
+      >
+        <div className="flex flex-wrap items-center gap-2 font-display text-base text-text sm:text-lg">
           <span className="text-text-muted">{t("form.phrasePrefix")}</span>
           <select
             aria-label={t("form.variableLabel")}
             value={query.variable}
             onChange={(e) => handleVariableChange(e.target.value as VariableId)}
-            className="border-b border-accent bg-transparent font-display text-lg text-text"
+            className="max-w-full border-b border-accent bg-transparent font-display text-base text-text sm:text-lg"
           >
             {VARIABLE_IDS.map((id) => {
               const autoSeason = customSeasonPinned
@@ -245,12 +248,12 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
             currentLabel={query.label ?? `${query.lat.toFixed(2)}, ${query.lon.toFixed(2)}`}
             onSelect={handleCitySelect}
             onPickOnMap={() => setAdvancedOpen(true)}
-            className="min-w-48"
+            className="min-w-0 flex-1 sm:min-w-48 sm:flex-initial"
           />
           <button
             type="submit"
             disabled={loading}
-            className="ml-auto border border-accent px-3 py-1 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50"
+            className="w-full border border-accent px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50 sm:ml-auto sm:w-auto sm:py-1"
           >
             {loading ? t("form.runningButton") : `→ ${t("form.goButton")}`}
           </button>
@@ -442,8 +445,8 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         {DIRECTION_ARROW[stats.direction]} {verdictText}
       </p>
 
-      <div className="mt-6 border border-border bg-surface p-4">
-        <TrendChart series={series} unit={unit} />
+      <div className="mt-6 border border-border bg-surface p-3 sm:p-4">
+        <TrendChart series={series} unit={unit} variable={variable} />
       </div>
 
       <div className="mt-6 border-t border-border pt-4">

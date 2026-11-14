@@ -10,7 +10,8 @@
     "title": "Separando tendências climáticas reais do ruído meteorológico de curto prazo.",
     "subtitle": "Investigue 45 anos de registros de satélites e reanálise da NASA em qualquer ponto da Terra usando o teste não-paramétrico de Mann-Kendall e o estimador de Sen's Slope — desenvolvido para pesquisadores, estudantes e gestores públicos.",
     "ctaInvestigate": "Iniciar Investigação",
-    "ctaCases": "Ver Casos em Destaque"
+    "ctaCases": "Ver Casos em Destaque",
+    "stripesCaption": "Caso #01 · Vilhena, RO · Código de Barras de Anomalia de Chuva Abr–Set (1981–2025 · −234,5 mm · p = 0,000131)"
   },
   "cases": {
     "sectionTitle": "Casos em Destaque",
@@ -210,8 +211,19 @@
       "title": "04. Inclinação Mediana de Theil-Sen & Intervalo de Confiança de 95%",
       "body": "Enquanto o Mann-Kendall responde se a tendência é estatisticamente significativa, o estimador de Sen's Slope calcula a velocidade real da mudança tomando a mediana de todas as inclinações entre pares `(x_j - x_i) / (t_j - t_i)`, acompanhada pelo intervalo de confiança de 95% de Gilbert / Hollander-Wolfe e pelo R² da regressão linear."
     },
+    "formulas": {
+      "title": "05. Formulação Matemática e Correção FDR (Benjamini-Hochberg)",
+      "body": "Todos os testes estatísticos rodam de forma determinística em TypeScript sem dependências de caixa-preta. Ao escanear as 4 variáveis da NASA POWER simultaneamente em um mesmo ponto, os p-valores brutos recebem ajuste pela Taxa de Falsas Descobertas de Benjamini-Hochberg (FDR, α = 0,05) para evitar falsos positivos de múltiplos testes."
+    },
+    "validationTable": {
+      "title": "06. Sondas Empíricas nas 4 Escalas Geográficas (1981–2025, n = 45)",
+      "colLocation": "Localidade (Escala)",
+      "colVariable": "Variável (Recorte)",
+      "colSlope": "Declive de Sen (IC 95% / déc)",
+      "colStats": "Z / p / R² / r₁"
+    },
     "limitations": {
-      "title": "05. Limitações Científicas e Salvaguardas de Interpretação",
+      "title": "07. Limitações Científicas e Salvaguardas de Interpretação",
       "gridItem": "Grade Espacial MERRA-2 (~50 km): Os valores representam uma célula regional de ~0,5° × 0,625°, e não um pluviômetro isolado de fazenda ou estação de microclima urbano.",
       "causationItem": "Correlação vs. Causalidade: Um p-valor significativo no teste de Mann-Kendall comprova que houve uma mudança direcional na série observada acima do ruído aleatório; ele não isola sozinho se a causa física é o efeito estufa global, o desmatamento regional ou oscilações oceânicas decadais.",
       "regionalItem": "Contraste Regional e Contexto Amazônico: Mudanças climáticas globais não atuam de forma uniforme — diferentes regiões e estações podem aquecer ou secar em ritmos distintos. Em Rondônia e no Pantanal, combinar as tendências climáticas da NASA POWER com séries de uso e cobertura da terra (como o MapBiomas) apoia a educação ambiental nas escolas e o planejamento territorial alinhado aos ODS 6 (Água Potável), 13 (Ação Climática) e 15 (Vida Terrestre).",
