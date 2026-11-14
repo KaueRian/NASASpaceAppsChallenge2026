@@ -15,6 +15,7 @@ Official repository for the **2026 NASA International Space Apps Challenge** (**
 
 ## 🛰️ Data Sources & Scientific Guardrails
 - **[NASA POWER API (MERRA-2 Climatology)](https://power.larc.nasa.gov/):** Official recommended dataset in the HUBEE Challenge Manual (`temporal/monthly/point`, `1981–2025`) providing `T2M`, `T2M_MIN`, `PRECTOTCORR`, and `GWETROOT`.
+- **[NASA GIBS / Worldview WMTS](https://earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/gibs):** Optional R4 visual satellite evidence layer (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) powering the interactive year-by-year `<SatelliteTimelapse />` scrubber inside the dossier.
 - **[Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api):** Resolves typed city/municipality names into coordinates `(lat, lon)`.
 - **Correlation ≠ Causation:** Every forensic dossier and the `Methods File` explicitly distinguish **statistical trend significance** (Mann-Kendall / Sen's Slope) from single-cause physical attribution, and illustrate how different regions experience distinct rates or directions of change under global processes.
 
