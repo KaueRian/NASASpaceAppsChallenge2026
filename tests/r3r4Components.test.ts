@@ -175,4 +175,54 @@ describe("R3 & R4 UI components", () => {
     const drawerHtml = renderWithI18n(createElement(RecentDossiersDrawer));
     expect(drawerHtml).toContain("Dossiês recentes");
   });
+
+  it("renders inline start/end year dropdowns in Investigation basic form and warns on invalid spans", () => {
+    const defaultHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(defaultHtml).toContain('aria-label="Ano Inicial"');
+    expect(defaultHtml).toContain('aria-label="Ano Final"');
+    expect(defaultHtml).toContain("45 anos");
+    expect(defaultHtml).not.toContain('type="number"');
+
+    const shortHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        initialLiveQuery: {
+          lat: -12.74,
+          lon: -60.14,
+          variable: "T2M",
+          season: "annual",
+          startYear: 2015,
+          endYear: 2025,
+          label: "Vilhena, RO, Brazil",
+        },
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(shortHtml).toContain("Período selecionado: 11 anos (2015–2025)");
+    expect(shortHtml).toContain('disabled=""');
+
+    const reversedHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        initialLiveQuery: {
+          lat: -12.74,
+          lon: -60.14,
+          variable: "T2M",
+          season: "annual",
+          startYear: 2020,
+          endYear: 2005,
+          label: "Vilhena, RO, Brazil",
+        },
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(reversedHtml).toContain(
+      "O ano inicial (2020) precisa ser menor ou igual ao ano final (2005).",
+    );
+  });
 });

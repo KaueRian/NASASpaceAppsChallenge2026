@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   buildNasaCacheKey,
+  buildSelectableYears,
+  getMaxCompleteYear,
+  isValidPeriodRange,
   roundCoord,
   validateGeocodeQuery,
   validateInvestigateQuery,
@@ -113,6 +116,24 @@ describe("validateInvestigateQuery", () => {
     expect(buildNasaCacheKey(-12.7406, -60.1458, "T2M", 1981, 2025)).toBe(
       "-12.74:-60.15:T2M:1981:2025",
     );
+  });
+  it("validates period ranges and builds selectable year lists through the last complete year", () => {
+    expect(getMaxCompleteYear(new Date("2026-11-14T00:00:00Z"))).toBe(2025);
+    expect(getMaxCompleteYear(new Date("2027-02-01T00:00:00Z"))).toBe(2026);
+
+    const years = buildSelectableYears(2025);
+    expect(years[0]).toBe(1981);
+    expect(years[years.length - 1]).toBe(2025);
+    expect(years).toHaveLength(45);
+
+    const currentYear = new Date().getUTCFullYear();
+    const withCurrent = buildSelectableYears(2025, [currentYear]);
+    expect(withCurrent).toContain(currentYear);
+
+    expect(isValidPeriodRange(2011, 2025)).toBe(true);
+    expect(isValidPeriodRange(2012, 2025)).toBe(false);
+    expect(isValidPeriodRange(2025, 2010)).toBe(false);
+    expect(isValidPeriodRange(1980, 2025)).toBe(false);
   });
 });
 
