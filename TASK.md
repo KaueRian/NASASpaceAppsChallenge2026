@@ -147,9 +147,9 @@
 - [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
 
 ## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
-- [ ] **(Mylena)** `<Hero />` real/attention-grabbing version, built from the separately-approved prototype, with `prefers-reduced-motion`
-- [ ] **(Mylena)** "View as" toggle finished on the result chart (line+trend / bars / stripes)
-- [ ] **(Mylena)** Mobile polish: header + home sections stack cleanly, no horizontal overflow
+- [x] **(Mylena)** `<Hero />` real/attention-grabbing version (`src/components/Hero.tsx` featuring Vilhena Case #01 `<ClimateStripes tone="dark" />` + `prefers-reduced-motion` smooth scroll & transitions)
+- [x] **(Mylena)** "View as" toggle finished on the result chart (`line+trend` / `bars` / `stripes` in `<TrendChart />`, wired with `variable` in `<Investigation />`)
+- [x] **(Mylena)** Mobile polish: header + home sections stack cleanly (`mx-auto max-w-5xl`, `px-4 sm:px-6`, responsive phrase bar & Leaflet height, `overflow-x-clip` / `max-w-[calc(100vw-3rem)]` dropdown, zero horizontal overflow)
 - [x] **(Kauê)** Evidence/share image generation (`<ClimateStripes />` + `<EvidenceCard />`: Story 9:16 with stats + QR code, Square 1:1 minimal) + `Download PNG` (HTML5 Canvas PNG generator in `src/components/share/`)
 - [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **backed by D1** — + read-only shared-result page with a CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
 - [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy Share Link` (auto-save via the endpoint above), `Download PNG`, `Download CSV`, `Copy Citation` (`src/lib/export/dossierExport.ts`), native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
@@ -158,10 +158,10 @@
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
-- [ ] **(Mylena)** **Should:** `<MethodsPage />` complete (all sections with real content: NASA data, tests, limitations)
+- [x] **(Mylena)** **Should:** `<MethodsPage />` complete (all 7 sections: NASA data, seasonal aggregation, Mann-Kendall, Sen's Slope + CI, Benjamini-Hochberg FDR provenance, empirical 4-scale validation table from `CASE_PRESETS`, and scientific limitations)
 - [x] **(Higor & Luis)** **Should:** Methods page text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records, **correlation vs. causation**, and opposite regional trends driven by global processes) (`src/locales/en.json` & `src/locales/pt.json`)
 - [x] **(Kauê)** **Should:** OG meta tags (static image) for `/` and the shared-result page (`index.html` + `public/brand/og-card.svg`)
-- [ ] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`localStorage`)
+- [x] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`etd.viewedCases` persisted in `localStorage` inside `<CasesGrid />`)
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
 - [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
 - [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber**
