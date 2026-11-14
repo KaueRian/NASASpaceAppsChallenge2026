@@ -1,3 +1,8 @@
+export {
+  buildCitationText,
+  buildDossierCsv,
+  downloadDossierCsv,
+} from "../../lib/export/dossierExport.ts";
 export { ClimateStripes, type ClimateStripesProps, getStripeColor } from "./ClimateStripes.tsx";
 export {
   downloadEvidenceCardPng,

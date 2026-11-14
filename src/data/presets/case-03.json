@@ -26,7 +26,18 @@
       "confidenceLevel": 99,
       "senSlopePerYear": 0.04131,
       "senSlopePerDecade": 0.4131,
+      "senSlopeCiLowerPerYear": 0.02683,
+      "senSlopeCiUpperPerYear": 0.05458,
+      "senSlopeCiLowerPerDecade": 0.2683,
+      "senSlopeCiUpperPerDecade": 0.5458,
       "totalChangeOverPeriod": 1.818,
+      "olsSlopePerYear": 0.04002,
+      "rSquared": 0.451,
+      "lag1Autocorrelation": 0.4777,
+      "warnings": {
+        "shortRecord": false,
+        "highAutocorrelation": true
+      },
       "fullPeriodMean": 19.81,
       "fullPeriodStdDev": 0.783,
       "startYear": 1981,
@@ -400,7 +411,7 @@
     "source": {
       "provider": "NASA POWER / MERRA-2",
       "resolution": "temporal/monthly/point",
-      "retrievedAt": "2026-11-13"
+      "retrievedAt": "2026-11-14"
     },
     "cached": true
   }

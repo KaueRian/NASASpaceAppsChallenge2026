@@ -129,8 +129,8 @@
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
 *Analysis can run in the browser (direct fetch to NASA POWER + stats computed client-side, with browser-side caching) or via the ready `/api/investigate` endpoint; D1 also backs the shareable-link feature in R3.*
-- [ ] **(Kauê + Mylena, joint)** Finalize and port the canonical stats engine to TS (Mann-Kendall, Sen's Slope with CI, regression, Benjamini-Hochberg, monthly→annual aggregation), reconciling Kauê's tested `src/lib/stats/` with Mylena's JS engine
-- [~] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc` (bound in `wrangler.jsonc`; remote schema applied via `d1/schema.sql`)
+- [x] **(Kauê)** Port and finalize canonical stats engine in TS (`src/lib/stats/`: Mann-Kendall, Sen's Slope with 95% CI, OLS regression $R^2$, lag-1 autocorrelation + warnings, Benjamini-Hochberg FDR, monthly→seasonal aggregation) + client-side NASA POWER runner with browser caching (`src/lib/nasa/clientInvestigate.ts`)
+- [x] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`), bind in `wrangler.jsonc`, add `db:migrate:local` / `db:migrate:remote`, and auto-initialize tables via `src/worker/dbSchema.ts`
 - [x] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
 - [x] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results) — ready if free-text location search is used
 - [x] **(Kauê)** TDD: request/response validation (`src/lib/validation/investigate.ts`, `tests/validation.test.ts`, `tests/workerApi.test.ts`: coordinate bounds, allowed variables/seasons, year range)
@@ -146,7 +146,7 @@
 - [ ] **(Mylena)** Mobile polish: header + home sections stack cleanly, no horizontal overflow
 - [x] **(Kauê)** Evidence/share image generation (`<ClimateStripes />` + `<EvidenceCard />`: Story 9:16 with stats + QR code, Square 1:1 minimal) + `Download PNG` (HTML5 Canvas PNG generator in `src/components/share/`)
 - [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **backed by D1** — + read-only shared-result page with a CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
-- [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy link` (auto-save via the endpoint above), `Download PNG`, native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
+- [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy Share Link` (auto-save via the endpoint above), `Download PNG`, `Download CSV`, `Copy Citation` (`src/lib/export/dossierExport.ts`), native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
 - [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
 - [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
 

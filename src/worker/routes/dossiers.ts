@@ -14,6 +14,7 @@ import {
   type SavedDossier,
   VARIABLE_UNIT_MAP,
 } from "../../types/investigation.ts";
+import { ensureD1Schema } from "../dbSchema.ts";
 import type { WorkerBindings } from "../index.ts";
 
 interface DossierRow {
@@ -111,6 +112,7 @@ export async function handleCreateDossier(c: Context<{ Bindings: WorkerBindings 
   let cached = false;
 
   if (c.env?.DB) {
+    await ensureD1Schema(c.env.DB);
     try {
       const row = await c.env.DB.prepare(
         "SELECT payload_json, retrieved_at FROM nasa_cache WHERE cache_key = ?",
@@ -186,6 +188,7 @@ export async function handleCreateDossier(c: Context<{ Bindings: WorkerBindings 
   memoryDossiers.set(id, saved);
 
   if (c.env?.DB) {
+    await ensureD1Schema(c.env.DB);
     try {
       await c.env.DB.prepare(
         `INSERT OR REPLACE INTO dossiers
@@ -220,6 +223,7 @@ export async function handleGetDossier(c: Context<{ Bindings: WorkerBindings }>)
   }
 
   if (c.env?.DB) {
+    await ensureD1Schema(c.env.DB);
     try {
       const row = await c.env.DB.prepare(
         "SELECT id, created_at, result_json FROM dossiers WHERE id = ?",
@@ -250,6 +254,7 @@ export async function handleGetDossier(c: Context<{ Bindings: WorkerBindings }>)
 
 export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }>) {
   if (c.env?.DB) {
+    await ensureD1Schema(c.env.DB);
     try {
       const queryResult = await c.env.DB.prepare(
         "SELECT id, created_at, result_json FROM dossiers ORDER BY created_at DESC LIMIT 10",
