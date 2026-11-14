@@ -28,6 +28,52 @@ function formatSigned(value: number, unit: InvestigationResult["unit"]): string 
   return `${sign}${value.toFixed(2)}${suffix}`;
 }
 
+function buildQrMatrix(seedText: string, size = 11): boolean[][] {
+  let hash = 2166136261;
+  for (let i = 0; i < seedText.length; i++) {
+    hash ^= seedText.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const grid: boolean[][] = Array.from({ length: size }, () => Array<boolean>(size).fill(false));
+
+  const drawFinder = (r0: number, c0: number) => {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        grid[r0 + r][c0 + c] = true;
+      }
+    }
+    grid[r0 + 1][c0 + 1] = false;
+  };
+  drawFinder(0, 0);
+  drawFinder(0, size - 3);
+  drawFinder(size - 3, 0);
+
+  let state = hash >>> 0 || 1;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if ((r < 3 && c < 3) || (r < 3 && c >= size - 3) || (r >= size - 3 && c < 3)) {
+        continue;
+      }
+      state ^= state << 13;
+      state ^= state >>> 17;
+      state ^= state << 5;
+      grid[r][c] = (state & 1) === 1;
+    }
+  }
+  return grid;
+}
+
+function buildQrCells(seedText: string): Array<{ id: string; x: number; y: number }> {
+  const matrix = buildQrMatrix(seedText);
+  const cells: Array<{ id: string; x: number; y: number }> = [];
+  matrix.forEach((row, y) => {
+    row.forEach((on, x) => {
+      if (on) cells.push({ id: `qr-${x}-${y}`, x, y });
+    });
+  });
+  return cells;
+}
+
 export function EvidenceCard({ result, aspect = "story", shortUrl }: EvidenceCardProps) {
   const { location, variable, unit, season, stats, series, source } = result;
   const isStory = aspect === "story";
@@ -106,11 +152,26 @@ export function EvidenceCard({ result, aspect = "story", shortUrl }: EvidenceCar
       </div>
 
       <footer className="border-t border-[#14110F]/20 pt-2 font-mono text-[10px] text-[#5C5346]">
-        <div className="flex items-center justify-between">
-          <span>SOURCE: {source.provider}</span>
-          <span>RETRIEVED: {source.retrievedAt}</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div>SOURCE: {source.provider}</div>
+            <div>RETRIEVED: {source.retrievedAt}</div>
+            {shortUrl && <div className="mt-0.5 truncate text-[#14110F]">{shortUrl}</div>}
+          </div>
+          {isStory && (
+            <svg
+              viewBox="0 0 11 11"
+              className="h-10 w-10 shrink-0 border border-[#14110F] bg-[#F4EFE6] p-0.5"
+              role="img"
+              aria-label="Case file verification code"
+            >
+              <title>Case file verification code</title>
+              {buildQrCells(shortUrl ?? location.label).map((cell) => (
+                <rect key={cell.id} x={cell.x} y={cell.y} width={1} height={1} fill="#14110F" />
+              ))}
+            </svg>
+          )}
         </div>
-        {shortUrl && <div className="mt-0.5 truncate text-[#14110F]">{shortUrl}</div>}
       </footer>
     </article>
   );
@@ -226,13 +287,30 @@ export function downloadEvidenceCardPng(
     });
   }
 
-  // Footer attribution
+  // Footer attribution & QR matrix on Story card
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 24px monospace";
   ctx.fillText(`DATA: ${result.source.provider} (${result.source.retrievedAt})`, 72, height - 110);
   if (shortUrl) {
     ctx.fillStyle = "#14110F";
-    ctx.fillText(shortUrl, 72, height - 68);
+    ctx.fillText(shortUrl.slice(0, 48), 72, height - 68);
+  }
+  if (aspect === "story") {
+    const qr = buildQrMatrix(shortUrl ?? result.location.label);
+    const cellPx = 8;
+    const qrX = width - 72 - qr.length * cellPx;
+    const qrY = height - 145;
+    ctx.strokeStyle = "#14110F";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(qrX - 6, qrY - 6, qr.length * cellPx + 12, qr.length * cellPx + 12);
+    ctx.fillStyle = "#14110F";
+    qr.forEach((row, r) => {
+      row.forEach((on, c) => {
+        if (on) {
+          ctx.fillRect(qrX + c * cellPx, qrY + r * cellPx, cellPx, cellPx);
+        }
+      });
+    });
   }
 
   const link = document.createElement("a");
