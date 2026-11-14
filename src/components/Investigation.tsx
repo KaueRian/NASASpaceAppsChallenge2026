@@ -21,31 +21,36 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
   const { stats, series, location, variable, season, unit } = result;
 
   const formatPValue = (p: number) =>
-    p < 0.001 ? "< 0.001" : `= ${formatNumber(p, { maximumFractionDigits: 3 })}`;
+    p < 0.001 ? "< 0.001" : formatNumber(p, { maximumFractionDigits: 3 });
 
-  const unitSuffix = UNIT_SUFFIX[unit] ?? "";
-  const change = formatNumber(Math.abs(stats.totalChangeOverPeriod), { maximumFractionDigits: 1 });
-  const signedChange = `${stats.totalChangeOverPeriod >= 0 ? "+" : "−"}${change}${unitSuffix}`;
+  const unitSuffix = UNIT_SUFFIX[unit]?.trim() ?? "";
+  const variableLabel = t(`variables.${variable}.label`);
+  const seasonLabel = t(`seasons.${season}`);
+  const verdictText = t(`verdict.${stats.verdict}`);
 
-  const headline = t("result.headline", {
-    variable: t(`variableName.${variable}`),
+  const headline = t(`verdict.sentence.${stats.direction}`, {
+    variable: variableLabel,
+    season: seasonLabel,
     location: location.label,
-    change: signedChange,
+    totalChange: formatNumber(Math.abs(stats.totalChangeOverPeriod), { maximumFractionDigits: 1 }),
+    unit: unitSuffix,
     startYear: stats.startYear,
-    direction: t(`direction.${stats.direction}`),
+    endYear: stats.endYear,
+    perDecade: formatNumber(Math.abs(stats.senSlopePerDecade), { maximumFractionDigits: 1 }),
+    pValue: formatPValue(stats.pValue),
   });
 
   return (
     <section id="investigation" className="border-b border-border px-6 py-10">
       <div className="mb-6 flex flex-wrap gap-x-8 gap-y-1 font-mono text-xs uppercase tracking-wide text-text-muted">
         <span>
-          {t("investigation.locationLabel")}: {location.label}
+          {t("form.locationLabel")}: {location.label}
         </span>
         <span>
-          {t("investigation.variableLabel")}: {t(`variableName.${variable}`)}
+          {t("form.variableLabel")}: {variableLabel}
         </span>
         <span>
-          {t("investigation.seasonLabel")}: {t(`season.${season}`)}
+          {t("form.seasonLabel")}: {seasonLabel}
         </span>
         <span>
           {t("investigation.yearsLabel")}: {stats.startYear}–{stats.endYear}
@@ -57,14 +62,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
       <p
         className={`mt-3 font-mono text-sm uppercase tracking-wide ${DIRECTION_COLOR[stats.direction]}`}
       >
-        {DIRECTION_ARROW[stats.direction]}{" "}
-        {stats.verdict === "INSUFFICIENT_EVIDENCE" ? (
-          t(`verdict.${stats.verdict}`)
-        ) : (
-          <>
-            {t(`verdict.${stats.verdict}`)} · p {formatPValue(stats.pValue)}
-          </>
-        )}
+        {DIRECTION_ARROW[stats.direction]} {verdictText}
       </p>
 
       <div className="mt-6 border border-border bg-surface p-4">
@@ -73,7 +71,12 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
 
       <div className="mt-6 border-t border-border pt-4">
         <p className="font-mono text-xs text-text-muted">
-          {t("investigation.methodLine", { years: stats.nYears, headline })}
+          {t("form.methodologyPipeline", {
+            nYears: stats.nYears,
+            startYear: stats.startYear,
+            endYear: stats.endYear,
+            verdict: verdictText,
+          })}
         </p>
 
         <button
@@ -81,13 +84,13 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
           onClick={() => setMethodOpen((open) => !open)}
           className="mt-2 font-sans text-xs text-accent hover:underline"
         >
-          {methodOpen ? t("investigation.hideMethod") : t("investigation.seeMethod")}
+          {methodOpen ? "▾" : "▸"} {t("form.expandMethod")}
         </button>
 
         {methodOpen && (
           <div className="mt-3 space-y-1 font-mono text-xs text-text-muted">
             <p>
-              Z = {formatNumber(stats.zScore, { maximumFractionDigits: 2 })}, p{" "}
+              Z = {formatNumber(stats.zScore, { maximumFractionDigits: 2 })}, p ={" "}
               {formatPValue(stats.pValue)}
             </p>
             {stats.senSlopeCiLowerPerYear !== undefined &&
@@ -108,7 +111,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
               onClick={onNavigateMethods}
               className="pt-1 text-accent hover:underline"
             >
-              {t("investigation.fullMethod")}
+              {t("form.fullMethodLink")}
             </button>
           </div>
         )}
@@ -120,7 +123,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
           onClick={() => setShareOpen(true)}
           className="border border-border px-4 py-2 font-mono text-xs uppercase tracking-wide text-text hover:border-accent"
         >
-          {t("investigation.share")}
+          {t("actions.share")}
         </button>
       </div>
 
