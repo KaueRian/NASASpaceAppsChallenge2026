@@ -5,10 +5,170 @@
     "cases": "Cases",
     "methods": "Methods"
   },
+  "hero": {
+    "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · STATISTICAL EVIDENCE ENGINE",
+    "title": "Separating real climate trends from year-to-year weather noise.",
+    "subtitle": "Investigate 45 years of NASA satellite & reanalysis records anywhere on Earth using non-parametric Mann-Kendall significance tests and Sen's Slope estimation — built for researchers, students, and public decision-makers.",
+    "ctaInvestigate": "Start Investigation",
+    "ctaCases": "Explore Featured Cases"
+  },
   "cases": {
-    "01": { "hook": "Is the dry season getting drier?" },
-    "02": { "hook": "Is the Madeira basin soil drying out?" },
-    "03": { "hook": "Are tropical nights getting hotter?" },
-    "04": { "hook": "How fast is the Arctic warming?" }
+    "sectionTitle": "Featured Cases",
+    "sectionSubtitle": "Four verified 45-year investigations (1981–2025) spanning Vilhena, Rondônia, Brazil, and the Arctic — one for each NASA POWER variable.",
+    "scaleBadge": {
+      "local": "Case #01 · Local Host City (Vilhena, RO)",
+      "state": "Case #02 · State Scale (Rondônia)",
+      "national": "Case #03 · National Scale (Brazil)",
+      "global": "Case #04 · Global Benchmark (Arctic)"
+    },
+    "openAction": "Load Investigation",
+    "alreadyViewed": "Reviewed",
+    "derivedBanner": "Derived from Case #{{id}}",
+    "restoreAction": "Restore original case",
+    "01": {
+      "title": "Vilhena, RO, Brazil",
+      "region": "Southern Amazon–Cerrado Transition (Chapada dos Parecis)",
+      "hook": "Is Vilhena's dry season losing critical rainfall?",
+      "headline": "Dry-season rainfall (Apr–Sep) in Vilhena dropped by 234.5 mm since 1981 (-53.3 mm/decade).",
+      "context": "Gateway to the Western Amazon and hub of Rondônia's grain production. Sustained dry-season precipitation loss intensifies soil water deficit during second-crop (safrinha) development and raises fire risk across the Cerrado–Amazon transition (UN SDGs 6, 13 & 15; complementary to MapBiomas land-cover series)."
+    },
+    "02": {
+      "title": "Ariquemes, RO, Brazil",
+      "region": "Jamari Valley, Central Rondônia",
+      "hook": "Are tropical nights in Rondônia getting persistently hotter?",
+      "headline": "Annual minimum night-time temperatures in Ariquemes rose +1.82 °C since 1981 (+0.41 °C/decade).",
+      "context": "Warmer tropical nights reduce nocturnal physiological recovery for rural workers and livestock while increasing thermal stress on perennial Amazonian crops such as robusto coffee and cocoa."
+    },
+    "03": {
+      "title": "Corumbá (Pantanal), MS, Brazil",
+      "region": "Upper Paraguay Basin · World's Largest Tropical Wetland",
+      "hook": "Is the Pantanal biome losing root-zone soil moisture?",
+      "headline": "Annual root-zone soil wetness in Corumbá fell -5.60 percentage points since 1981 (-1.27 pts/decade).",
+      "context": "Multi-decade root-zone drying across the Pantanal floodplains lowers water tables, amplifies extreme wildfire seasons, and threatens biodiversity and river navigation across central South America (UN SDGs 6 & 15)."
+    },
+    "04": {
+      "title": "Svalbard, Arctic",
+      "region": "High Arctic Archipelago (78° N)",
+      "hook": "How fast is polar amplification warming the High Arctic?",
+      "headline": "Annual mean air temperature in Svalbard surged +3.50 °C since 1981 (+0.79 °C/decade).",
+      "context": "Global reference benchmark illustrating polar amplification: the High Arctic is warming roughly three to four times faster than the global average, driving sea-ice retreat and permafrost thaw (UN SDG 13)."
+    }
+  },
+  "variables": {
+    "T2M": {
+      "label": "Mean Air Temperature (2m)",
+      "shortLabel": "Mean Temp (T2M)",
+      "unit": "°C"
+    },
+    "T2M_MIN": {
+      "label": "Minimum Night-Time Temperature (2m)",
+      "shortLabel": "Min Night Temp (T2M_MIN)",
+      "unit": "°C"
+    },
+    "PRECTOTCORR": {
+      "label": "Bias-Corrected Total Precipitation",
+      "shortLabel": "Precipitation (PRECTOTCORR)",
+      "unit": "mm"
+    },
+    "GWETROOT": {
+      "label": "Root-Zone Soil Wetness Index",
+      "shortLabel": "Root-Zone Soil Moisture (GWETROOT)",
+      "unit": "%"
+    }
+  },
+  "seasons": {
+    "annual": "Annual (Jan–Dec)",
+    "oct_mar": "Wet Season (Oct–Mar)",
+    "apr_sep": "Dry Season (Apr–Sep)"
+  },
+  "verdict": {
+    "STRONG_EVIDENCE": "Strong evidence · p < 0.01 (99% confidence)",
+    "EVIDENCE_CONFIRMED": "Evidence confirmed · p < 0.05 (95% confidence)",
+    "INSUFFICIENT_EVIDENCE": "Insufficient evidence · p ≥ 0.05 (no statistically significant trend)",
+    "direction": {
+      "warming": "Warming trend",
+      "cooling": "Cooling trend",
+      "wetter": "Wetting trend",
+      "drier": "Drying trend",
+      "neutral": "No directional trend"
+    },
+    "sentence": {
+      "warming": "{{variable}} ({{season}}) in {{location}} rose {{totalChange}} {{unit}} between {{startYear}} and {{endYear}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+      "cooling": "{{variable}} ({{season}}) in {{location}} fell {{totalChange}} {{unit}} between {{startYear}} and {{endYear}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+      "wetter": "{{variable}} ({{season}}) in {{location}} increased by {{totalChange}} {{unit}} between {{startYear}} and {{endYear}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+      "drier": "{{variable}} ({{season}}) in {{location}} decreased by {{totalChange}} {{unit}} between {{startYear}} and {{endYear}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+      "neutral": "{{variable}} ({{season}}) in {{location}} showed no statistically significant directional shift between {{startYear}} and {{endYear}} (Sen's slope {{perDecade}} {{unit}}/decade, p = {{pValue}})."
+    },
+    "causationNote": "Scientific guardrail: Mann-Kendall confirms whether an observed directional trend is statistically distinguishable from random noise; it does not by itself prove single-cause physical attribution. Combine climate series with land-use monitoring (e.g., MapBiomas) for regional attribution."
+  },
+  "form": {
+    "sectionTitle": "Investigation Console",
+    "locationLabel": "Location or Coordinates",
+    "locationPlaceholder": "Search city (e.g. Vilhena, Manaus, Corumbá) or paste lat, lon",
+    "latLabel": "Latitude (°N / °S)",
+    "lonLabel": "Longitude (°E / °W)",
+    "variableLabel": "Earth System Variable",
+    "seasonLabel": "Seasonal Window",
+    "startYearLabel": "Start Year",
+    "endYearLabel": "End Year",
+    "submitButton": "Run Investigation",
+    "runningButton": "Analyzing NASA POWER Series…",
+    "minYearsWarning": "At least 15 complete years are required for a reliable Mann-Kendall trend test.",
+    "viewAsLabel": "View chart as",
+    "viewLine": "Line + Sen's Trend",
+    "viewBars": "Seasonal Bars",
+    "viewStripes": "Climate Stripes",
+    "methodologyPipeline": "NASA POWER → {{nYears}} years ({{startYear}}–{{endYear}}) → Mann-Kendall & Sen's Slope → {{verdict}}",
+    "expandMethod": "See method & statistics for this analysis",
+    "fullMethodLink": "Read full methodology & limitations"
+  },
+  "actions": {
+    "copyLink": "Copy Share Link",
+    "linkCopied": "Link Copied!",
+    "downloadPng": "Download Evidence PNG",
+    "downloadCsv": "Download CSV Series",
+    "copyCitation": "Copy Scientific Citation",
+    "citationCopied": "Citation Copied!",
+    "openTimelapse": "Inspect NASA GIBS Satellite Timelapse (2000–2025)"
+  },
+  "errors": {
+    "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
+    "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
+    "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",
+    "INSUFFICIENT_YEARS": "Fewer than 15 complete seasonal years are available in this range. Expand the year span to run Mann-Kendall.",
+    "NO_DATA_ALL_MISSING": "No valid observations available here (NASA POWER returned -999 missing values, e.g. root-zone soil wetness over open ocean).",
+    "NASA_UPSTREAM_TIMEOUT": "The NASA POWER archive took too long to respond. Please try again in a few seconds.",
+    "NASA_UPSTREAM_ERROR": "Could not reach the NASA POWER / MERRA-2 service right now. Featured Cases remain available offline.",
+    "GEOCODE_NOT_FOUND": "No matching municipality or location found. Try another name or enter latitude and longitude directly.",
+    "DOSSIER_NOT_FOUND": "This shared investigation link could not be found.",
+    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin."
+  },
+  "methods": {
+    "title": "Scientific Methodology & Limitations",
+    "subtitle": "How EarthTrend Detective processes NASA POWER / MERRA-2 records and evaluates statistical significance.",
+    "backToHome": "← Back to Investigation",
+    "nasaData": {
+      "title": "01. Data Source — NASA POWER & MERRA-2",
+      "body": "All series are retrieved from the NASA Prediction Of Worldwide Energy Resources (POWER) Agroclimatology Archive (`temporal/monthly/point`), derived from NASA GMAO MERRA-2 reanalysis and satellite observations spanning 1981–2025."
+    },
+    "aggregation": {
+      "title": "02. Seasonal Aggregation & Quality Control",
+      "body": "Raw monthly readings equal to `-999` (missing data or ocean mask for land variables) are filtered out before aggregation. Incomplete seasonal windows are dropped so partial years never bias the end of a trend line. Temperatures (`T2M`, `T2M_MIN`) use seasonal means in °C; precipitation (`PRECTOTCORR`) sums monthly `mm/day × days in month` into total seasonal millimeters; root-zone soil moisture (`GWETROOT`) scales dimensionless wetness `[0–1]` to `0–100%`."
+    },
+    "mannKendall": {
+      "title": "03. Non-Parametric Mann-Kendall Trend Test",
+      "body": "Climate series frequently contain skewed distributions and extreme outliers (such as El Niño / La Niña years). The Mann-Kendall test evaluates every pairwise comparison `sign(x_j - x_i)` for `j > i`, applies tie-group variance correction, and computes a two-sided `Z` statistic and `p`-value (`p < 0.01` = Strong Evidence; `p < 0.05` = Evidence Confirmed; `p ≥ 0.05` = Insufficient Evidence)."
+    },
+    "sensSlope": {
+      "title": "04. Theil-Sen Median Slope & 95% Confidence Interval",
+      "body": "While Mann-Kendall determines whether a trend is statistically significant, Sen's Slope estimates how fast the variable is changing by taking the median of all pairwise slopes `(x_j - x_i) / (t_j - t_i)`, accompanied by a 95% Gilbert / Hollander-Wolfe rank confidence interval and Ordinary Least Squares R²."
+    },
+    "limitations": {
+      "title": "05. Scientific Limitations & Interpretation Guardrails",
+      "gridItem": "MERRA-2 Spatial Grid (~50 km): Values represent a ~0.5° × 0.625° regional grid cell, not an isolated farm rain gauge or urban microclimate station.",
+      "causationItem": "Correlation vs. Causation: A statistically significant Mann-Kendall p-value proves that a directional shift occurred in the observed series above random noise; it does not isolate whether the driver is global greenhouse forcing, regional deforestation, or decadal ocean oscillations.",
+      "regionalItem": "Regional Contrast & Amazon Context: Global climate change does not act uniformly — different regions and seasons can warm or dry at distinct rates. In Rondônia and the Pantanal, pairing NASA POWER climate trends with land-use series (such as MapBiomas) supports environmental education and territorial planning aligned with UN SDGs 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land).",
+      "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. EarthTrend Detective enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
+    }
   }
 }

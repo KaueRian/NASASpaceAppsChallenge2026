@@ -56,12 +56,12 @@ A major pitfall in Earth science trend detection is running regression across ra
 
 ## 4. Key Real Findings from Our 4 Preset Investigations (`1981–2025`, `n = 45` Years)
 
-| Case | Location | Variable (Window) | Verdict | Mann-Kendall `p` | Sen's Slope / Decade | Total Shift (`1981–2025`) |
-|---|---|---|---|---|---|---|
-| **#01** | **Vilhena, RO, Brazil** | `PRECTOTCORR` (`Apr–Sep` Dry Season) | `STRONG EVIDENCE` | `0.000131` | `-53.29 mm/decade` | **`-234.46 mm`** |
-| **#02** | **Porto Velho, RO, Brazil** | `GWETROOT` (`Annual`) | `STRONG EVIDENCE` | `< 0.000001` | `-3.24 pts/decade` | **`-14.26 pts (%)`** |
-| **#03** | **Ariquemes, RO, Brazil** | `T2M_MIN` (`Annual`) | `STRONG EVIDENCE` | `0.000001` | `+0.41 °C/decade` | **`+1.82 °C`** |
-| **#04** | **Svalbard, Arctic** | `T2M` (`Annual`) | `STRONG EVIDENCE` | `< 0.000001` | `+0.79 °C/decade` | **`+3.50 °C`** |
+| Case | Scale | Location | Variable (Window) | Verdict | Mann-Kendall `p` | Sen's Slope / Decade | Total Shift (`1981–2025`) |
+|---|---|---|---|---|---|---|---|
+| **#01** | **Local (Host City)** | **Vilhena, RO, Brazil** | `PRECTOTCORR` (`Apr–Sep` Dry Season) | `STRONG EVIDENCE` | `0.000131` | `-53.29 mm/decade` | **`-234.46 mm`** |
+| **#02** | **State (Rondônia)** | **Ariquemes, RO, Brazil** | `T2M_MIN` (`Annual`) | `STRONG EVIDENCE` | `0.000001` | `+0.41 °C/decade` | **`+1.82 °C`** |
+| **#03** | **National (Brazil)** | **Corumbá (Pantanal), MS, Brazil** | `GWETROOT` (`Annual`) | `STRONG EVIDENCE` | `0.000024` | `-1.27 pts/decade` | **`-5.60 pts (%)`** |
+| **#04** | **Global (World)** | **Svalbard, Arctic** | `T2M` (`Annual`) | `STRONG EVIDENCE` | `< 0.000001` | `+0.79 °C/decade` | **`+3.50 °C`** |
 
 ---
 
