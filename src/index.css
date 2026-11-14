@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  /* Surfaces */
+  --color-bg: #121212;
+  --color-surface: #1c1c1e;
+
+  /* Text */
+  --color-text: #ededea;
+  --color-text-muted: #9b9b98;
+
+  /* Accent (single, used sparingly) */
+  --color-accent: #c1472e;
+
+  /* Hairlines */
+  --color-border: #2e2e30;
+
+  /* Fonts */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Courier Prime", ui-monospace, "SFMono-Regular", monospace;
+}
