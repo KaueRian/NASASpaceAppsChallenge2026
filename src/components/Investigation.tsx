@@ -9,7 +9,12 @@ import {
   scanAllVariablesWithFdr,
 } from "../lib/nasa/smartInvestigation";
 import { DIRECTION_ARROW, DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
-import type { ValidatedInvestigateQuery } from "../lib/validation/investigate";
+import {
+  buildSelectableYears,
+  getMaxCompleteYear,
+  isValidPeriodRange,
+  type ValidatedInvestigateQuery,
+} from "../lib/validation/investigate";
 import type {
   CasePreset,
   CasePresetId,
@@ -19,7 +24,7 @@ import type {
   SeasonId,
   VariableId,
 } from "../types/investigation";
-import { SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
+import { MIN_ANALYSIS_YEARS, SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
 import { CitySearchInput } from "./CitySearchInput";
 import { buildCitationText, RecentDossiersDrawer, SatelliteTimelapse, ShareSheet } from "./share";
 import { TrendChart } from "./TrendChart";
@@ -93,6 +98,14 @@ export function Investigation({
     setScanItems(null);
   }, []);
 
+  const applyInvestigationError = useCallback((err: unknown) => {
+    const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
+    setErrorCode(code);
+    if (code === "INVALID_COORDINATES") {
+      setAdvancedOpen(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (liveQueryKey && initialLiveQuery) {
       if (lastLiveKeyRef.current === liveQueryKey) return;
@@ -112,11 +125,7 @@ export function Investigation({
         })
         .catch((err: unknown) => {
           if (thisRequestId !== requestIdRef.current) return;
-          const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
-          setErrorCode(code);
-          if (code === "INSUFFICIENT_YEARS" || code === "INVALID_COORDINATES") {
-            setAdvancedOpen(true);
-          }
+          applyInvestigationError(err);
         })
         .finally(() => {
           if (thisRequestId === requestIdRef.current) setLoading(false);
@@ -132,7 +141,14 @@ export function Investigation({
     hasMountedRef.current = true;
 
     resetToPreset(presetId);
-  }, [presetId, presetNonce, liveQueryKey, initialLiveQuery, resetToPreset]);
+  }, [
+    presetId,
+    presetNonce,
+    liveQueryKey,
+    initialLiveQuery,
+    resetToPreset,
+    applyInvestigationError,
+  ]);
 
   const handleRestore = () => {
     resetToPreset(presetId);
@@ -169,18 +185,26 @@ export function Investigation({
       setIsDerived(true);
     } catch (err) {
       if (thisRequestId !== requestIdRef.current) return;
-      const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
-      setErrorCode(code);
-      if (code === "INSUFFICIENT_YEARS" || code === "INVALID_COORDINATES") {
-        setAdvancedOpen(true);
-      }
+      applyInvestigationError(err);
     } finally {
       if (thisRequestId === requestIdRef.current) setLoading(false);
     }
   };
 
+  const applyNextQuery = (nextQuery: InvestigationQuery, options?: { clearScan?: boolean }) => {
+    setQuery(nextQuery);
+    setErrorCode(null);
+    if (options?.clearScan) {
+      setScanItems(null);
+    }
+    if (isValidPeriodRange(nextQuery.startYear, nextQuery.endYear)) {
+      void executeInvestigation(nextQuery);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidPeriodRange(query.startYear, query.endYear)) return;
     await executeInvestigation(query);
   };
 
@@ -188,43 +212,29 @@ export function Investigation({
     const nextSeason = customSeasonPinned
       ? query.season
       : getRecommendedSeason(nextVariable, query.lat);
-    const nextQuery: InvestigationQuery = {
-      ...query,
-      variable: nextVariable,
-      season: nextSeason,
-    };
-    setQuery(nextQuery);
-    void executeInvestigation(nextQuery);
+    applyNextQuery({ ...query, variable: nextVariable, season: nextSeason });
   };
 
   const handleCitySelect = (candidate: { lat: number; lon: number; label: string }) => {
     const nextSeason = customSeasonPinned
       ? query.season
       : getRecommendedSeason(query.variable, candidate.lat);
-    const nextQuery: InvestigationQuery = {
-      ...query,
-      lat: candidate.lat,
-      lon: candidate.lon,
-      label: candidate.label,
-      season: nextSeason,
-    };
-    setQuery(nextQuery);
-    setScanItems(null);
-    void executeInvestigation(nextQuery);
+    applyNextQuery({ ...query, ...candidate, season: nextSeason }, { clearScan: true });
   };
 
   const handleSeasonOverride = (nextSeason: SeasonId) => {
     const recommended = getRecommendedSeason(query.variable, query.lat);
     setCustomSeasonPinned(nextSeason !== recommended);
-    const nextQuery: InvestigationQuery = {
-      ...query,
-      season: nextSeason,
-    };
-    setQuery(nextQuery);
-    void executeInvestigation(nextQuery);
+    applyNextQuery({ ...query, season: nextSeason });
+  };
+
+  const handleYearChange = (field: "startYear" | "endYear", nextValue: number) => {
+    if (!Number.isInteger(nextValue)) return;
+    applyNextQuery({ ...query, [field]: nextValue }, { clearScan: true });
   };
 
   const handleRunScanAll = async () => {
+    if (!isValidPeriodRange(query.startYear, query.endYear)) return;
     setScanningAll(true);
     setErrorCode(null);
     try {
@@ -267,7 +277,20 @@ export function Investigation({
     pValue: formatPValue(stats.pValue),
   });
 
-  const currentYear = new Date().getUTCFullYear();
+  const maxSelectableYear = getMaxCompleteYear();
+  const selectableYears = buildSelectableYears(maxSelectableYear, [query.startYear, query.endYear]);
+  const selectedSpan = query.endYear - query.startYear + 1;
+  const isPeriodValid = isValidPeriodRange(query.startYear, query.endYear);
+  const periodValidationMessage = !isPeriodValid
+    ? query.startYear > query.endYear
+      ? t("form.periodOrderError", { startYear: query.startYear, endYear: query.endYear })
+      : t("form.periodMinYearsError", {
+          years: Math.max(0, selectedSpan),
+          startYear: query.startYear,
+          endYear: query.endYear,
+          minYears: MIN_ANALYSIS_YEARS,
+        })
+    : null;
   const recommendedSeasonForCurrent = getRecommendedSeason(query.variable, query.lat);
 
   return (
@@ -309,16 +332,57 @@ export function Investigation({
             currentLabel={query.label ?? `${query.lat.toFixed(2)}, ${query.lon.toFixed(2)}`}
             onSelect={handleCitySelect}
             onPickOnMap={() => setAdvancedOpen(true)}
-            className="min-w-0 flex-1 sm:min-w-48 sm:flex-initial"
+            className="min-w-36 flex-1 sm:min-w-48 sm:flex-initial"
           />
+          <span className="inline-flex flex-wrap items-center gap-1.5">
+            {(
+              [
+                {
+                  field: "startYear",
+                  prefixKey: "form.phraseFrom",
+                  labelKey: "form.startYearLabel",
+                },
+                {
+                  field: "endYear",
+                  prefixKey: "form.phraseTo",
+                  labelKey: "form.endYearLabel",
+                },
+              ] as const
+            ).map(({ field, prefixKey, labelKey }) => (
+              <span key={field} className="inline-flex items-center gap-1.5">
+                <span className="text-text-muted">{t(prefixKey)}</span>
+                <select
+                  aria-label={t(labelKey)}
+                  value={query[field]}
+                  onChange={(e) => handleYearChange(field, Number(e.target.value))}
+                  className="border-b border-accent bg-transparent font-display text-base tabular-nums text-text sm:text-lg"
+                >
+                  {selectableYears.map((year) => (
+                    <option key={year} value={year} className="bg-surface text-text">
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            ))}
+          </span>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isPeriodValid}
             className="w-full border border-accent px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50 sm:ml-auto sm:w-auto sm:py-1"
           >
             {loading ? t("form.runningButton") : `→ ${t("form.goButton")}`}
           </button>
         </div>
+
+        {periodValidationMessage && (
+          <p
+            role="status"
+            className="border border-accent/60 bg-bg px-3 py-2 font-sans text-xs text-accent"
+          >
+            {periodValidationMessage}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <button
@@ -329,8 +393,8 @@ export function Investigation({
             {advancedOpen ? "▾" : "▸"} {t("form.moreOptions")}
           </button>
           <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
-            {t("form.seasonHintAuto", { season: t(`seasons.${query.season}`) })} · {query.startYear}
-            –{query.endYear}
+            {t("form.seasonHintAuto", { season: t(`seasons.${query.season}`) })}
+            {isPeriodValid ? ` · ${t("form.periodSpanYears", { count: selectedSpan })}` : ""}
           </span>
         </div>
 
@@ -354,30 +418,6 @@ export function Investigation({
                     </option>
                   ))}
                 </select>
-              </label>
-
-              <label className="font-mono text-xs text-text-muted">
-                {t("form.startYearLabel")}
-                <input
-                  type="number"
-                  min={1981}
-                  max={currentYear}
-                  value={query.startYear}
-                  onChange={(e) => setQuery((q) => ({ ...q, startYear: Number(e.target.value) }))}
-                  className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
-                />
-              </label>
-
-              <label className="font-mono text-xs text-text-muted">
-                {t("form.endYearLabel")}
-                <input
-                  type="number"
-                  min={1981}
-                  max={currentYear}
-                  value={query.endYear}
-                  onChange={(e) => setQuery((q) => ({ ...q, endYear: Number(e.target.value) }))}
-                  className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
-                />
               </label>
 
               <span className="font-mono text-[11px] text-text-muted">
@@ -411,7 +451,7 @@ export function Investigation({
             <div className="border-t border-border pt-3">
               <button
                 type="button"
-                disabled={scanningAll}
+                disabled={scanningAll || !isPeriodValid}
                 onClick={handleRunScanAll}
                 className="border border-border bg-bg px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-accent hover:border-accent disabled:opacity-50"
               >

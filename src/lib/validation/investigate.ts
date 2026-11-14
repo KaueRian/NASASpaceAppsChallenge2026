@@ -35,6 +35,49 @@ export type ValidationResult<T> =
 
 const MERRA2_MIN_YEAR = 1981;
 
+/**
+ * Returns the latest full calendar year (never below `DEFAULT_END_YEAR`) so dropdowns
+ * avoid offering incomplete ongoing-year series by default.
+ */
+export function getMaxCompleteYear(referenceDate = new Date()): number {
+  return Math.max(DEFAULT_END_YEAR, referenceDate.getUTCFullYear() - 1);
+}
+
+/**
+ * Builds an ascending list of selectable calendar years for UI dropdowns, preserving any
+ * extra permitted years already present in the active query (e.g. from a permalink).
+ */
+export function buildSelectableYears(
+  maxYear: number,
+  extraYears: readonly number[] = [],
+): number[] {
+  const maxAllowed = new Date().getUTCFullYear();
+  const upperBound = Math.min(maxYear, maxAllowed);
+  const years = new Set<number>();
+
+  for (let year = MERRA2_MIN_YEAR; year <= upperBound; year++) {
+    years.add(year);
+  }
+  for (const extra of extraYears) {
+    if (Number.isInteger(extra) && extra >= MERRA2_MIN_YEAR && extra <= maxAllowed) {
+      years.add(extra);
+    }
+  }
+
+  return Array.from(years).sort((a, b) => a - b);
+}
+
+/** Checks whether an integer `[startYear, endYear]` window spans at least `MIN_ANALYSIS_YEARS`. */
+export function isValidPeriodRange(startYear: number, endYear: number): boolean {
+  return (
+    Number.isInteger(startYear) &&
+    Number.isInteger(endYear) &&
+    startYear >= MERRA2_MIN_YEAR &&
+    startYear <= endYear &&
+    endYear - startYear + 1 >= MIN_ANALYSIS_YEARS
+  );
+}
+
 /** Rounds a coordinate to 2 decimal places (~1.1 km) for D1 cache keys. */
 export function roundCoord(value: number): number {
   return Math.round(value * 100) / 100;
@@ -93,12 +136,8 @@ export function validateInvestigateQuery(
   if (
     startYear === null ||
     endYear === null ||
-    !Number.isInteger(startYear) ||
-    !Number.isInteger(endYear) ||
-    startYear < MERRA2_MIN_YEAR ||
     endYear > maxAllowedYear ||
-    startYear > endYear ||
-    endYear - startYear + 1 < MIN_ANALYSIS_YEARS
+    !isValidPeriodRange(startYear, endYear)
   ) {
     return {
       ok: false,
