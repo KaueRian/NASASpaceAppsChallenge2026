@@ -4,6 +4,7 @@ import { useI18n } from "../i18n/i18n";
 import { DIRECTION_ARROW, DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
 import type { CasePresetId } from "../types/investigation";
 import { buildCitationText, ShareSheet } from "./share";
+import { TrendChart } from "./TrendChart";
 
 interface InvestigationProps {
   presetId: CasePresetId;
@@ -17,7 +18,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
 
   const preset = getCasePresetById(presetId);
   const { result } = preset;
-  const { stats, location, variable, season, unit } = result;
+  const { stats, series, location, variable, season, unit } = result;
 
   const formatPValue = (p: number) =>
     p < 0.001 ? "< 0.001" : `= ${formatNumber(p, { maximumFractionDigits: 3 })}`;
@@ -66,8 +67,8 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         )}
       </p>
 
-      <div className="mt-6 flex min-h-32 items-center justify-center border border-dashed border-border bg-surface text-sm text-text-muted">
-        {t("investigation.chartPlaceholder")}
+      <div className="mt-6 border border-border bg-surface p-4">
+        <TrendChart series={series} unit={unit} />
       </div>
 
       <div className="mt-6 border-t border-border pt-4">
