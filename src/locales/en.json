@@ -155,6 +155,8 @@
     "openTimelapse": "Inspect NASA GIBS Satellite Timelapse (2000–2025)"
   },
   "errors": {
+    "title": "Could not run this investigation",
+    "stillShowing": "Still showing the previous result below.",
     "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
     "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",

@@ -85,7 +85,12 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
       setAdvancedOpen(false);
     } catch (err) {
       if (thisRequestId !== requestIdRef.current) return;
-      setErrorCode(err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR");
+      const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
+      setErrorCode(code);
+      // the fix for these two lives in "More options" — open it so it's not hidden
+      if (code === "INSUFFICIENT_YEARS" || code === "INVALID_COORDINATES") {
+        setAdvancedOpen(true);
+      }
     } finally {
       if (thisRequestId === requestIdRef.current) setLoading(false);
     }
@@ -211,7 +216,15 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
             </div>
           )}
 
-          {errorCode && <p className="font-sans text-xs text-accent">{t(`errors.${errorCode}`)}</p>}
+          {errorCode && (
+            <div className="border border-accent bg-bg p-3">
+              <p className="font-mono text-xs uppercase tracking-wide text-accent">
+                {t("errors.title")}
+              </p>
+              <p className="mt-1 font-sans text-sm text-text-muted">{t(`errors.${errorCode}`)}</p>
+              <p className="mt-2 font-mono text-xs text-text-muted">{t("errors.stillShowing")}</p>
+            </div>
+          )}
         </form>
       ) : (
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3">

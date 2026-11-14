@@ -155,6 +155,8 @@
     "openTimelapse": "Inspecionar Timelapse de Satélite NASA GIBS (2000–2025)"
   },
   "errors": {
+    "title": "Não foi possível rodar essa investigação",
+    "stillShowing": "O resultado abaixo ainda é o anterior.",
     "INVALID_COORDINATES": "Coordenadas inválidas. Informe latitude entre -90 e 90 e longitude entre -180 e 180.",
     "INVALID_VARIABLE": "Selecione uma das quatro variáveis suportadas da NASA POWER (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Selecione um recorte sazonal válido (Anual, Out–Mar ou Abr–Set).",
