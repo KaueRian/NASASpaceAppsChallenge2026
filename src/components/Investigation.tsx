@@ -1,31 +1,14 @@
 import { useState } from "react";
 import { getCasePresetById } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
-import type { CasePresetId, TrendDirection } from "../types/investigation";
+import { DIRECTION_ARROW, DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
+import type { CasePresetId } from "../types/investigation";
 import { buildCitationText, ShareSheet } from "./share";
 
 interface InvestigationProps {
   presetId: CasePresetId;
   onNavigateMethods: () => void;
 }
-
-const UNIT_SUFFIX: Record<string, string> = { C: "°C", mm: " mm", pct: "%" };
-
-const DIRECTION_COLOR: Record<TrendDirection, string> = {
-  warming: "text-dir-warm",
-  cooling: "text-dir-cool",
-  wetter: "text-dir-wet",
-  drier: "text-dir-dry",
-  neutral: "text-text-muted",
-};
-
-const DIRECTION_ARROW: Record<TrendDirection, string> = {
-  warming: "↑",
-  cooling: "↓",
-  wetter: "↑",
-  drier: "↓",
-  neutral: "–",
-};
 
 export function Investigation({ presetId, onNavigateMethods }: InvestigationProps) {
   const { t, formatNumber } = useI18n();

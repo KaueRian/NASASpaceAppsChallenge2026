@@ -10,6 +10,8 @@
     "methods": "Método"
   },
   "cases": {
+    "title": "Casos em Destaque",
+    "caseLabel": "Caso {{id}}",
     "01": { "hook": "A estação seca está ficando mais seca?" },
     "02": { "hook": "O solo da bacia do Madeira está secando?" },
     "03": { "hook": "As noites tropicais estão mais quentes?" },

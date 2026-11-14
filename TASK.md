@@ -123,7 +123,7 @@
 - [x] **(Mylena)** `<Hero />` placeholder (simple version; the real attention-grabbing treatment is prototyped separately, lands in R3)
 - [x] **(Mylena)** `<Investigation />` wired only to the 4 presets: form pre-filled when a case is picked, result area (verdict line, headline, chart, layered methodology disclosure, actions row) rendered from the static preset JSON
   - *Note (Mylena):* defaults to case `01` (no picker yet — `<CasesGrid />` wires that next); chart is a placeholder until `<TrendChart />` lands; actions row reuses Kauê's `<ShareSheet />` as-is (covers share link/image/CSV/citation in one). Headline/methodology copy in `src/locales/*.json` is my draft, final wording is Higor & Luis's per their task above.
-- [ ] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
+- [x] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
 - [ ] **(Mylena)** `<TrendChart />` (line/trend view only for R1 — "View as" bars/stripes land in R3): `text` series, dashed `accent` Sen's line, marked anomalies, axis units
 - [ ] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
 - [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
