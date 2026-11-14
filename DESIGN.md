@@ -2,16 +2,19 @@
 
 > **Mandatory reading for frontend developers & AI agents.** Read this file together with [`TASK.md`](TASK.md) and [`AGENTS.md`](AGENTS.md) before designing or editing any UI.
 > **This file overrides any external design skill, template, or generic style recommendation.**
-> Concept mockups live in [`docs/concepts/`](docs/concepts/) — they illustrate mood and layout; this file is the spec when they differ.
+> Concept mockups live in [`docs/concepts/`](docs/concepts/) — they were made for the previous noir direction and no longer match §1/§2 below; this file is the spec when they differ.
+
+> ⚠️ **In transition (2026-11-13):** the visual identity was changed from "noir detective office" to **Dark Editorial** (§1, §2 below are current). Sections §3–§8 still describe noir-specific props (verdict **stamp**, corkboard **yarn**/pins, `paper`/`brass`/`room`/`board` tokens, paper-world-map, "Methods File" binder skeuomorphism) that have **not** been re-aligned yet — treat their *content/structure* (what each screen shows) as still valid, but re-check any *token name or visual prop* they mention against §2 before implementing, and flag it for a follow-up pass instead of guessing.
 
 ---
 
 ## 1. Core Concept
 
-- **Theme:** 1940s **Old New York film-noir detective office**. Inspiration: the gritty, brass-lit noir mood of *Abrams* (Deadlock). **Inspiration only — never use any asset, logo, font, or character from the game.**
-- **Serious and professional, never cartoonish.** It is a scientific tool wearing a noir coat.
-- **First-person, no character:** there is **no detective avatar, mascot, face, voice, or gender**. **The user IS the detective**; NASA data and statistics are their forensic tools.
-- **Core metaphor = legal evidence.** A statistical test does not "prove" anything; it weighs evidence. Our wording follows this exactly (see §5).
+- **Theme:** **Dark Editorial** — a data-journalism aesthetic (a serious broadsheet's dark-mode science desk), not a period stage set or game-like prop room. High-contrast typography, one restrained accent color, no skeuomorphic textures or rotated "stamp" graphics.
+- **Serious and professional, never cartoonish or game-like.** It is a scientific tool — credibility comes from clarity (type, contrast, real data), not from decoration.
+- **First-person, no character:** there is **no avatar, mascot, face, voice, or gender**. **The user runs the investigation**; NASA data and statistics are their evidence.
+- **Core metaphor = legal evidence, kept in copy only.** A statistical test does not "prove" anything; it weighs evidence. This stays in the **wording** ("evidence confirmed", "insufficient evidence" — see §5) and in small restrained touches (a plain verdict line, an icon), never in literal props (no rubber-stamp graphic, no corkboard/yarn/pins).
+- **Audience spans experts to newcomers:** researchers, judges, high-school students, and the simply curious all need to read the result in one pass. Favor typographic hierarchy and plain language over ornamentation so it stays serious without becoming cold or exclusionary.
 - **Desktop-first visual experience** (stage projector, judges' laptops, 30s video) with a **clean responsive adaptation** for mobile (`< 768px`), zero horizontal overflow.
 
 ---
@@ -19,40 +22,37 @@
 ## 2. Surfaces, Color Tokens & Typography
 
 ### 2.1 Surface rule (projector-safe)
-**Dark room, light documents.** Backgrounds (room, corkboard, desk) are dark. **Everything that carries information (dossiers, forms, charts, cards) is printed on light aged paper with dark ink.** Light paper stays readable on washed-out projectors and survives YouTube compression.
+**Dark throughout, contrast does the work.** There is no light-paper flip: background and content surfaces are both dark (`bg` behind an elevated `surface` for cards/panels/dossiers), separated by a single hairline `border`, never a texture or shadow stack. Legibility on a washed-out projector or after YouTube compression comes from a very high text-to-surface contrast ratio (§7), not from switching to a light background.
 
 ### 2.2 Color tokens (Tailwind names in backticks)
 | Token | Hex | Usage |
 |---|---|---|
-| `room` | `#12100E` | App background, dark room |
-| `board` | `#2A211A` | Corkboard / desk wood surfaces (with subtle texture) |
-| `paper` | `#E8DFC8` | Dossiers, forms, chart backgrounds, cards |
-| `paper-dim` | `#D9CDB0` | Secondary paper, table stripes, inactive tabs |
-| `ink` | `#1A1714` | Primary text and observed data line on paper |
-| `ink-muted` | `#5C544A` | Secondary text on paper (≥ 4.5:1 on `paper`) |
-| `brass` | `#D49B42` | Lamp glow, focus rings, active tab, anomaly highlights |
-| `evidence` | `#B9382C` | Pins, yarn, stamps, Sen's Slope trend line. **Never for small body text on dark backgrounds.** |
-| `smoke` | `#9A928A` | Secondary text on dark `room` backgrounds |
+| `bg` | `#121212` | App background |
+| `surface` | `#1C1C1E` | Cards, panels, dossiers, forms, chart backgrounds — elevated one step above `bg` |
+| `text` | `#EDEDEA` | Primary text, observed data line on charts |
+| `text-muted` | `#9B9B98` | Secondary text/labels (≥ 4.5:1 on `bg` and `surface`) |
+| `accent` | `#C1472E` | The **single** emphasis color — verdict line, Sen's Slope trend line, active tab underline. Used sparingly, never as a large fill. |
+| `border` | `#2E2E30` | Hairline dividers between sections/cards |
 
 **Trend direction colors (separate from significance):**
 | Direction | Token | Hex |
 |---|---|---|
-| Warming | `dir-warm` | `#B9382C` |
-| Cooling | `dir-cool` | `#2F5D8A` |
-| Wetter | `dir-wet` | `#2E7D7A` |
-| Drier | `dir-dry` | `#B07A2A` |
+| Warming | `dir-warm` | `#C1472E` |
+| Cooling | `dir-cool` | `#4C7EA8` |
+| Wetter | `dir-wet` | `#2E8B86` |
+| Drier | `dir-dry` | `#B8862E` |
 
-- **Significance** is shown by the stamp (§5). **Direction** is shown by an arrow + direction color. **Never rely on color alone** (always text + icon).
+- **Significance** is shown as a short plain-text verdict line (e.g. "Evidence confirmed · p < 0.05"), never a rotated stamp graphic. **Direction** is shown by an arrow + direction color. **Never rely on color alone** (always text + icon) — this rule is unchanged from the previous theme.
 
-### 2.3 Typography (exactly 3 families)
+### 2.3 Typography (exactly 3 families — unchanged, reassigned role only)
 | Family | Usage |
 |---|---|
-| `Playfair Display` | Headings, plain-language verdict sentence |
-| `Courier Prime` | Case IDs, labels, stamps, **all numbers / coordinates / p-values** (monospaced) |
-| `Inter` | UI controls and body text |
+| `Playfair Display` (→ `font-display`) | Headings, plain-language verdict sentence |
+| `Courier Prime` (→ `font-mono`) | Case IDs, labels, **all numbers / coordinates / p-values** (monospaced, data-journalism feel) |
+| `Inter` (→ `font-sans`) | UI controls and body text |
 
 ### 2.4 Texture & motion
-- Subtle CSS paper grain / board texture and a warm radial lamp glow (`brass` at low opacity). **No 3D, no WebGL.**
+- **No texture.** No paper grain, no wood/board texture, no lamp glow, no skeuomorphism of any kind — flat `bg`/`surface` colors and hairline `border`s only. **No 3D, no WebGL.**
 - All animations respect `prefers-reduced-motion` (show final state instantly).
 
 ---

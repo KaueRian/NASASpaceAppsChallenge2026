@@ -86,8 +86,10 @@
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
 - [x] **(Kauê)** Create Cloudflare Worker (`nasaspaceappschallenge2026`) connected to GitHub and deploy the shell to production
 - [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
-- [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
+- [x] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
+  - *Note (Mylena):* implemented as the "Dark Editorial" palette (`bg`/`surface`/`text`/`text-muted`/`accent`/`border`) instead of the noir `room`/`board`/`paper`/`brass`/`evidence` tokens — see `DESIGN.md` update needed before other components rely on the old names.
 - [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
+  - *Note (Mylena):* wants a more attention-grabbing header/hero treatment — prototype the flow/template in a mockup and get it reviewed before implementing for real.
 - [ ] **(Higor & Luis)** Review NASA judging criteria + HUBEE rules; create `docs/submission/` and the Canva/Drive workspace
 - [ ] **(Kauê)** 🚀 **Release R0:** merge `dev -> main`, deploy, smoke test
 
@@ -111,6 +113,7 @@
 - [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
 - [ ] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
 - [ ] **(Mylena)** `New Investigation` screen: desk layout (clutter at edges only), `<IntakeForm />`, `<LocationSearch />` (autocomplete + pasted `lat, lon`), `<PickerMap />` (Leaflet, sepia-filtered tiles)
+  - *Note (Mylena):* wants to prototype the "choose what to show in the chart" flow/template (variable/season picker UX) before applying it for real.
 - [ ] **(Mylena)** Render `<ForensicDossier />` below the form from `/api/investigate`; error states (NASA down, all `-999`, no geocode result, invalid coords) + empty states
 - [ ] **(Mylena)** "Derived investigation" mode when variables/season change on a preset, with `Restore original case`
 - [ ] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT)
