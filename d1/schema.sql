@@ -3,8 +3,8 @@
 
 CREATE TABLE IF NOT EXISTS nasa_cache (
   cache_key TEXT PRIMARY KEY,
-  lat_key REAL NOT NULL,
-  lon_key REAL NOT NULL,
+  lat_round REAL NOT NULL,
+  lon_round REAL NOT NULL,
   variable TEXT NOT NULL,
   start_year INTEGER NOT NULL,
   end_year INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS nasa_cache (
 );
 
 CREATE INDEX IF NOT EXISTS idx_nasa_cache_lookup
-  ON nasa_cache (lat_key, lon_key, variable);
+  ON nasa_cache (lat_round, lon_round, variable);
 
 CREATE TABLE IF NOT EXISTS dossiers (
   id TEXT PRIMARY KEY,

@@ -229,5 +229,42 @@
       "regionalItem": "Contraste Regional e Contexto Amazônico: Mudanças climáticas globais não atuam de forma uniforme — diferentes regiões e estações podem aquecer ou secar em ritmos distintos. Em Rondônia e no Pantanal, combinar as tendências climáticas da NASA POWER com séries de uso e cobertura da terra (como o MapBiomas) apoia a educação ambiental nas escolas e o planejamento territorial alinhado aos ODS 6 (Água Potável), 13 (Ação Climática) e 15 (Vida Terrestre).",
       "autocorrelationItem": "Autocorrelação Serial e Período Mínimo: Autocorrelação positiva de lag-1 (`r1`) pode inflar o escore Z em séries curtas. O EarthTrend Detective exige o mínimo estrito de 15 anos (`n ≥ 15`) e sinaliza séries menores que 30 anos ou com alta autocorrelação lag-1."
     }
+  },
+  "satellite": {
+    "eyebrow": "ARQUIVO VISUAL ORBITAL · NASA GIBS / MODIS TERRA",
+    "title": "Evidência Visual por Satélite ({{beforeYear}} vs. {{afterYear}})",
+    "subtitle": "Composição de agosto (estação seca / céu limpo no MODIS Terra: Cor Real 29/ago e NDVI Mensal de ago) — observe mudanças reais na paisagem ao lado dos dados estatísticos.",
+    "showAction": "Mostrar imagens de satélite",
+    "hideAction": "Ocultar imagens de satélite",
+    "modeCompare": "Antes vs. Depois",
+    "modeTimelapse": "Timelapse ({{minYear}}–{{maxYear}})",
+    "layerTrueColor": "Cor Real",
+    "layerNdvi": "Vegetação (NDVI)",
+    "beforeLabel": "ANTES · {{year}}",
+    "afterLabel": "DEPOIS · {{year}}",
+    "monthTag": "AGO",
+    "archiveNote": "O arquivo MODIS Terra começa em 2000 (a série climática selecionada inicia em {{startYear}}).",
+    "play": "Reproduzir Timelapse",
+    "pause": "Pausar",
+    "worldviewLink": "Abrir no NASA Worldview ↗",
+    "tileAlt": "Mosaico de satélite NASA MODIS ({{layer}}) de {{year}}",
+    "zoomOut": "Reduzir zoom",
+    "zoomIn": "Ampliar zoom",
+    "zoomLabel": "Zoom {{zoom}}x"
+  },
+  "dossier": {
+    "recentButton": "Dossiês recentes",
+    "recentClose": "Fechar dossiês recentes",
+    "recentTitle": "Dossiês compartilhados recentes (D1)",
+    "recentLoading": "Carregando dossiês salvos…",
+    "recentEmpty": "Nenhum dossiê compartilhado foi salvo no D1 ainda.",
+    "recentInspect": "Abrir no console",
+    "recentOpenLink": "Link permanente",
+    "sharedLoading": "Carregando dossiê arquivado {{id}}…",
+    "sharedNotFoundTitle": "Dossiê Não Encontrado",
+    "sharedNotFoundBody": "Este link de investigação compartilhada não foi encontrado ou ainda não foi salvo.",
+    "sharedBackHome": "← Voltar aos Casos em Destaque",
+    "sharedBadge": "DOSSIÊ ARQUIVADO SOMENTE LEITURA · ID {{id}}",
+    "sharedOpenNew": "Abrir nova investigação →"
   }
 }

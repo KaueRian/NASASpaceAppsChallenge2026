@@ -144,7 +144,7 @@
 - [x] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
   - *Note (Mylena):* any successful live submit while a preset is loaded flips to "derived" (banner + restore button, using Kauê's existing `cases.derivedBanner`/`cases.restoreAction` copy) — not just variable/season specifically, since editing location/years counts too.
 - [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
-- [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
+- [x] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point — verified live against `https://nasaspaceappschallenge2026.kauerian342.workers.dev`, D1 cache `lat_round`/`lon_round` fixed & active)
 
 ## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
 - [x] **(Mylena)** `<Hero />` real/attention-grabbing version (`src/components/Hero.tsx` featuring Vilhena Case #01 `<ClimateStripes tone="dark" />` + `prefers-reduced-motion` smooth scroll & transitions)
@@ -154,7 +154,7 @@
 - [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **backed by D1** — + read-only shared-result page with a CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
 - [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy Share Link` (auto-save via the endpoint above), `Download PNG`, `Download CSV`, `Copy Citation` (`src/lib/export/dossierExport.ts`), native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
 - [x] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/` (`public/favicon.svg`, `public/brand/favicon.svg`, `public/brand/logo-wordmark.svg`, `public/brand/og-card.svg`)
-- [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
+- [x] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze ready** (`https://nasaspaceappschallenge2026.kauerian342.workers.dev`)
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
@@ -164,8 +164,8 @@
 - [x] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`etd.viewedCases` persisted in `localStorage` inside `<CasesGrid />`)
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
 - [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
-- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber**
-- [ ] **(Kauê)** Upgrade `<SatelliteTimelapse />` with a default-open **"Before vs. After" (`2000` vs. `2025` side-by-side comparison)** + Timelapse mode toggle (`True Color` & `NDVI`), Dark Editorial styling, full PT/EN i18n, and wire it directly below `<TrendChart />` inside `<Investigation />`
+- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` `Aug 29` & `MODIS_Terra_L3_NDVI_Monthly` `Aug 01`, `2000–2025`, 100% HTTP 200 coverage) with a **Play/Pause year-by-year timeline scrubber**
+- [x] **(Kauê)** Upgrade `<SatelliteTimelapse />` with a default-open **"Before vs. After" (`2000` vs. `2025` side-by-side comparison)** + Timelapse mode toggle (`True Color` & `NDVI`), Dark Editorial styling, full PT/EN i18n, and wire it directly below `<TrendChart />` inside `<Investigation />` — plus wire deep-link SPA routing (`src/lib/routing.ts` for `/dossier/:id`, `/?case=`, `/investigate?...`), `<SharedDossierView />`, `<RecentDossiersDrawer />`, lazy-load Leaflet (`LocationPicker`), `db:migrate:remote --yes`, and live Worker + D1 deployment (`https://nasaspaceappschallenge2026.kauerian342.workers.dev`)
 - [x] **(Kauê)** Create formal scientific provenance & audit document (`docs/science/AUDIT.md`) + upgrade `README.md` to Global Winner format (scientific scope disclaimer, *Signature Moment*, 4-scale verified table, 3-tier offline-first architecture, mathematical provenance matrix)
 - [ ] **(Kauê)** Register custom domain via GoDaddy Global Offer (`earthtrend.us` / `earthtrend.co` / `earthtrend.space`) and bind Custom Domain in Cloudflare Workers (`wrangler.jsonc`)
 - [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` and full scientific `README.md` created; final live URL/screenshots added at Code Freeze)

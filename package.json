@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:presets": "node --experimental-strip-types scripts/build-presets.ts",
     "db:migrate:local": "wrangler d1 execute earthtrend-db --local --file=./d1/schema.sql",
-    "db:migrate:remote": "wrangler d1 execute earthtrend-db --remote --file=./d1/schema.sql",
+    "db:migrate:remote": "wrangler d1 execute earthtrend-db --remote --yes --file=./d1/schema.sql",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "lint": "biome check .",

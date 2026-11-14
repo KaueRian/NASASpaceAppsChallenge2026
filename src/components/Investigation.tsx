@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { getCasePresetById } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
 import { ClientInvestigationError, investigateClientSide } from "../lib/nasa/clientInvestigate";
@@ -9,34 +9,34 @@ import {
   scanAllVariablesWithFdr,
 } from "../lib/nasa/smartInvestigation";
 import { DIRECTION_ARROW, DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
+import type { ValidatedInvestigateQuery } from "../lib/validation/investigate";
 import type {
   CasePreset,
   CasePresetId,
   InvestigationErrorCode,
   InvestigationResult,
+  SavedDossier,
   SeasonId,
   VariableId,
 } from "../types/investigation";
 import { SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
 import { CitySearchInput } from "./CitySearchInput";
-import { LocationPicker } from "./LocationPicker";
-import { buildCitationText, ShareSheet } from "./share";
+import { buildCitationText, RecentDossiersDrawer, SatelliteTimelapse, ShareSheet } from "./share";
 import { TrendChart } from "./TrendChart";
+
+const LocationPicker = lazy(() =>
+  import("./LocationPicker").then((module) => ({ default: module.LocationPicker })),
+);
 
 interface InvestigationProps {
   presetId: CasePresetId;
+  presetNonce?: number;
+  initialLiveQuery?: ValidatedInvestigateQuery | null;
   onNavigateMethods: () => void;
+  onOpenDossierPermalink?: (dossierId: string) => void;
 }
 
-interface InvestigationQuery {
-  lat: number;
-  lon: number;
-  label?: string;
-  variable: VariableId;
-  season: SeasonId;
-  startYear: number;
-  endYear: number;
-}
+type InvestigationQuery = ValidatedInvestigateQuery;
 
 function toQuery(preset: CasePreset): InvestigationQuery {
   return {
@@ -50,16 +50,22 @@ function toQuery(preset: CasePreset): InvestigationQuery {
   };
 }
 
-export function Investigation({ presetId, onNavigateMethods }: InvestigationProps) {
-  const { t, formatNumber } = useI18n();
+export function Investigation({
+  presetId,
+  presetNonce = 0,
+  initialLiveQuery = null,
+  onNavigateMethods,
+  onOpenDossierPermalink,
+}: InvestigationProps) {
+  const { locale, t, formatNumber } = useI18n();
   const [methodOpen, setMethodOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [customSeasonPinned, setCustomSeasonPinned] = useState(false);
-  const [isDerived, setIsDerived] = useState(false);
+  const [isDerived, setIsDerived] = useState(Boolean(initialLiveQuery));
 
-  const [query, setQuery] = useState<InvestigationQuery>(() =>
-    toQuery(getCasePresetById(presetId)),
+  const [query, setQuery] = useState<InvestigationQuery>(
+    () => initialLiveQuery ?? toQuery(getCasePresetById(presetId)),
   );
   const [result, setResult] = useState<InvestigationResult>(
     () => getCasePresetById(presetId).result,
@@ -70,10 +76,13 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
   const [scanItems, setScanItems] = useState<MultiVariableScanItem[] | null>(null);
   const [scanningAll, setScanningAll] = useState(false);
   const requestIdRef = useRef(0);
+  const hasMountedRef = useRef(false);
+  const liveQueryKey = initialLiveQuery ? JSON.stringify(initialLiveQuery) : null;
+  const lastLiveKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    requestIdRef.current += 1; // invalidate any in-flight request from the previous case
-    const preset = getCasePresetById(presetId);
+  const resetToPreset = useCallback((targetPresetId: CasePresetId) => {
+    requestIdRef.current += 1;
+    const preset = getCasePresetById(targetPresetId);
     setQuery(toQuery(preset));
     setResult(preset.result);
     setLoading(false);
@@ -82,18 +91,70 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
     setCustomSeasonPinned(false);
     setIsDerived(false);
     setScanItems(null);
-  }, [presetId]);
+  }, []);
+
+  useEffect(() => {
+    if (liveQueryKey && initialLiveQuery) {
+      if (lastLiveKeyRef.current === liveQueryKey) return;
+      lastLiveKeyRef.current = liveQueryKey;
+      hasMountedRef.current = true;
+      setQuery(initialLiveQuery);
+      setCustomSeasonPinned(true);
+      setIsDerived(true);
+      setScanItems(null);
+      const thisRequestId = ++requestIdRef.current;
+      setLoading(true);
+      setErrorCode(null);
+      void investigateClientSide(initialLiveQuery)
+        .then((next) => {
+          if (thisRequestId !== requestIdRef.current) return;
+          setResult(next);
+        })
+        .catch((err: unknown) => {
+          if (thisRequestId !== requestIdRef.current) return;
+          const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
+          setErrorCode(code);
+          if (code === "INSUFFICIENT_YEARS" || code === "INVALID_COORDINATES") {
+            setAdvancedOpen(true);
+          }
+        })
+        .finally(() => {
+          if (thisRequestId === requestIdRef.current) setLoading(false);
+        });
+      return;
+    }
+
+    lastLiveKeyRef.current = null;
+    if (!hasMountedRef.current && presetNonce === 0) {
+      hasMountedRef.current = true;
+      return;
+    }
+    hasMountedRef.current = true;
+
+    resetToPreset(presetId);
+  }, [presetId, presetNonce, liveQueryKey, initialLiveQuery, resetToPreset]);
 
   const handleRestore = () => {
+    resetToPreset(presetId);
+  };
+
+  const handleSelectSavedDossier = (dossier: SavedDossier) => {
     requestIdRef.current += 1;
-    const preset = getCasePresetById(presetId);
-    setQuery(toQuery(preset));
-    setResult(preset.result);
+    const next = dossier.result;
+    setQuery({
+      lat: next.location.lat,
+      lon: next.location.lon,
+      label: next.location.label,
+      variable: next.variable,
+      season: next.season,
+      startYear: next.stats.startYear,
+      endYear: next.stats.endYear,
+    });
+    setResult(next);
     setLoading(false);
     setErrorCode(null);
-    setAdvancedOpen(false);
-    setCustomSeasonPinned(false);
-    setIsDerived(false);
+    setCustomSeasonPinned(true);
+    setIsDerived(true);
     setScanItems(null);
   };
 
@@ -326,20 +387,26 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
 
             <p className="font-sans text-xs text-text-muted">{t("form.minYearsWarning")}</p>
 
-            <LocationPicker
-              lat={query.lat}
-              lon={query.lon}
-              onChange={(next) => {
-                setQuery((q) => ({
-                  ...q,
-                  ...next,
-                  season: customSeasonPinned
-                    ? q.season
-                    : getRecommendedSeason(q.variable, next.lat),
-                }));
-                setScanItems(null);
-              }}
-            />
+            <Suspense
+              fallback={
+                <div className="h-56 w-full border border-border bg-bg p-4 font-mono text-xs text-text-muted sm:h-72" />
+              }
+            >
+              <LocationPicker
+                lat={query.lat}
+                lon={query.lon}
+                onChange={(next) => {
+                  setQuery((q) => ({
+                    ...q,
+                    ...next,
+                    season: customSeasonPinned
+                      ? q.season
+                      : getRecommendedSeason(q.variable, next.lat),
+                  }));
+                  setScanItems(null);
+                }}
+              />
+            </Suspense>
 
             <div className="border-t border-border pt-3">
               <button
@@ -449,6 +516,15 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         <TrendChart series={series} unit={unit} variable={variable} />
       </div>
 
+      <div className="mt-6">
+        <SatelliteTimelapse
+          location={location}
+          startYear={stats.startYear}
+          endYear={stats.endYear}
+          defaultExpanded
+        />
+      </div>
+
       <div className="mt-6 border-t border-border pt-4">
         <p className="font-mono text-xs text-text-muted">
           {t("form.methodologyPipeline", {
@@ -485,7 +561,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
             {stats.warnings?.highAutocorrelation && (
               <p>{t("investigation.warnings.highAutocorrelation")}</p>
             )}
-            <p className="pt-2 text-text-muted">{buildCitationText(result)}</p>
+            <p className="pt-2 text-text-muted">{buildCitationText(result, locale)}</p>
             <button
               type="button"
               onClick={onNavigateMethods}
@@ -497,7 +573,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         )}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-start gap-3">
         <button
           type="button"
           onClick={() => setShareOpen(true)}
@@ -505,9 +581,17 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
         >
           {t("actions.share")}
         </button>
+        <RecentDossiersDrawer
+          onSelectDossier={handleSelectSavedDossier}
+          onOpenPermalink={onOpenDossierPermalink}
+        />
       </div>
 
-      {shareOpen && <ShareSheet result={result} onClose={() => setShareOpen(false)} />}
+      {shareOpen && (
+        <div className="mt-6">
+          <ShareSheet result={result} locale={locale} onClose={() => setShareOpen(false)} />
+        </div>
+      )}
     </section>
   );
 }
