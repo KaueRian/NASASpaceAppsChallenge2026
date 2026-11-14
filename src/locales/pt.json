@@ -151,6 +151,12 @@
     "scanLoadAction": "Abrir",
     "scanActiveBadge": "Ativo"
   },
+  "chart": {
+    "legendObserved": "Observado",
+    "legendTrend": "Tendência de Sen",
+    "legendAnomaly": "Anomalia (|z| > 1,5)",
+    "anomalyTag": "Anomalia"
+  },
   "investigation": {
     "yearsLabel": "Anos",
     "ciPerYear": "IC 95% (por ano)",

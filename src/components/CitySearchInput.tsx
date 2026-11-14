@@ -61,6 +61,12 @@ export function CitySearchInput({
     return () => clearTimeout(handle);
   }, [query]);
 
+  const selectCandidate = (candidate: GeocodeCandidate) => {
+    onSelect(candidate);
+    setQuery("");
+    setIsOpen(false);
+  };
+
   return (
     <div ref={containerRef} className={`relative inline-block ${className ?? ""}`}>
       <input
@@ -74,6 +80,12 @@ export function CitySearchInput({
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             setIsOpen(false);
+          } else if (e.key === "Enter") {
+            // Prevent form submission with the old location; pick the top candidate instead.
+            e.preventDefault();
+            if (candidates.length > 0 && candidates[0]) {
+              selectCandidate(candidates[0]);
+            }
           }
         }}
         placeholder={currentLabel ?? t("form.locationPlaceholder")}
@@ -91,11 +103,7 @@ export function CitySearchInput({
               <li key={`${candidate.label}-${candidate.lat}-${candidate.lon}`}>
                 <button
                   type="button"
-                  onClick={() => {
-                    onSelect(candidate);
-                    setQuery("");
-                    setIsOpen(false);
-                  }}
+                  onClick={() => selectCandidate(candidate)}
                   className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left font-sans text-sm text-text hover:bg-bg"
                 >
                   <span className="truncate">{candidate.label}</span>
