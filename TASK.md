@@ -135,7 +135,7 @@
 - [ ] **(Mylena)** Experimental `<PaperWorldMap />` in the board center with yarn to location pins (behind a flag; remove if cluttered)
 - [ ] **(Mylena)** Mobile polish: bottom tab bar, dossier as full-screen sheet, no horizontal overflow
 - [x] **(Kauê)** `<ClimateStripes />` + `<EvidenceCard />` (Story 9:16 with stats, Square 1:1 minimal) + `Download PNG` (HTML5 Canvas PNG generator in `src/components/share/`)
-- [~] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA (API endpoints + tests ready in `src/worker/routes/dossiers.ts`; `/dossier/:id` view wiring next)
+- [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
 - [x] **(Kauê)** `<ShareSheet />`: `Copy link` (auto-save), `Download PNG`, native `navigator.share` on mobile; deep link `/investigate?…` (`src/components/share/ShareSheet.tsx`)
 - [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
 - [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
@@ -144,11 +144,11 @@
 *Should first, then Could. Stop at 13:30 no matter what.*
 - [ ] **(Mylena)** **Should:** `<MethodsFile />` binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`, `04. Limitations`) + contextual "How do we know?" links from the dossier
 - [ ] **(Higor & Luis)** **Should:** Methods File text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records, **correlation vs. causation**, and opposite regional trends driven by global processes)
-- [ ] **(Kauê)** **Should:** OG meta tags (static image) for `/` and `/dossier/:id`
+- [x] **(Kauê)** **Should:** OG meta tags (static image) for `/` and `/dossier/:id` (`index.html` + `public/brand/og-card.svg`)
 - [ ] **(Mylena)** **Could:** `REVIEWED` seal on opened cards (`localStorage`)
-- [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
-- [~] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI (`GET /api/dossiers` endpoint implemented in `src/worker/routes/dossiers.ts`)
-- [ ] **(Kauê / Mylena)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />` in `<ForensicDossier />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers
+- [x] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card (`src/components/share/EvidenceCard.tsx`)
+- [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
+- [x] **(Kauê / Mylena)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />` in `<ForensicDossier />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers (`src/components/share/SatelliteTimelapse.tsx`)
 - [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` created; final screenshots/live URL added at Code Freeze)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
