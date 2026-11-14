@@ -7,6 +7,7 @@ import type {
 } from "../../types/investigation.ts";
 import type { AggregatedPoint } from "../nasa/aggregate.ts";
 import { mannKendallTest } from "./mannKendall.ts";
+import { lag1Autocorrelation, linearRegression } from "./regression.ts";
 import { sensSlope } from "./sensSlope.ts";
 
 function mapVerdict(confidenceLevel: 99 | 95 | 0): VerdictLevel {
@@ -30,7 +31,8 @@ function mapDirection(
 }
 
 /**
- * Runs Mann-Kendall, Sen's Slope, and full-period anomaly scoring on an aggregated series.
+ * Runs Mann-Kendall, Sen's Slope (with 95% CI), OLS regression, lag-1 autocorrelation,
+ * and full-period anomaly scoring on an aggregated series.
  */
 export function analyzeTrend(
   points: readonly AggregatedPoint[],
@@ -41,7 +43,9 @@ export function analyzeTrend(
   const n = points.length;
 
   const mk = mannKendallTest(values);
-  const sen = sensSlope(years, values);
+  const sen = sensSlope(years, values, mk.variance);
+  const ols = linearRegression(years, values);
+  const ac = lag1Autocorrelation(values);
 
   const mean = values.reduce((acc, v) => acc + v, 0) / n;
   const variance = n > 1 ? values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / (n - 1) : 0;
@@ -70,7 +74,18 @@ export function analyzeTrend(
     confidenceLevel: mk.confidenceLevel,
     senSlopePerYear: Number(sen.slopePerYear.toFixed(5)),
     senSlopePerDecade: Number(sen.slopePerDecade.toFixed(4)),
+    senSlopeCiLowerPerYear: Number(sen.ciLowerPerYear.toFixed(5)),
+    senSlopeCiUpperPerYear: Number(sen.ciUpperPerYear.toFixed(5)),
+    senSlopeCiLowerPerDecade: Number(sen.ciLowerPerDecade.toFixed(4)),
+    senSlopeCiUpperPerDecade: Number(sen.ciUpperPerDecade.toFixed(4)),
     totalChangeOverPeriod: Number(sen.totalChange.toFixed(3)),
+    olsSlopePerYear: Number(ols.slopePerYear.toFixed(5)),
+    rSquared: Number(ols.rSquared.toFixed(4)),
+    lag1Autocorrelation: Number(ac.r1.toFixed(4)),
+    warnings: {
+      shortRecord: n < 30,
+      highAutocorrelation: ac.hasHighAutocorrelation,
+    },
     fullPeriodMean: Number(mean.toFixed(3)),
     fullPeriodStdDev: Number(stdDev.toFixed(3)),
     startYear: years[0],

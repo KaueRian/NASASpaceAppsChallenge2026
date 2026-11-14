@@ -63,6 +63,11 @@ export interface SeriesPoint {
   isExtremeAnomaly: boolean;
 }
 
+export interface TrendWarnings {
+  shortRecord: boolean;
+  highAutocorrelation: boolean;
+}
+
 export interface TrendStats {
   mannKendallS: number;
   mannKendallVariance: number;
@@ -72,8 +77,20 @@ export interface TrendStats {
   confidenceLevel: ConfidenceLevel;
   senSlopePerYear: number;
   senSlopePerDecade: number;
+  /** 95% Gilbert/Hollander-Wolfe confidence interval bounds for Sen's slope */
+  senSlopeCiLowerPerYear?: number;
+  senSlopeCiUpperPerYear?: number;
+  senSlopeCiLowerPerDecade?: number;
+  senSlopeCiUpperPerDecade?: number;
   /** Headline metric: Sen's slope delta over the full investigated span */
   totalChangeOverPeriod: number;
+  /** Ordinary least squares linear regression metrics */
+  olsSlopePerYear?: number;
+  rSquared?: number;
+  /** Lag-1 serial autocorrelation coefficient r1 in [-1, 1] */
+  lag1Autocorrelation?: number;
+  /** Methodological caveat flags for inline disclosure */
+  warnings?: TrendWarnings;
   fullPeriodMean: number;
   fullPeriodStdDev: number;
   startYear: number;

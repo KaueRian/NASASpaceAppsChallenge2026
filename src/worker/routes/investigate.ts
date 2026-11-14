@@ -12,6 +12,7 @@ import {
   type InvestigationResult,
   VARIABLE_UNIT_MAP,
 } from "../../types/investigation.ts";
+import { ensureD1Schema } from "../dbSchema.ts";
 import type { WorkerBindings } from "../index.ts";
 
 interface NasaCacheRow {
@@ -54,6 +55,7 @@ export async function handleInvestigate(c: Context<{ Bindings: WorkerBindings }>
   let cached = false;
 
   if (c.env?.DB) {
+    await ensureD1Schema(c.env.DB);
     try {
       const row = await c.env.DB.prepare(
         "SELECT payload_json, retrieved_at FROM nasa_cache WHERE cache_key = ?",

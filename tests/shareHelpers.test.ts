@@ -5,6 +5,8 @@ import {
   buildNasaWorldviewUrl,
   latLonToTileXY,
 } from "../src/components/share/SatelliteTimelapse.tsx";
+import { CASE_PRESETS } from "../src/data/presets/index.ts";
+import { buildCitationText, buildDossierCsv } from "../src/lib/export/dossierExport.ts";
 
 describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
   it("maps temperature and hydrological z-scores to distinct stripe colors", () => {
@@ -41,5 +43,22 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
 
     const worldviewUrl = buildNasaWorldviewUrl(-12.7406, -60.1458, 2024);
     expect(worldviewUrl).toContain("worldview.earthdata.nasa.gov");
+  });
+
+  it("generates scientific CSV and bilingual citation text from a preset dossier", () => {
+    const vilhenaResult = CASE_PRESETS[0].result;
+    const csv = buildDossierCsv(vilhenaResult);
+    expect(csv).toContain("# EarthTrend Detective — Scientific Series Export");
+    expect(csv).toContain("year,label,value,unit,trend_value,z_score,is_extreme_anomaly");
+    expect(csv).toContain("1981,1981,");
+
+    const citationEn = buildCitationText(vilhenaResult, "en");
+    expect(citationEn).toContain("Mann-Kendall non-parametric test");
+    expect(citationEn).toContain("NASA POWER / MERRA-2");
+    expect(citationEn).toContain("not single-cause physical attribution");
+
+    const citationPt = buildCitationText(vilhenaResult, "pt");
+    expect(citationPt).toContain("Teste não-paramétrico de Mann-Kendall");
+    expect(citationPt).toContain("sem implicar atribuição causal isolada");
   });
 });

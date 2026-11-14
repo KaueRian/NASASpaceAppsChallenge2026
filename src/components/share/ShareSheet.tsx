@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { buildCitationText, downloadDossierCsv } from "../../lib/export/dossierExport.ts";
 import type { InvestigationResult, SavedDossier } from "../../types/investigation.ts";
 import { downloadEvidenceCardPng, EvidenceCard, type EvidenceCardAspect } from "./EvidenceCard.tsx";
 
 export interface ShareSheetProps {
   result: InvestigationResult;
+  locale?: "en" | "pt";
   onClose?: () => void;
 }
 
@@ -22,10 +24,11 @@ export function buildInvestigationDeepLink(result: InvestigationResult, origin =
   return `${base}/investigate?${params.toString()}`;
 }
 
-export function ShareSheet({ result, onClose }: ShareSheetProps) {
+export function ShareSheet({ result, locale = "en", onClose }: ShareSheetProps) {
   const [aspect, setAspect] = useState<EvidenceCardAspect>("story");
   const [shareUrl, setShareUrl] = useState<string>(() => buildInvestigationDeepLink(result));
   const [copied, setCopied] = useState(false);
+  const [copiedCitation, setCopiedCitation] = useState(false);
   const [savingLink, setSavingLink] = useState(false);
 
   async function handleCopyLink() {
@@ -64,6 +67,15 @@ export function ShareSheet({ result, onClose }: ShareSheetProps) {
     }
   }
 
+  async function handleCopyCitation() {
+    const text = buildCitationText(result, locale);
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      setCopiedCitation(true);
+      setTimeout(() => setCopiedCitation(false), 2500);
+    }
+  }
+
   async function handleNativeShare() {
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
@@ -81,20 +93,20 @@ export function ShareSheet({ result, onClose }: ShareSheetProps) {
   return (
     <section
       aria-label="Export and Share Forensic Evidence Card"
-      className="rounded-sm border border-[#D4A84F]/40 bg-[#1B1613] p-5 text-[#F4EFE6] shadow-2xl"
+      className="rounded-sm border border-[#2E2E30] bg-[#1C1C1E] p-5 text-[#EDEDEA] shadow-2xl"
     >
-      <div className="mb-4 flex items-center justify-between border-b border-[#F4EFE6]/15 pb-3">
+      <div className="mb-4 flex items-center justify-between border-b border-[#2E2E30] pb-3">
         <div>
-          <span className="font-mono text-[11px] uppercase tracking-widest text-[#D4A84F]">
+          <span className="font-mono text-[11px] uppercase tracking-widest text-[#C1472E]">
             EVIDENCE EXPORT · SHARE DOSSIER
           </span>
-          <h4 className="font-serif text-lg font-bold">Forensic Evidence Card</h4>
+          <h4 className="font-display text-lg font-bold">Evidence Card & Data Export</h4>
         </div>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-[#F4EFE6]/25 px-2.5 py-1 font-mono text-xs hover:border-[#D4A84F]"
+            className="rounded border border-[#2E2E30] px-2.5 py-1 font-mono text-xs text-[#9B9B98] hover:border-[#C1472E] hover:text-[#EDEDEA]"
           >
             ESC / CLOSE
           </button>
@@ -102,12 +114,12 @@ export function ShareSheet({ result, onClose }: ShareSheetProps) {
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex rounded border border-[#F4EFE6]/20 p-0.5 font-mono text-xs">
+        <div className="inline-flex rounded border border-[#2E2E30] p-0.5 font-mono text-xs">
           <button
             type="button"
             onClick={() => setAspect("story")}
             className={`rounded px-3 py-1 ${
-              aspect === "story" ? "bg-[#D4A84F] font-bold text-[#14110F]" : "text-[#F4EFE6]/80"
+              aspect === "story" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
             }`}
           >
             Story 9:16
@@ -116,7 +128,7 @@ export function ShareSheet({ result, onClose }: ShareSheetProps) {
             type="button"
             onClick={() => setAspect("square")}
             className={`rounded px-3 py-1 ${
-              aspect === "square" ? "bg-[#D4A84F] font-bold text-[#14110F]" : "text-[#F4EFE6]/80"
+              aspect === "square" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
             }`}
           >
             Square 1:1
@@ -127,23 +139,37 @@ export function ShareSheet({ result, onClose }: ShareSheetProps) {
           <button
             type="button"
             onClick={() => downloadEvidenceCardPng(result, aspect, shareUrl)}
-            className="rounded bg-[#C83E2B] px-3.5 py-1.5 font-bold text-[#F4EFE6] hover:bg-[#b13322]"
+            className="rounded bg-[#C1472E] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:opacity-90"
           >
             Download PNG
           </button>
           <button
             type="button"
+            onClick={() => downloadDossierCsv(result)}
+            className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
+          >
+            Download CSV
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyCitation}
+            className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
+          >
+            {copiedCitation ? "Citation Copied!" : "Copy Citation"}
+          </button>
+          <button
+            type="button"
             onClick={handleCopyLink}
             disabled={savingLink}
-            className="rounded border border-[#D4A84F] px-3.5 py-1.5 font-bold text-[#D4A84F] hover:bg-[#D4A84F]/10"
+            className="rounded border border-[#C1472E] px-3.5 py-1.5 font-bold text-[#C1472E] hover:bg-[#C1472E]/10"
           >
-            {copied ? "Link Copied!" : savingLink ? "Saving..." : "Copy Case Link"}
+            {copied ? "Link Copied!" : savingLink ? "Saving..." : "Copy Share Link"}
           </button>
           {typeof navigator !== "undefined" && "share" in navigator && (
             <button
               type="button"
               onClick={handleNativeShare}
-              className="rounded border border-[#F4EFE6]/30 px-3 py-1.5 text-[#F4EFE6] hover:border-[#F4EFE6]"
+              className="rounded border border-[#2E2E30] px-3 py-1.5 text-[#EDEDEA] hover:border-[#EDEDEA]"
             >
               Share…
             </button>
