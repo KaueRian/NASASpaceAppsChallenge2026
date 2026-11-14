@@ -149,7 +149,7 @@
 - [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
 - [~] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI (`GET /api/dossiers` endpoint implemented in `src/worker/routes/dossiers.ts`)
 - [ ] **(Kauê / Mylena)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />` in `<ForensicDossier />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers
-- [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations, **Missão Amazônia & ODS 6/13/15 alignment**)
+- [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` created; final screenshots/live URL added at Code Freeze)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
 
@@ -159,9 +159,9 @@
 
 ## 🎤 Pitch, Video & Submission Track (Higor & Luis — runs in parallel)
 - [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance + **Missão Amazônia: ODS 6, ODS 13, ODS 15, MapBiomas land-use context & environmental education in schools**)
-- [ ] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s board intro, 5–15s case + stamp slam, 15–25s live search, 25–30s impact + share card)
-- [ ] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
-- [ ] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
+- [x] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s board intro, 5–15s case + stamp slam, 15–25s live search, 25–30s impact + share card)
+- [x] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
+- [x] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
 - [ ] **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
 - [ ] **(Higor & Luis)** Capture 4–7 English UI screenshots after UI Freeze
 - [ ] **(Higor & Luis)** Record/edit the 30s video (≤ 30s, EN audio or PT audio + EN subtitles) and upload to YouTube; verify playback
