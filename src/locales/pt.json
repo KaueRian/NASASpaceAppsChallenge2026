@@ -58,21 +58,25 @@
     "T2M": {
       "label": "Temperatura Média do Ar (2m)",
       "shortLabel": "Temp. Média (T2M)",
+      "simple": "temperatura média",
       "unit": "°C"
     },
     "T2M_MIN": {
       "label": "Temperatura Mínima Noturna (2m)",
       "shortLabel": "Temp. Mínima Noturna (T2M_MIN)",
+      "simple": "temperatura mínima noturna",
       "unit": "°C"
     },
     "PRECTOTCORR": {
       "label": "Precipitação Total Corrigida",
       "shortLabel": "Precipitação (PRECTOTCORR)",
+      "simple": "chuva",
       "unit": "mm"
     },
     "GWETROOT": {
       "label": "Índice de Umidade do Solo na Zona Radicular",
       "shortLabel": "Umidade Radicular do Solo (GWETROOT)",
+      "simple": "umidade do solo",
       "unit": "%"
     }
   },
@@ -80,6 +84,11 @@
     "annual": "Anual (Jan–Dez)",
     "oct_mar": "Estação Chuvosa (Out–Mar)",
     "apr_sep": "Estação Seca (Abr–Set)"
+  },
+  "seasonsSimple": {
+    "annual": "o ano todo",
+    "oct_mar": "na estação chuvosa",
+    "apr_sep": "na estação seca"
   },
   "verdict": {
     "STRONG_EVIDENCE": "Evidência forte · p < 0,01 (99% de confiança)",
@@ -120,7 +129,33 @@
     "viewStripes": "Faixas Climáticas",
     "methodologyPipeline": "NASA POWER → {{nYears}} anos ({{startYear}}–{{endYear}}) → Mann-Kendall & Sen's Slope → {{verdict}}",
     "expandMethod": "Ver método e estatísticas desta análise",
-    "fullMethodLink": "Ler metodologia completa e limitações"
+    "fullMethodLink": "Ler metodologia completa e limitações",
+    "changeButton": "Mudar",
+    "moreOptions": "Opções avançadas",
+    "goButton": "Investigar",
+    "phrasePrefix": "Investigar",
+    "phraseIn": "em",
+    "quickLocationsTitle": "Locais sugeridos (1 clique)",
+    "pickOnMapAction": "📍 Escolher ponto no mapa (Opções avançadas)",
+    "seasonHintAuto": "Recorte: {{season}}",
+    "seasonRecommendedTag": "Recomendado",
+    "gridCellLabel": "Célula NASA MERRA-2",
+    "scanAllVariablesButton": "Varredura das 4 variáveis neste local (FDR Benjamini-Hochberg)",
+    "scanningAllVariables": "Executando varredura FDR nas 4 variáveis…",
+    "scanTableTitle": "Varredura das 4 variáveis (FDR Benjamini-Hochberg α = 0,05)",
+    "scanColVariable": "Variável (Recorte)",
+    "scanColSlope": "Declive de Sen / Década",
+    "scanColPValue": "p bruto",
+    "scanColQValue": "q-valor FDR",
+    "scanColAction": "Ação",
+    "scanLoadAction": "Abrir",
+    "scanActiveBadge": "Ativo"
+  },
+  "chart": {
+    "legendObserved": "Observado",
+    "legendTrend": "Tendência de Sen",
+    "legendAnomaly": "Anomalia (|z| > 1,5)",
+    "anomalyTag": "Anomalia"
   },
   "investigation": {
     "yearsLabel": "Anos",
@@ -141,6 +176,8 @@
     "openTimelapse": "Inspecionar Timelapse de Satélite NASA GIBS (2000–2025)"
   },
   "errors": {
+    "title": "Não foi possível rodar essa investigação",
+    "stillShowing": "O resultado abaixo ainda é o anterior.",
     "INVALID_COORDINATES": "Coordenadas inválidas. Informe latitude entre -90 e 90 e longitude entre -180 e 180.",
     "INVALID_VARIABLE": "Selecione uma das quatro variáveis suportadas da NASA POWER (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Selecione um recorte sazonal válido (Anual, Out–Mar ou Abr–Set).",

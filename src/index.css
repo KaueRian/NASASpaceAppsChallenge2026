@@ -26,3 +26,9 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Courier Prime", ui-monospace, "SFMono-Regular", monospace;
 }
+
+/* Dark-mode trick for the free OpenStreetMap tiles (no API key, unlike CARTO's dark
+   basemap): invert only the tile pane, leave markers/overlays untouched. */
+.map-dark-tiles .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9);
+}

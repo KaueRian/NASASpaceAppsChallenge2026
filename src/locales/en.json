@@ -58,21 +58,25 @@
     "T2M": {
       "label": "Mean Air Temperature (2m)",
       "shortLabel": "Mean Temp (T2M)",
+      "simple": "average temperature",
       "unit": "°C"
     },
     "T2M_MIN": {
       "label": "Minimum Night-Time Temperature (2m)",
       "shortLabel": "Min Night Temp (T2M_MIN)",
+      "simple": "night-time low",
       "unit": "°C"
     },
     "PRECTOTCORR": {
       "label": "Bias-Corrected Total Precipitation",
       "shortLabel": "Precipitation (PRECTOTCORR)",
+      "simple": "rainfall",
       "unit": "mm"
     },
     "GWETROOT": {
       "label": "Root-Zone Soil Wetness Index",
       "shortLabel": "Root-Zone Soil Moisture (GWETROOT)",
+      "simple": "soil moisture",
       "unit": "%"
     }
   },
@@ -80,6 +84,11 @@
     "annual": "Annual (Jan–Dec)",
     "oct_mar": "Wet Season (Oct–Mar)",
     "apr_sep": "Dry Season (Apr–Sep)"
+  },
+  "seasonsSimple": {
+    "annual": "all year",
+    "oct_mar": "in the wet season",
+    "apr_sep": "in the dry season"
   },
   "verdict": {
     "STRONG_EVIDENCE": "Strong evidence · p < 0.01 (99% confidence)",
@@ -120,7 +129,33 @@
     "viewStripes": "Climate Stripes",
     "methodologyPipeline": "NASA POWER → {{nYears}} years ({{startYear}}–{{endYear}}) → Mann-Kendall & Sen's Slope → {{verdict}}",
     "expandMethod": "See method & statistics for this analysis",
-    "fullMethodLink": "Read full methodology & limitations"
+    "fullMethodLink": "Read full methodology & limitations",
+    "changeButton": "Change",
+    "moreOptions": "Advanced options",
+    "goButton": "Investigate",
+    "phrasePrefix": "Investigate",
+    "phraseIn": "in",
+    "quickLocationsTitle": "Suggested locations (1-click)",
+    "pickOnMapAction": "📍 Pick a point on the map (Advanced options)",
+    "seasonHintAuto": "Window: {{season}}",
+    "seasonRecommendedTag": "Recommended",
+    "gridCellLabel": "NASA MERRA-2 grid cell",
+    "scanAllVariablesButton": "Scan all 4 variables at this location (Benjamini-Hochberg FDR)",
+    "scanningAllVariables": "Running 4-variable FDR scan…",
+    "scanTableTitle": "Multi-variable scan (Benjamini-Hochberg FDR α = 0.05)",
+    "scanColVariable": "Variable (Window)",
+    "scanColSlope": "Sen's Slope / Decade",
+    "scanColPValue": "Raw p",
+    "scanColQValue": "FDR q-value",
+    "scanColAction": "Action",
+    "scanLoadAction": "Load",
+    "scanActiveBadge": "Active"
+  },
+  "chart": {
+    "legendObserved": "Observed",
+    "legendTrend": "Sen's trend",
+    "legendAnomaly": "Anomaly (|z| > 1.5)",
+    "anomalyTag": "Anomaly"
   },
   "investigation": {
     "yearsLabel": "Years",
@@ -141,6 +176,8 @@
     "openTimelapse": "Inspect NASA GIBS Satellite Timelapse (2000–2025)"
   },
   "errors": {
+    "title": "Could not run this investigation",
+    "stillShowing": "Still showing the previous result below.",
     "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
     "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",
