@@ -1,4 +1,8 @@
 {
+  "hero": {
+    "title": "Is the climate really changing here?",
+    "subtitle": "Investigate real NASA climate records with statistical tests built for evidence, not guesswork."
+  },
   "nav": {
     "wordmark": "EarthTrend Detective",
     "investigate": "Investigate",

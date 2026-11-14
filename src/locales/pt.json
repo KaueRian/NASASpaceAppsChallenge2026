@@ -1,4 +1,8 @@
 {
+  "hero": {
+    "title": "O clima está mesmo mudando aqui?",
+    "subtitle": "Investigue registros climáticos reais da NASA com testes estatísticos feitos pra evidência, não pra achismo."
+  },
   "nav": {
     "wordmark": "EarthTrend Detective",
     "investigate": "Investigar",

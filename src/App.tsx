@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader, type SectionId } from "./components/AppHeader";
+import { Hero } from "./components/Hero";
 
 type View = "home" | "methods";
 
@@ -37,9 +38,12 @@ export function App() {
             Methods page placeholder — built in a later task.
           </p>
         ) : (
-          <p className="font-sans text-text-muted">
-            Home page placeholder — Hero / Investigation / CasesGrid land in later tasks.
-          </p>
+          <>
+            <Hero />
+            <p className="p-6 font-sans text-text-muted">
+              Investigation / CasesGrid placeholder — land in later tasks.
+            </p>
+          </>
         )}
       </main>
     </div>
