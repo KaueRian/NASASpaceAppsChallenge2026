@@ -58,21 +58,25 @@
     "T2M": {
       "label": "Temperatura Média do Ar (2m)",
       "shortLabel": "Temp. Média (T2M)",
+      "simple": "temperatura média",
       "unit": "°C"
     },
     "T2M_MIN": {
       "label": "Temperatura Mínima Noturna (2m)",
       "shortLabel": "Temp. Mínima Noturna (T2M_MIN)",
+      "simple": "temperatura mínima noturna",
       "unit": "°C"
     },
     "PRECTOTCORR": {
       "label": "Precipitação Total Corrigida",
       "shortLabel": "Precipitação (PRECTOTCORR)",
+      "simple": "chuva",
       "unit": "mm"
     },
     "GWETROOT": {
       "label": "Índice de Umidade do Solo na Zona Radicular",
       "shortLabel": "Umidade Radicular do Solo (GWETROOT)",
+      "simple": "umidade do solo",
       "unit": "%"
     }
   },
@@ -80,6 +84,11 @@
     "annual": "Anual (Jan–Dez)",
     "oct_mar": "Estação Chuvosa (Out–Mar)",
     "apr_sep": "Estação Seca (Abr–Set)"
+  },
+  "seasonsSimple": {
+    "annual": "o ano todo",
+    "oct_mar": "na estação chuvosa",
+    "apr_sep": "na estação seca"
   },
   "verdict": {
     "STRONG_EVIDENCE": "Evidência forte · p < 0,01 (99% de confiança)",
@@ -120,7 +129,12 @@
     "viewStripes": "Faixas Climáticas",
     "methodologyPipeline": "NASA POWER → {{nYears}} anos ({{startYear}}–{{endYear}}) → Mann-Kendall & Sen's Slope → {{verdict}}",
     "expandMethod": "Ver método e estatísticas desta análise",
-    "fullMethodLink": "Ler metodologia completa e limitações"
+    "fullMethodLink": "Ler metodologia completa e limitações",
+    "changeButton": "Mudar",
+    "moreOptions": "Mais opções",
+    "goButton": "Investigar",
+    "phrasePrefix": "A",
+    "phraseIn": "em"
   },
   "investigation": {
     "yearsLabel": "Anos",

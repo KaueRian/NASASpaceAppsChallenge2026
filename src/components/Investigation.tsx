@@ -12,6 +12,7 @@ import type {
   VariableId,
 } from "../types/investigation";
 import { SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
+import { CitySearchInput } from "./CitySearchInput";
 import { LocationPicker } from "./LocationPicker";
 import { buildCitationText, ShareSheet } from "./share";
 import { TrendChart } from "./TrendChart";
@@ -47,6 +48,8 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
   const { t, formatNumber } = useI18n();
   const [methodOpen, setMethodOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [query, setQuery] = useState<InvestigationQuery>(() =>
     toQuery(getCasePresetById(presetId)),
@@ -65,6 +68,8 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
     setResult(preset.result);
     setLoading(false);
     setErrorCode(null);
+    setEditing(false);
+    setAdvancedOpen(false);
   }, [presetId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,6 +81,8 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
       const next = await investigateClientSide(query);
       if (thisRequestId !== requestIdRef.current) return;
       setResult(next);
+      setEditing(false);
+      setAdvancedOpen(false);
     } catch (err) {
       if (thisRequestId !== requestIdRef.current) return;
       setErrorCode(err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR");
@@ -110,96 +117,116 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
 
   return (
     <section id="investigation" className="border-b border-border px-6 py-10">
-      <form onSubmit={handleSubmit} className="mb-8 space-y-4 border border-border bg-surface p-4">
-        <LocationPicker
-          lat={query.lat}
-          lon={query.lon}
-          onChange={(next) => setQuery((q) => ({ ...q, ...next }))}
-        />
-
-        <div className="flex flex-wrap gap-4">
-          <label className="font-mono text-xs text-text-muted">
-            {t("form.variableLabel")}
+      {editing ? (
+        <form
+          onSubmit={handleSubmit}
+          className="mb-8 space-y-3 border border-border bg-surface p-4"
+        >
+          <div className="flex flex-wrap items-center gap-2 font-display text-lg text-text">
+            <span className="text-text-muted">{t("form.phrasePrefix")}</span>
             <select
               value={query.variable}
               onChange={(e) => setQuery((q) => ({ ...q, variable: e.target.value as VariableId }))}
-              className="ml-2 border border-border bg-bg px-2 py-1 font-sans text-sm text-text"
+              className="border-b border-accent bg-transparent font-display text-lg text-text"
             >
               {VARIABLE_IDS.map((id) => (
                 <option key={id} value={id}>
-                  {t(`variables.${id}.label`)}
+                  {t(`variables.${id}.simple`)}
                 </option>
               ))}
             </select>
-          </label>
-
-          <label className="font-mono text-xs text-text-muted">
-            {t("form.seasonLabel")}
+            <span className="text-text-muted">{t("form.phraseIn")}</span>
+            <CitySearchInput
+              currentLabel={query.label ?? `${query.lat.toFixed(2)}, ${query.lon.toFixed(2)}`}
+              onSelect={(candidate) =>
+                setQuery((q) => ({
+                  ...q,
+                  lat: candidate.lat,
+                  lon: candidate.lon,
+                  label: candidate.label,
+                }))
+              }
+              className="min-w-40"
+            />
             <select
               value={query.season}
               onChange={(e) => setQuery((q) => ({ ...q, season: e.target.value as SeasonId }))}
-              className="ml-2 border border-border bg-bg px-2 py-1 font-sans text-sm text-text"
+              className="border-b border-accent bg-transparent font-display text-lg text-text"
             >
               {SEASON_IDS.map((id) => (
                 <option key={id} value={id}>
-                  {t(`seasons.${id}`)}
+                  {t(`seasonsSimple.${id}`)}
                 </option>
               ))}
             </select>
-          </label>
+            <button
+              type="submit"
+              disabled={loading}
+              className="ml-2 border border-accent px-3 py-1 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50"
+            >
+              {loading ? t("form.runningButton") : `→ ${t("form.goButton")}`}
+            </button>
+          </div>
 
-          <label className="font-mono text-xs text-text-muted">
-            {t("form.startYearLabel")}
-            <input
-              type="number"
-              min={1981}
-              max={currentYear}
-              value={query.startYear}
-              onChange={(e) => setQuery((q) => ({ ...q, startYear: Number(e.target.value) }))}
-              className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
-            />
-          </label>
+          <button
+            type="button"
+            onClick={() => setAdvancedOpen((open) => !open)}
+            className="font-sans text-xs text-accent hover:underline"
+          >
+            {advancedOpen ? "▾" : "▸"} {t("form.moreOptions")}
+          </button>
 
-          <label className="font-mono text-xs text-text-muted">
-            {t("form.endYearLabel")}
-            <input
-              type="number"
-              min={1981}
-              max={currentYear}
-              value={query.endYear}
-              onChange={(e) => setQuery((q) => ({ ...q, endYear: Number(e.target.value) }))}
-              className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
-            />
-          </label>
+          {advancedOpen && (
+            <div className="space-y-3 border-t border-border pt-3">
+              <LocationPicker
+                lat={query.lat}
+                lon={query.lon}
+                onChange={(next) => setQuery((q) => ({ ...q, ...next }))}
+              />
+              <div className="flex flex-wrap gap-4">
+                <label className="font-mono text-xs text-text-muted">
+                  {t("form.startYearLabel")}
+                  <input
+                    type="number"
+                    min={1981}
+                    max={currentYear}
+                    value={query.startYear}
+                    onChange={(e) => setQuery((q) => ({ ...q, startYear: Number(e.target.value) }))}
+                    className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
+                  />
+                </label>
+                <label className="font-mono text-xs text-text-muted">
+                  {t("form.endYearLabel")}
+                  <input
+                    type="number"
+                    min={1981}
+                    max={currentYear}
+                    value={query.endYear}
+                    onChange={(e) => setQuery((q) => ({ ...q, endYear: Number(e.target.value) }))}
+                    className="ml-2 w-20 border border-border bg-bg px-2 py-1 font-mono text-sm text-text"
+                  />
+                </label>
+              </div>
+              <p className="font-sans text-xs text-text-muted">{t("form.minYearsWarning")}</p>
+            </div>
+          )}
+
+          {errorCode && <p className="font-sans text-xs text-accent">{t(`errors.${errorCode}`)}</p>}
+        </form>
+      ) : (
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3">
+          <p className="font-mono text-xs uppercase tracking-wide text-text-muted">
+            {variableLabel} · {location.label} · {seasonLabel} · {stats.startYear}–{stats.endYear}
+          </p>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="font-mono text-xs uppercase tracking-wide text-accent hover:underline"
+          >
+            {t("form.changeButton")}
+          </button>
         </div>
-
-        <p className="font-sans text-xs text-text-muted">{t("form.minYearsWarning")}</p>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="border border-accent px-4 py-2 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50"
-        >
-          {loading ? t("form.runningButton") : t("form.submitButton")}
-        </button>
-
-        {errorCode && <p className="font-sans text-xs text-accent">{t(`errors.${errorCode}`)}</p>}
-      </form>
-
-      <div className="mb-6 flex flex-wrap gap-x-8 gap-y-1 font-mono text-xs uppercase tracking-wide text-text-muted">
-        <span>
-          {t("form.locationLabel")}: {location.label}
-        </span>
-        <span>
-          {t("form.variableLabel")}: {variableLabel}
-        </span>
-        <span>
-          {t("form.seasonLabel")}: {seasonLabel}
-        </span>
-        <span>
-          {t("investigation.yearsLabel")}: {stats.startYear}–{stats.endYear}
-        </span>
-      </div>
+      )}
 
       <p className="max-w-2xl font-display text-xl text-text">{headline}</p>
 

@@ -1,8 +1,7 @@
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CircleMarker, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { useI18n } from "../i18n/i18n";
-import type { GeocodeCandidate } from "../types/investigation";
 
 interface LocationPickerProps {
   lat: number;
@@ -39,36 +38,12 @@ export function LocationPicker({ lat, lon, onChange }: LocationPickerProps) {
   const { t } = useI18n();
   const [latText, setLatText] = useState(String(lat));
   const [lonText, setLonText] = useState(String(lon));
-  const [query, setQuery] = useState("");
-  const [candidates, setCandidates] = useState<GeocodeCandidate[]>([]);
-  const searchAbortRef = useRef<AbortController | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only react to lat/lon changing from outside (geocode/map click) — including latText/lonText would fight manual typing.
   useEffect(() => {
     if (Number(latText) !== lat) setLatText(String(lat));
     if (Number(lonText) !== lon) setLonText(String(lon));
   }, [lat, lon]);
-
-  useEffect(() => {
-    if (query.trim().length < 3) {
-      setCandidates([]);
-      return;
-    }
-    const handle = setTimeout(() => {
-      searchAbortRef.current?.abort();
-      const controller = new AbortController();
-      searchAbortRef.current = controller;
-      fetch(`/api/geocode?q=${encodeURIComponent(query)}`, { signal: controller.signal })
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.ok) setCandidates(data.results as GeocodeCandidate[]);
-        })
-        .catch(() => {
-          // silent failure — geocode search is a convenience, not required
-        });
-    }, 400);
-    return () => clearTimeout(handle);
-  }, [query]);
 
   const handleLatBlur = () => {
     const value = Number(latText);
@@ -82,35 +57,6 @@ export function LocationPicker({ lat, lon, onChange }: LocationPickerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("form.locationPlaceholder")}
-          className="w-full border border-border bg-bg px-3 py-2 font-sans text-sm text-text"
-        />
-        {candidates.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full border border-border bg-surface">
-            {candidates.map((candidate) => (
-              <li key={candidate.label}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange({ lat: candidate.lat, lon: candidate.lon, label: candidate.label });
-                    setQuery("");
-                    setCandidates([]);
-                  }}
-                  className="block w-full px-3 py-2 text-left font-sans text-sm text-text hover:bg-bg"
-                >
-                  {candidate.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
       <div className="flex flex-wrap gap-3">
         <label className="font-mono text-xs text-text-muted">
           {t("form.latLabel")}
@@ -139,7 +85,7 @@ export function LocationPicker({ lat, lon, onChange }: LocationPickerProps) {
         zoom={5}
         scrollWheelZoom={false}
         style={{ height: 320 }}
-        className="border border-border"
+        className="map-dark-tiles border border-border"
       >
         <TileLayer
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
