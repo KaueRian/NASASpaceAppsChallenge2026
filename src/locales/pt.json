@@ -1,7 +1,8 @@
 {
   "hero": {
+    "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · MOTOR DE EVIDÊNCIA ESTATÍSTICA",
     "title": "O clima está mesmo mudando aqui?",
-    "subtitle": "Investigue registros climáticos reais da NASA com testes estatísticos feitos pra evidência, não pra achismo."
+    "subtitle": "Investigue 45 anos de registros climáticos reais da NASA com testes estatísticos feitos pra evidência, não pra achismo."
   },
   "nav": {
     "wordmark": "EarthTrend Detective",
@@ -11,11 +12,36 @@
   },
   "cases": {
     "title": "Casos em Destaque",
+    "sectionSubtitle": "Quatro investigações reais de 45 anos (1981–2025) cobrindo Vilhena, Rondônia, Brasil e o Ártico — uma para cada variável da NASA POWER.",
     "caseLabel": "Caso {{id}}",
-    "01": { "hook": "A estação seca está ficando mais seca?" },
-    "02": { "hook": "O solo da bacia do Madeira está secando?" },
-    "03": { "hook": "As noites tropicais estão mais quentes?" },
-    "04": { "hook": "Com que rapidez o Ártico está esquentando?" }
+    "01": {
+      "title": "Vilhena, RO, Brasil",
+      "region": "Transição Cerrado–Amazônia (Chapada dos Parecis / Cone Sul)",
+      "hook": "A estação seca de Vilhena está perdendo chuvas críticas?",
+      "headline": "A precipitação acumulada na estação seca (Abr–Set) em Vilhena caiu 234,5 mm desde 1981 (-53,3 mm/década).",
+      "context": "Portal da Amazônia Ocidental e polo agrícola do Cone Sul de Rondônia. A perda consistente de chuva entre abril e setembro agrava o déficit hídrico na janela da safrinha e eleva o risco de incêndios florestais na transição Cerrado–Amazônia (ODS 6, 13 e 15 da ONU; complementar às séries de cobertura do solo do MapBiomas)."
+    },
+    "02": {
+      "title": "Ariquemes, RO, Brasil",
+      "region": "Vale do Jamari, Região Central de Rondônia",
+      "hook": "As noites tropicais em Rondônia estão ficando persistentemente mais quentes?",
+      "headline": "A temperatura mínima noturna anual em Ariquemes subiu +1,82 °C desde 1981 (+0,41 °C/década).",
+      "context": "Noites tropicais mais quentes reduzem o resfriamento fisiológico noturno de trabalhadores rurais e rebanhos, além de elevar o estresse térmico sobre culturas perenes amazônicas como o café robusta e o cacau."
+    },
+    "03": {
+      "title": "Corumbá (Pantanal), MS, Brasil",
+      "region": "Bacia do Alto Paraguai · Maior Planície Alagável do Mundo",
+      "hook": "O bioma Pantanal está perdendo umidade na zona radicular do solo?",
+      "headline": "O índice anual de umidade do solo na zona radicular em Corumbá caiu -5,60 pontos percentuais desde 1981 (-1,27 pts/década).",
+      "context": "O ressecamento multidecadal do solo no Pantanal reduz o nível do lençol freático, amplifica temporadas severas de incêndios e ameaça a biodiversidade e a segurança hídrica no centro da América do Sul (ODS 6 e 15 da ONU)."
+    },
+    "04": {
+      "title": "Svalbard, Ártico",
+      "region": "Arquipélago do Alto Ártico (78° N)",
+      "hook": "Qual é a velocidade real da amplificação polar no Ártico?",
+      "headline": "A temperatura média anual do ar em Svalbard saltou +3,50 °C desde 1981 (+0,79 °C/década).",
+      "context": "Referência científica global da amplificação polar: o Alto Ártico aquece de três a quatro vezes mais rápido que a média planetária, acelerando o recuo do gelo marinho e o degelo do permafrost (ODS 13 da ONU)."
+    }
   },
   "variableName": {
     "T2M": "Temperatura média",
@@ -38,7 +64,8 @@
   "verdict": {
     "STRONG_EVIDENCE": "Evidência forte",
     "EVIDENCE_CONFIRMED": "Evidência confirmada",
-    "INSUFFICIENT_EVIDENCE": "Evidência insuficiente"
+    "INSUFFICIENT_EVIDENCE": "Evidência insuficiente",
+    "causationNote": "Salvaguarda científica: o teste de Mann-Kendall comprova se uma tendência direcional observada é estatisticamente distinta de flutuações aleatórias; ele não prova isoladamente uma causa física única. Combine séries climáticas com dados de uso da terra (ex.: MapBiomas) para atribuição regional."
   },
   "result": {
     "headline": "{{variable}} perto de {{location}}: {{change}} desde {{startYear}} ({{direction}})."
@@ -59,6 +86,18 @@
       "highAutocorrelation": "Alta autocorrelação ano a ano detectada"
     }
   },
+  "errors": {
+    "INVALID_COORDINATES": "Coordenadas inválidas. Informe latitude entre -90 e 90 e longitude entre -180 e 180.",
+    "INVALID_VARIABLE": "Selecione uma das quatro variáveis suportadas da NASA POWER (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
+    "INVALID_SEASON": "Selecione um recorte sazonal válido (Anual, Out–Mar ou Abr–Set).",
+    "INSUFFICIENT_YEARS": "Menos de 15 anos sazonais completos disponíveis neste intervalo. Amplie o período para executar o Mann-Kendall.",
+    "NO_DATA_ALL_MISSING": "Sem observações válidas para esta variável neste ponto (a NASA POWER retornou -999, ex.: umidade do solo sobre o oceano).",
+    "NASA_UPSTREAM_TIMEOUT": "O arquivo da NASA POWER demorou muito para responder. Tente novamente em alguns segundos.",
+    "NASA_UPSTREAM_ERROR": "Não foi possível conectar ao serviço NASA POWER / MERRA-2 agora. Os Casos em Destaque seguem disponíveis offline.",
+    "GEOCODE_NOT_FOUND": "Nenhum município ou localidade encontrado. Tente outro nome ou digite latitude e longitude diretamente.",
+    "DOSSIER_NOT_FOUND": "Este link de investigação compartilhada não foi encontrado.",
+    "EMPTY_SEARCH": "Selecione um Caso em Destaque abaixo ou informe qualquer coordenada da Terra para começar."
+  },
   "methods": {
     "title": "Método",
     "intro": "Como o EarthTrend Detective transforma registros brutos da NASA em um veredito de tendência — linguagem simples primeiro, os números por trás depois.",
@@ -73,12 +112,12 @@
     },
     "tests": {
       "title": "03. Os Testes Estatísticos",
-      "body": "O teste de Mann-Kendall verifica se uma tendência é pouco provável de ser ruído aleatório e retorna um p-valor. O Sen's Slope estima o quanto de mudança por ano ou década, mesmo com dados ruidosos."
+      "body": "O teste de Mann-Kendall verifica se uma tendência é pouco provável de ser ruído aleatório e retorna um p-valor. O Sen's Slope estima o quanto de mudança por ano ou década, mesmo com dados ruidosos, acompanhado pelo intervalo de confiança de 95% de Gilbert / Hollander-Wolfe."
     },
     "limitations": {
       "title": "04. Limitações",
       "body": "Uma tendência estatisticamente significativa mostra uma mudança real e pouco provável por acaso — isso não prova, sozinho, uma única causa. O MERRA-2 descreve uma célula de grade de ~50 km, não um ponto exato, e valores de um ano podem estar correlacionados com os de outro (autocorrelação); ambos aparecem como aviso quando se aplicam.",
-      "context": "Comparar um caso de Rondônia com um do Ártico mostra como a mudança climática se manifesta de forma diferente por região — útil pra educação ambiental em sala de aula e pra ler dados de uso do solo como o MapBiomas junto. Esta ferramenta apoia conversas em torno dos Objetivos de Desenvolvimento Sustentável da ONU 6 (Água Limpa), 13 (Ação Climática) e 15 (Vida Terrestre) — não os substitui."
+      "context": "Comparar casos de Vilhena, Rondônia, Pantanal e Ártico mostra como a mudança climática se manifesta de forma diferente por região — útil pra educação ambiental em sala de aula e pra ler dados de uso do solo como o MapBiomas junto. Esta ferramenta apoia conversas em torno dos Objetivos de Desenvolvimento Sustentável da ONU 6 (Água Limpa), 13 (Ação Climática) e 15 (Vida Terrestre) — não os substitui."
     }
   }
 }

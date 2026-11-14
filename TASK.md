@@ -119,7 +119,7 @@
   - *Note:* pending alignment with Mylena (see transition banner at top) — she has her own JS engine (adds confidence intervals, regression, Benjamini-Hochberg) already validated against `pymannkendall`/`scipy`, proposed to port to TS. Needs a joint decision before R2 on which engine is canonical.
 - [x] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
 - [x] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
-- [ ] **(Higor & Luis)** Write final case hooks + result copy templates and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts (include regional Amazon/Rondônia context, school/research usability, and explicit note that statistical trend ≠ direct single-cause causation per the HUBEE Challenge Manual)
+- [x] **(Higor & Luis)** Write final case hooks + result copy templates and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts (4 geographic scales × 4 variables: `#01 Vilhena, RO`, `#02 Ariquemes, RO`, `#03 Corumbá/Pantanal, MS`, `#04 Svalbard, Arctic`, including regional Amazon/Pantanal context, school/research usability, and explicit note that statistical trend ≠ direct single-cause causation per the HUBEE Challenge Manual)
 - [x] **(Mylena)** `<Hero />` placeholder (simple version; the real attention-grabbing treatment is prototyped separately, lands in R3)
 - [x] **(Mylena)** `<Investigation />` wired only to the 4 presets: form pre-filled when a case is picked, result area (verdict line, headline, chart, layered methodology disclosure, actions row) rendered from the static preset JSON
   - *Note (Mylena):* defaults to case `01` (no picker yet — `<CasesGrid />` wires that next); chart is a placeholder until `<TrendChart />` lands; actions row reuses Kauê's `<ShareSheet />` as-is (covers share link/image/CSV/citation in one). Headline/methodology copy in `src/locales/*.json` is my draft, final wording is Higor & Luis's per their task above.
@@ -128,7 +128,7 @@
   - *Note (Mylena):* hand-rolled inline SVG (no charting lib added — Recharts is still listed in the tech stack line above but unused so far; matches Kauê's existing hand-rolled approach in `ClimateStripes`/`EvidenceCard`).
 - [x] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
   - *Note (Mylena):* Limitations section covers the HUBEE Manual alignment points from `CLAUDE.md` (significance ≠ single-cause causation, Rondônia vs. Arctic regional contrast, classroom education/MapBiomas context, UN SDGs 6/13/15). Copy is my draft; final wording is Higor & Luis's.
-- [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
+- [x] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
 *Analysis can run in the browser (direct fetch to NASA POWER + stats computed client-side, with browser-side caching) or via the ready `/api/investigate` endpoint; D1 also backs the shareable-link feature in R3.*
@@ -140,7 +140,7 @@
 - [ ] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine (or `/api/investigate`), with browser-side caching; minimum 15 years validation
 - [ ] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
 - [ ] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
-- [ ] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT)
+- [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
 - [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
 
 ## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
@@ -150,13 +150,13 @@
 - [x] **(Kauê)** Evidence/share image generation (`<ClimateStripes />` + `<EvidenceCard />`: Story 9:16 with stats + QR code, Square 1:1 minimal) + `Download PNG` (HTML5 Canvas PNG generator in `src/components/share/`)
 - [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **backed by D1** — + read-only shared-result page with a CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
 - [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy Share Link` (auto-save via the endpoint above), `Download PNG`, `Download CSV`, `Copy Citation` (`src/lib/export/dossierExport.ts`), native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
-- [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
+- [x] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/` (`public/favicon.svg`, `public/brand/favicon.svg`, `public/brand/logo-wordmark.svg`, `public/brand/og-card.svg`)
 - [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
 - [ ] **(Mylena)** **Should:** `<MethodsPage />` complete (all sections with real content: NASA data, tests, limitations)
-- [ ] **(Higor & Luis)** **Should:** Methods page text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records, **correlation vs. causation**, and opposite regional trends driven by global processes)
+- [x] **(Higor & Luis)** **Should:** Methods page text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records, **correlation vs. causation**, and opposite regional trends driven by global processes) (`src/locales/en.json` & `src/locales/pt.json`)
 - [x] **(Kauê)** **Should:** OG meta tags (static image) for `/` and the shared-result page (`index.html` + `public/brand/og-card.svg`)
 - [ ] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`localStorage`)
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
@@ -171,7 +171,7 @@
 ---
 
 ## 🎤 Pitch, Video & Submission Track (Higor & Luis — runs in parallel)
-- [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance + **Missão Amazônia: ODS 6, ODS 13, ODS 15, MapBiomas land-use context & environmental education in schools**)
+- [x] **(Higor & Luis)** Research regional impact context for the 4 cases (`#01 Vilhena-RO`, `#02 Ariquemes-RO`, `#03 Corumbá/Pantanal-MS`, `#04 Svalbard-Arctic` + **Missão Amazônia: ODS 6, ODS 13, ODS 15, MapBiomas land-use context & environmental education in schools** in `docs/submission/regional-impact-context.md`)
 - [x] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s hero/intro, 5–15s a Featured Case result, 15–25s live investigation, 25–30s impact + share image)
 - [x] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
 - [x] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`

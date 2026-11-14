@@ -1,7 +1,8 @@
 {
   "hero": {
+    "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · STATISTICAL EVIDENCE ENGINE",
     "title": "Is the climate really changing here?",
-    "subtitle": "Investigate real NASA climate records with statistical tests built for evidence, not guesswork."
+    "subtitle": "Investigate 45 years of real NASA climate records with statistical tests built for evidence, not guesswork."
   },
   "nav": {
     "wordmark": "EarthTrend Detective",
@@ -11,11 +12,36 @@
   },
   "cases": {
     "title": "Featured Cases",
+    "sectionSubtitle": "Four verified 45-year investigations (1981–2025) spanning Vilhena, Rondônia, Brazil, and the Arctic — one for each NASA POWER variable.",
     "caseLabel": "Case {{id}}",
-    "01": { "hook": "Is the dry season getting drier?" },
-    "02": { "hook": "Is the Madeira basin soil drying out?" },
-    "03": { "hook": "Are tropical nights getting hotter?" },
-    "04": { "hook": "How fast is the Arctic warming?" }
+    "01": {
+      "title": "Vilhena, RO, Brazil",
+      "region": "Southern Amazon–Cerrado Transition (Chapada dos Parecis)",
+      "hook": "Is Vilhena's dry season losing critical rainfall?",
+      "headline": "Dry-season rainfall (Apr–Sep) in Vilhena dropped by 234.5 mm since 1981 (-53.3 mm/decade).",
+      "context": "Gateway to the Western Amazon and hub of Rondônia's grain production. Sustained dry-season precipitation loss intensifies soil water deficit during second-crop (safrinha) development and raises fire risk across the Cerrado–Amazon transition (UN SDGs 6, 13 & 15; complementary to MapBiomas land-cover series)."
+    },
+    "02": {
+      "title": "Ariquemes, RO, Brazil",
+      "region": "Jamari Valley, Central Rondônia",
+      "hook": "Are tropical nights in Rondônia getting persistently hotter?",
+      "headline": "Annual minimum night-time temperatures in Ariquemes rose +1.82 °C since 1981 (+0.41 °C/decade).",
+      "context": "Warmer tropical nights reduce nocturnal physiological recovery for rural workers and livestock while increasing thermal stress on perennial Amazonian crops such as robusto coffee and cocoa."
+    },
+    "03": {
+      "title": "Corumbá (Pantanal), MS, Brazil",
+      "region": "Upper Paraguay Basin · World's Largest Tropical Wetland",
+      "hook": "Is the Pantanal biome losing root-zone soil moisture?",
+      "headline": "Annual root-zone soil wetness in Corumbá fell -5.60 percentage points since 1981 (-1.27 pts/decade).",
+      "context": "Multi-decade root-zone drying across the Pantanal floodplains lowers water tables, amplifies extreme wildfire seasons, and threatens biodiversity and river navigation across central South America (UN SDGs 6 & 15)."
+    },
+    "04": {
+      "title": "Svalbard, Arctic",
+      "region": "High Arctic Archipelago (78° N)",
+      "hook": "How fast is polar amplification warming the High Arctic?",
+      "headline": "Annual mean air temperature in Svalbard surged +3.50 °C since 1981 (+0.79 °C/decade).",
+      "context": "Global reference benchmark illustrating polar amplification: the High Arctic is warming roughly three to four times faster than the global average, driving sea-ice retreat and permafrost thaw (UN SDG 13)."
+    }
   },
   "variableName": {
     "T2M": "Average temperature",
@@ -38,7 +64,8 @@
   "verdict": {
     "STRONG_EVIDENCE": "Strong evidence",
     "EVIDENCE_CONFIRMED": "Evidence confirmed",
-    "INSUFFICIENT_EVIDENCE": "Insufficient evidence"
+    "INSUFFICIENT_EVIDENCE": "Insufficient evidence",
+    "causationNote": "Scientific guardrail: Mann-Kendall confirms whether an observed directional trend is statistically distinguishable from random noise; it does not by itself prove single-cause physical attribution. Combine climate series with land-use monitoring (e.g., MapBiomas) for regional attribution."
   },
   "result": {
     "headline": "{{variable}} near {{location}}: {{change}} since {{startYear}} ({{direction}})."
@@ -59,6 +86,18 @@
       "highAutocorrelation": "High year-to-year autocorrelation detected"
     }
   },
+  "errors": {
+    "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
+    "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
+    "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",
+    "INSUFFICIENT_YEARS": "Fewer than 15 complete seasonal years are available in this range. Expand the year span to run Mann-Kendall.",
+    "NO_DATA_ALL_MISSING": "No valid observations available here (NASA POWER returned -999 missing values, e.g. root-zone soil wetness over open ocean).",
+    "NASA_UPSTREAM_TIMEOUT": "The NASA POWER archive took too long to respond. Please try again in a few seconds.",
+    "NASA_UPSTREAM_ERROR": "Could not reach the NASA POWER / MERRA-2 service right now. Featured Cases remain available offline.",
+    "GEOCODE_NOT_FOUND": "No matching municipality or location found. Try another name or enter latitude and longitude directly.",
+    "DOSSIER_NOT_FOUND": "This shared investigation link could not be found.",
+    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin."
+  },
   "methods": {
     "title": "Methods",
     "intro": "How EarthTrend Detective turns raw NASA records into a trend verdict — plain language first, numbers behind it.",
@@ -73,12 +112,12 @@
     },
     "tests": {
       "title": "03. The Statistical Tests",
-      "body": "Mann-Kendall checks whether a trend is unlikely to be random noise and returns a p-value. Sen's Slope estimates how much change per year or decade, even when the data is noisy."
+      "body": "Mann-Kendall checks whether a trend is unlikely to be random noise and returns a p-value. Sen's Slope estimates how much change per year or decade, even when the data is noisy, accompanied by a 95% Gilbert / Hollander-Wolfe confidence interval."
     },
     "limitations": {
       "title": "04. Limitations",
       "body": "A statistically significant trend shows a real, unlikely-by-chance change — it does not, by itself, prove a single cause. MERRA-2 describes a ~50 km grid cell, not an exact point, and year-to-year values can be correlated with each other (autocorrelation); both are flagged as warnings when they apply.",
-      "context": "Comparing a Rondônia case to an Arctic one shows how differently climate change plays out by region — useful for classroom environmental education and for reading land-cover data like MapBiomas alongside it. This tool supports conversations around UN Sustainable Development Goals 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land) — it doesn't replace them."
+      "context": "Comparing cases across Vilhena, Rondônia, the Pantanal, and the Arctic shows how differently climate change plays out by region — useful for classroom environmental education and for reading land-cover data like MapBiomas alongside it. This tool supports conversations around UN Sustainable Development Goals 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land) — it doesn't replace them."
     }
   }
 }

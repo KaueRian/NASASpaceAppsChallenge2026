@@ -99,13 +99,13 @@ The product is **one home page** (`<Hero />` → `<Investigation />` → `<Cases
 - The 4 real NASA cases as **shortcuts, not screens** — clicking one fills `<Investigation />`'s form and shows its result in the same result area, using the preset's already-computed data (works offline). From there the user can edit the investigation like any other.
 - Label: **"Featured Cases"** (EN) / **"Casos em Destaque"** (PT) — not "example cases": these are real analyses, not placeholder data.
 
-#### The 4 preset cases (verified against real NASA POWER `1981–2025` data)
-| # | Location | Variable | Default season | Real Verdict (`1981–2025`) | Total Shift (`n=45`) | Draft hook |
-|---|---|---|---|---|---|---|
-| 01 | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | `STRONG_EVIDENCE` (`p=0.000131`) | `-234.46 mm` (`-53.29/dec`) | "Is the dry season getting drier?" |
-| 02 | Porto Velho, RO, Brazil | `GWETROOT` | Annual | `STRONG_EVIDENCE` (`p<0.000001`) | `-14.26 pts` (`-3.24/dec`) | "Is the Madeira basin soil drying out?" |
-| 03 | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | `STRONG_EVIDENCE` (`p=0.000001`) | `+1.82 °C` (`+0.41/dec`) | "Are tropical nights getting hotter?" |
-| 04 | Svalbard, Arctic | `T2M` | Annual | `STRONG_EVIDENCE` (`p<0.000001`) | `+3.50 °C` (`+0.79/dec`) | "How fast is the Arctic warming?" |
+#### The 4 preset cases (verified against real NASA POWER `1981–2025` data — 4 scales × 4 variables)
+| # | Scale | Location | Variable | Default season | Real Verdict (`1981–2025`) | Total Shift (`n=45`) | Hook |
+|---|---|---|---|---|---|---|---|
+| 01 | Local (Host City) | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | `STRONG_EVIDENCE` (`p=0.000131`) | `-234.46 mm` (`-53.29/dec`) | "Is Vilhena's dry season losing critical rainfall?" |
+| 02 | State (Rondônia) | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | `STRONG_EVIDENCE` (`p=0.000001`) | `+1.82 °C` (`+0.41/dec`) | "Are tropical nights in Rondônia getting persistently hotter?" |
+| 03 | National (Brazil) | Corumbá (Pantanal), MS, Brazil | `GWETROOT` | Annual | `STRONG_EVIDENCE` (`p=0.000024`) | `-5.60 pts` (`-1.27/dec`) | "Is the Pantanal biome losing root-zone soil moisture?" |
+| 04 | Global (World) | Svalbard, Arctic | `T2M` | Annual | `STRONG_EVIDENCE` (`p<0.000001`) | `+3.50 °C` (`+0.79/dec`) | "How fast is polar amplification warming the High Arctic?" |
 
 - If a case shows `Insufficient evidence` with real data, keep **at most one** such case on purpose, and order the strongest case first.
 - Editing variable/season after loading a case switches the result area to "Derived from Case #0X" with a `Restore original case` action — same mechanism as any other investigation edit, just labeled.
