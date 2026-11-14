@@ -3,6 +3,8 @@ import { AppHeader, type SectionId } from "./components/AppHeader";
 import { CasesGrid } from "./components/CasesGrid";
 import { Hero } from "./components/Hero";
 import { Investigation } from "./components/Investigation";
+import { MethodsPage } from "./components/MethodsPage";
+import { MethodTeaser } from "./components/MethodTeaser";
 import type { CasePresetId } from "./types/investigation";
 
 type View = "home" | "methods";
@@ -43,14 +45,13 @@ export function App() {
       />
       <main className="p-6">
         {view === "methods" ? (
-          <p className="font-sans text-text-muted">
-            Methods page placeholder — built in a later task.
-          </p>
+          <MethodsPage />
         ) : (
           <>
             <Hero />
             <Investigation presetId={presetId} onNavigateMethods={() => setView("methods")} />
             <CasesGrid activePresetId={presetId} onSelectPreset={selectPreset} />
+            <MethodTeaser onNavigateMethods={() => setView("methods")} />
           </>
         )}
       </main>

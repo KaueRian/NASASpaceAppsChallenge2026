@@ -58,5 +58,27 @@
       "shortRecord": "Short record — interpret with caution",
       "highAutocorrelation": "High year-to-year autocorrelation detected"
     }
+  },
+  "methods": {
+    "title": "Methods",
+    "intro": "How EarthTrend Detective turns raw NASA records into a trend verdict — plain language first, numbers behind it.",
+    "teaser": "Every result here comes from the same NASA data and the same two statistical tests, explained in full on the",
+    "dataSource": {
+      "title": "01. NASA Data",
+      "body": "Every case uses NASA POWER's MERRA-2 reanalysis (temporal/monthly/point), a ~50 km-resolution model of the atmosphere and land surface built from satellite and ground observations — not a single weather station."
+    },
+    "aggregation": {
+      "title": "02. Building the Series",
+      "body": "Monthly values are filtered for missing readings (coded -999) and aggregated into annual or seasonal totals/averages, matching each variable's unit rule: temperature is a mean, precipitation is summed, soil wetness is a mean."
+    },
+    "tests": {
+      "title": "03. The Statistical Tests",
+      "body": "Mann-Kendall checks whether a trend is unlikely to be random noise and returns a p-value. Sen's Slope estimates how much change per year or decade, even when the data is noisy."
+    },
+    "limitations": {
+      "title": "04. Limitations",
+      "body": "A statistically significant trend shows a real, unlikely-by-chance change — it does not, by itself, prove a single cause. MERRA-2 describes a ~50 km grid cell, not an exact point, and year-to-year values can be correlated with each other (autocorrelation); both are flagged as warnings when they apply.",
+      "context": "Comparing a Rondônia case to an Arctic one shows how differently climate change plays out by region — useful for classroom environmental education and for reading land-cover data like MapBiomas alongside it. This tool supports conversations around UN Sustainable Development Goals 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land) — it doesn't replace them."
+    }
   }
 }

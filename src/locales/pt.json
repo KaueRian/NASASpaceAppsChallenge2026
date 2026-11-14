@@ -58,5 +58,27 @@
       "shortRecord": "Série curta — interprete com cautela",
       "highAutocorrelation": "Alta autocorrelação ano a ano detectada"
     }
+  },
+  "methods": {
+    "title": "Método",
+    "intro": "Como o EarthTrend Detective transforma registros brutos da NASA em um veredito de tendência — linguagem simples primeiro, os números por trás depois.",
+    "teaser": "Todo resultado aqui vem dos mesmos dados da NASA e dos mesmos dois testes estatísticos, explicados por completo no",
+    "dataSource": {
+      "title": "01. Dados da NASA",
+      "body": "Todo caso usa a reanálise MERRA-2 da NASA POWER (temporal/monthly/point), um modelo de ~50 km de resolução da atmosfera e da superfície terrestre, construído a partir de observações de satélite e de solo — não é uma estação meteorológica única."
+    },
+    "aggregation": {
+      "title": "02. Construindo a Série",
+      "body": "Valores mensais são filtrados pra remover leituras ausentes (código -999) e agregados em totais/médias anuais ou sazonais, seguindo a regra de unidade de cada variável: temperatura é média, precipitação é soma, umidade do solo é média."
+    },
+    "tests": {
+      "title": "03. Os Testes Estatísticos",
+      "body": "O teste de Mann-Kendall verifica se uma tendência é pouco provável de ser ruído aleatório e retorna um p-valor. O Sen's Slope estima o quanto de mudança por ano ou década, mesmo com dados ruidosos."
+    },
+    "limitations": {
+      "title": "04. Limitações",
+      "body": "Uma tendência estatisticamente significativa mostra uma mudança real e pouco provável por acaso — isso não prova, sozinho, uma única causa. O MERRA-2 descreve uma célula de grade de ~50 km, não um ponto exato, e valores de um ano podem estar correlacionados com os de outro (autocorrelação); ambos aparecem como aviso quando se aplicam.",
+      "context": "Comparar um caso de Rondônia com um do Ártico mostra como a mudança climática se manifesta de forma diferente por região — útil pra educação ambiental em sala de aula e pra ler dados de uso do solo como o MapBiomas junto. Esta ferramenta apoia conversas em torno dos Objetivos de Desenvolvimento Sustentável da ONU 6 (Água Limpa), 13 (Ação Climática) e 15 (Vida Terrestre) — não os substitui."
+    }
   }
 }

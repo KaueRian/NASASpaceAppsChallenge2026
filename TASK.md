@@ -126,7 +126,8 @@
 - [x] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
 - [x] **(Mylena)** `<TrendChart />` (line/trend view only for R1 — "View as" bars/stripes land in R3): `text` series, dashed `accent` Sen's line, marked anomalies, axis units
   - *Note (Mylena):* hand-rolled inline SVG (no charting lib added — Recharts is still listed in the tech stack line above but unused so far; matches Kauê's existing hand-rolled approach in `ClimateStripes`/`EvidenceCard`).
-- [ ] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
+- [x] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
+  - *Note (Mylena):* Limitations section covers the HUBEE Manual alignment points from `CLAUDE.md` (significance ≠ single-cause causation, Rondônia vs. Arctic regional contrast, classroom education/MapBiomas context, UN SDGs 6/13/15). Copy is my draft; final wording is Higor & Luis's.
 - [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
