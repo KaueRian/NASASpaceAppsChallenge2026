@@ -45,7 +45,7 @@ export function App() {
       />
       <main className="p-6">
         {view === "methods" ? (
-          <MethodsPage />
+          <MethodsPage onNavigateHome={() => setView("home")} />
         ) : (
           <>
             <Hero />

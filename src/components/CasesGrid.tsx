@@ -8,18 +8,28 @@ interface CasesGridProps {
   onSelectPreset: (id: CasePresetId) => void;
 }
 
+const SCALE_BADGE_KEY: Record<CasePresetId, string> = {
+  "01": "local",
+  "02": "state",
+  "03": "national",
+  "04": "global",
+};
+
 export function CasesGrid({ activePresetId, onSelectPreset }: CasesGridProps) {
   const { t } = useI18n();
 
   return (
     <section id="cases" className="border-b border-border px-6 py-10">
       <h2 className="font-mono text-xs uppercase tracking-widest text-text-muted">
-        {t("cases.title")}
+        {t("cases.sectionTitle")}
       </h2>
+      <p className="mt-1 max-w-2xl font-sans text-sm text-text-muted">
+        {t("cases.sectionSubtitle")}
+      </p>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {CASE_PRESETS.map((preset) => {
-          const { stats, location, variable } = preset.result;
+          const { stats, variable } = preset.result;
           const isActive = preset.id === activePresetId;
 
           return (
@@ -33,14 +43,16 @@ export function CasesGrid({ activePresetId, onSelectPreset }: CasesGridProps) {
               }`}
             >
               <p className="font-mono text-xs text-text-muted">
-                {t("cases.caseLabel", { id: preset.id })}
+                {t(`cases.scaleBadge.${SCALE_BADGE_KEY[preset.id]}`)}
               </p>
-              <p className="mt-1 font-display text-base text-text">{location.label}</p>
+              <p className="mt-1 font-display text-base text-text">
+                {t(`cases.${preset.id}.title`)}
+              </p>
               <p className="mt-2 font-sans text-sm text-text-muted">{t(preset.hookKey)}</p>
               <p
                 className={`mt-3 font-mono text-xs uppercase tracking-wide ${DIRECTION_COLOR[stats.direction]}`}
               >
-                {DIRECTION_ARROW[stats.direction]} {t(`variableName.${variable}`)}
+                {DIRECTION_ARROW[stats.direction]} {t(`variables.${variable}.shortLabel`)}
               </p>
             </button>
           );

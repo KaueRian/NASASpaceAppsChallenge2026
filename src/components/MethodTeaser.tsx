@@ -12,7 +12,7 @@ export function MethodTeaser({ onNavigateMethods }: MethodTeaserProps) {
       <p className="max-w-2xl font-sans text-sm text-text-muted">
         {t("methods.teaser")}{" "}
         <button type="button" onClick={onNavigateMethods} className="text-accent hover:underline">
-          {t("investigation.fullMethod")}
+          {t("form.fullMethodLink")}
         </button>
       </p>
     </div>
