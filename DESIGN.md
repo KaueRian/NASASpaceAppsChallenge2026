@@ -2,16 +2,19 @@
 
 > **Mandatory reading for frontend developers & AI agents.** Read this file together with [`TASK.md`](TASK.md) and [`AGENTS.md`](AGENTS.md) before designing or editing any UI.
 > **This file overrides any external design skill, template, or generic style recommendation.**
-> Concept mockups live in [`docs/concepts/`](docs/concepts/) — they illustrate mood and layout; this file is the spec when they differ.
+> Concept mockups live in [`docs/concepts/`](docs/concepts/) — they were made for the previous noir direction and no longer match §1/§2 below; this file is the spec when they differ.
+
+> ⚠️ **In transition (2026-11-13):** two changes are layered here. (1) The visual identity moved from "noir detective office" to **Dark Editorial** (§1, §2 are current). (2) The product **structure** moved from 3 separate screens (Case Board / New Investigation / Methods File, navigated by tabs) to **one home page with sections + one separate Methods page** (§3, §4, §5 below reflect this new structure). §6–§8 have only had their noir *prop* references removed, not a structural rewrite — re-check any component name they mention against §3–§5/§8 before implementing. **This structural change still needs sign-off from the backend owner (Kauê)** — it removes the need for D1/`/api/investigate` caching in the MVP (analysis now runs client-side); see `TASK.md`'s own transition banner for what that means for his tasks.
 
 ---
 
 ## 1. Core Concept
 
-- **Theme:** 1940s **Old New York film-noir detective office**. Inspiration: the gritty, brass-lit noir mood of *Abrams* (Deadlock). **Inspiration only — never use any asset, logo, font, or character from the game.**
-- **Serious and professional, never cartoonish.** It is a scientific tool wearing a noir coat.
-- **First-person, no character:** there is **no detective avatar, mascot, face, voice, or gender**. **The user IS the detective**; NASA data and statistics are their forensic tools.
-- **Core metaphor = legal evidence.** A statistical test does not "prove" anything; it weighs evidence. Our wording follows this exactly (see §5).
+- **Theme:** **Dark Editorial** — a data-journalism aesthetic (a serious broadsheet's dark-mode science desk), not a period stage set or game-like prop room. High-contrast typography, one restrained accent color, no skeuomorphic textures or rotated "stamp" graphics.
+- **Serious and professional, never cartoonish or game-like.** It is a scientific tool — credibility comes from clarity (type, contrast, real data), not from decoration.
+- **First-person, no character:** there is **no avatar, mascot, face, voice, or gender**. **The user runs the investigation**; NASA data and statistics are their evidence.
+- **Core metaphor = legal evidence, kept in copy only.** A statistical test does not "prove" anything; it weighs evidence. This stays in the **wording** ("evidence confirmed", "insufficient evidence" — see §5) and in small restrained touches (a plain verdict line, an icon), never in literal props (no rubber-stamp graphic, no corkboard/yarn/pins).
+- **Audience spans experts to newcomers:** researchers, judges, high-school students, and the simply curious all need to read the result in one pass. Favor typographic hierarchy and plain language over ornamentation so it stays serious without becoming cold or exclusionary.
 - **Desktop-first visual experience** (stage projector, judges' laptops, 30s video) with a **clean responsive adaptation** for mobile (`< 768px`), zero horizontal overflow.
 
 ---
@@ -19,70 +22,83 @@
 ## 2. Surfaces, Color Tokens & Typography
 
 ### 2.1 Surface rule (projector-safe)
-**Dark room, light documents.** Backgrounds (room, corkboard, desk) are dark. **Everything that carries information (dossiers, forms, charts, cards) is printed on light aged paper with dark ink.** Light paper stays readable on washed-out projectors and survives YouTube compression.
+**Dark throughout, contrast does the work.** There is no light-paper flip: background and content surfaces are both dark (`bg` behind an elevated `surface` for cards/panels/dossiers), separated by a single hairline `border`, never a texture or shadow stack. Legibility on a washed-out projector or after YouTube compression comes from a very high text-to-surface contrast ratio (§7), not from switching to a light background.
 
 ### 2.2 Color tokens (Tailwind names in backticks)
 | Token | Hex | Usage |
 |---|---|---|
-| `room` | `#12100E` | App background, dark room |
-| `board` | `#2A211A` | Corkboard / desk wood surfaces (with subtle texture) |
-| `paper` | `#E8DFC8` | Dossiers, forms, chart backgrounds, cards |
-| `paper-dim` | `#D9CDB0` | Secondary paper, table stripes, inactive tabs |
-| `ink` | `#1A1714` | Primary text and observed data line on paper |
-| `ink-muted` | `#5C544A` | Secondary text on paper (≥ 4.5:1 on `paper`) |
-| `brass` | `#D49B42` | Lamp glow, focus rings, active tab, anomaly highlights |
-| `evidence` | `#B9382C` | Pins, yarn, stamps, Sen's Slope trend line. **Never for small body text on dark backgrounds.** |
-| `smoke` | `#9A928A` | Secondary text on dark `room` backgrounds |
+| `bg` | `#121212` | App background |
+| `surface` | `#1C1C1E` | Cards, panels, dossiers, forms, chart backgrounds — elevated one step above `bg` |
+| `text` | `#EDEDEA` | Primary text, observed data line on charts |
+| `text-muted` | `#9B9B98` | Secondary text/labels (≥ 4.5:1 on `bg` and `surface`) |
+| `accent` | `#C1472E` | The **single** emphasis color — verdict line, Sen's Slope trend line, active tab underline. Used sparingly, never as a large fill. |
+| `border` | `#2E2E30` | Hairline dividers between sections/cards |
 
 **Trend direction colors (separate from significance):**
 | Direction | Token | Hex |
 |---|---|---|
-| Warming | `dir-warm` | `#B9382C` |
-| Cooling | `dir-cool` | `#2F5D8A` |
-| Wetter | `dir-wet` | `#2E7D7A` |
-| Drier | `dir-dry` | `#B07A2A` |
+| Warming | `dir-warm` | `#C1472E` |
+| Cooling | `dir-cool` | `#4C7EA8` |
+| Wetter | `dir-wet` | `#2E8B86` |
+| Drier | `dir-dry` | `#B8862E` |
 
-- **Significance** is shown by the stamp (§5). **Direction** is shown by an arrow + direction color. **Never rely on color alone** (always text + icon).
+- **Significance** is shown as a short plain-text verdict line (e.g. "Evidence confirmed · p < 0.05"), never a rotated stamp graphic. **Direction** is shown by an arrow + direction color. **Never rely on color alone** (always text + icon) — this rule is unchanged from the previous theme.
 
-### 2.3 Typography (exactly 3 families)
+### 2.3 Typography (exactly 3 families — unchanged, reassigned role only)
 | Family | Usage |
 |---|---|
-| `Playfair Display` | Headings, plain-language verdict sentence |
-| `Courier Prime` | Case IDs, labels, stamps, **all numbers / coordinates / p-values** (monospaced) |
-| `Inter` | UI controls and body text |
+| `Playfair Display` (→ `font-display`) | Headings, plain-language verdict sentence |
+| `Courier Prime` (→ `font-mono`) | Case IDs, labels, **all numbers / coordinates / p-values** (monospaced, data-journalism feel) |
+| `Inter` (→ `font-sans`) | UI controls and body text |
 
 ### 2.4 Texture & motion
-- Subtle CSS paper grain / board texture and a warm radial lamp glow (`brass` at low opacity). **No 3D, no WebGL.**
+- **No texture.** No paper grain, no wood/board texture, no lamp glow, no skeuomorphism of any kind — flat `bg`/`surface` colors and hairline `border`s only. **No 3D, no WebGL.**
 - All animations respect `prefers-reduced-motion` (show final state instantly).
 
 ---
 
 ## 3. Navigation (Header)
 
+The site is **one home page with sections**, not separate tab-screens — so the header holds **3 links**, not 3 tabs: two scroll to a section on the home page, one opens a real separate page.
+
 - **Left:** wordmark `EarthTrend Detective`.
-- **Center tabs (functional + thematic):**
-  | EN | PT |
-  |---|---|
-  | `Case Board` | `Quadro de Casos` |
-  | `New Investigation` | `Nova Investigação` |
-  | `Methods File` (with small "CLASSIFIED" seal) | `Arquivo de Métodos` |
-- **Right:** text language toggle `EN | PT` (**no flags**). Detection: `localStorage` → `navigator.language` → `'en'`.
-- **Mobile:** tabs move to a bottom navigation bar.
-- **Deep links:** `/?case=01`…`/?case=04`, `/investigate?lat=&lon=&var=&season=&from=&to=`, `/dossier/:id`.
+- **Center links:**
+  | EN | PT | Behavior |
+  |---|---|---|
+  | `Investigate` | `Investigar` | Scrolls the home page to `<Investigation />` |
+  | `Cases` | `Casos` | Scrolls the home page to `<CasesGrid />` |
+  | `Methods` | `Método` | Navigates to the separate `<MethodsPage />` |
+- **Right:** text language toggle `EN | PT` (**no flags**). Locale defaults to **`pt`** unless a different value is already saved in `localStorage` (no `navigator.language` detection for now — see `AGENTS.md`/implementation notes for why).
+- **Mobile:** links stay in the header (no bottom nav needed yet — there are only 3, and 2 of them are same-page scrolls); revisit if `<Hero />`'s final design needs more room.
+- **No deep-link routes yet** (`/?case=01`, `/investigate?...`, `/dossier/:id` from the old spec are deferred — no router is installed; `<CasesGrid />` shortcuts work by filling `<Investigation />`'s state in-page, not by navigating).
 
 ---
 
 ## 4. Screens
 
-### 4.1 `Case Board` (home)
-- Dark textured corkboard with **exactly 4 case files** as clean polaroid/index cards, each showing: `Case #`, location, 1-line hook question, variable badge, red pin, and a `REVIEWED` seal once opened (`localStorage`).
-- **Default links:** crimson yarn connecting the 4 cards to each other.
-- **Experimental (try first, remove if cluttered):** a sepia paper world map pinned in the center (equirectangular SVG, linear lat/lon → x/y), with each card's yarn running to its location pin. Keep it behind a single flag/prop so it can be removed in one line.
-- **Opening sequence (~1.5 s):** board fades in → pins drop → yarn draws (`stroke-dashoffset`) → Case #01 pulses with a `START HERE` tag → Case #01 dossier opens automatically.
-- **Focus mode:** clicking a card opens the `<ForensicDossier />` in the foreground; the board dims + blurs behind it. `Esc`/backdrop/`← Back to Case Board` closes it; focus returns to the card.
-- **Mobile:** vertical stack of pinned cards (no yarn, no map); the dossier opens as a full-screen sheet.
+The product is **one home page** (`<Hero />` → `<Investigation />` → `<CasesGrid />` → method teaser) plus **one separate `<MethodsPage />`**. Each section below is its own component so it could become a standalone route later without a rewrite — but there is no router yet, so for now they are all just scroll targets on one page.
 
-#### The 4 preset cases (hooks must be validated against real data before final copy)
+### 4.1 `<Hero />`
+- Attention-grabbing header/intro — **visual design intentionally not finalized here**; prototype separately before implementing for real (see `TASK.md` note). Must say, in one glance, what the tool does and for whom (researchers, students, the curious).
+
+### 4.2 `<Investigation />` (the center of the product)
+- One component holds both the **form** (location, variable, season, years) and the **result area** — because a case shortcut (§4.3) just pre-fills this same form and renders in this same place; there is no separate "dossier screen".
+- **Form:** location via a city list + coordinates + map (free-text name search is a stretch, not required); selects for Variable, Season, Years; primary action to run/update the analysis. Minimum 15 years (warn below that).
+- **Result area, in this order:**
+  1. Plain-language headline answer (i18n template, e.g. *"Night-time minimum temperatures in Ariquemes rose +1.1 °C since 1981."*).
+  2. Evidence verdict line (plain text, not a graphic stamp — see §2): `Evidence confirmed · p < 0.05` / `Strong evidence · p < 0.01` / `Insufficient evidence`, always with a direction arrow + direction color, never color alone.
+  3. **"View as" toggle:** line + trend (default) / bars / stripes/bands — same underlying series, different chart.
+  4. **Methodology, layered** (do not show everything at once):
+     - Always visible, one line: `NASA POWER → N years → Mann-Kendall test → <headline result>`.
+     - `See method for this analysis` (expands inline, does not navigate away): full test statistics (`p`, `Z`, confidence interval), warnings (e.g. short record, high autocorrelation), and a ready-to-copy citation paragraph.
+     - `Full method` link → `<MethodsPage />` (§4.4), for whoever wants to understand the tool in general, not just this one result.
+  5. **Actions row:** copy share link, download image, download CSV, copy citation (the expanded "technical details" from the layer above). `Compare with another place` is an explicit extra/future, not in this pass.
+- **Error/empty states:** NASA unavailable, all values `-999` (e.g. `GWETROOT` over ocean), invalid coordinates, fewer than 15 years of data.
+
+### 4.3 `<CasesGrid />`
+- The 4 real NASA cases as **shortcuts, not screens** — clicking one fills `<Investigation />`'s form and shows its result in the same result area, using the preset's already-computed data (works offline). From there the user can edit the investigation like any other.
+- Label: **"Featured Cases"** (EN) / **"Casos em Destaque"** (PT) — not "example cases": these are real analyses, not placeholder data.
+
 | # | Location | Variable | Default season | Draft hook |
 |---|---|---|---|---|
 | 01 | Vilhena, RO, Brazil | `PRECTOTCORR` | Apr–Sep | "Is the dry season getting drier?" |
@@ -90,45 +106,24 @@
 | 03 | Ariquemes, RO, Brazil | `T2M_MIN` | Annual | "Are tropical nights getting hotter?" |
 | 04 | Svalbard, Arctic | `T2M` | Annual | "How fast is the Arctic warming?" |
 
-- If a case returns `INSUFFICIENT EVIDENCE` with real data, keep **at most one** inconclusive case on purpose ("not every suspect is guilty") and reorder so the strongest case is #01.
-- If the user changes variable/season inside a preset, the dossier becomes a "Derived investigation from Case #0X" with a `Restore original case` button.
+- If a case shows `Insufficient evidence` with real data, keep **at most one** such case on purpose, and order the strongest case first.
+- Editing variable/season after loading a case switches the result area to "Derived from Case #0X" with a `Restore original case` action — same mechanism as any other investigation edit, just labeled.
 
-### 4.2 `New Investigation`
-- Dark desk with decorative clutter **only at the edges** (papers, coffee ring, pen). The working area stays clean.
-- **Case Intake Form** (paper): location search with autocomplete (up to 5 candidates: city, state, country) **or** pasted `lat, lon`; selects for Variable, Season, Years; primary button `Open Investigation`.
-- **Leaflet map** next to the form for picking/adjusting the point (CartoDB tiles with a CSS `sepia + contrast + brightness` filter to match the era). Leaflet is used **only on this screen**.
-- The `<ForensicDossier />` renders below the form.
-- Year range: default full period; **minimum 15 years** (show a warning below that).
-
-### 4.3 `Methods File`
-- Declassified manila binder with tabs: `01. NASA Data` · `02. Mann-Kendall` · `03. Sen's Slope` · `04. Limitations`.
-- Plain-language first, formula second.
-- `Limitations` must mention: MERRA-2 reanalysis (~50 km grid, not a weather station), serial autocorrelation, and short-record caveats.
-- Every dossier answer links contextually here ("How do we know? → §02").
+### 4.4 `<MethodsPage />`
+- Short, static, separate page (not a modal, not a binder metaphor) — mandatory even in the leanest version of the site.
+- Sections: data source (NASA POWER / MERRA-2), how the series is built (aggregation, `-999` filtering), the statistical tests used, limitations (MERRA-2 ~50 km grid — not a weather station, serial autocorrelation, short-record caveats).
+- Plain language first, formula second.
+- This is the *general* explanation; the *per-result* technical details live inline in `<Investigation />` (§4.2) via "See method for this analysis" — `<MethodsPage />` is for understanding the tool, not re-deriving one specific number.
 
 ---
 
-## 5. `<ForensicDossier />` (shared component)
+## 5. Data: Units, Aggregation & States
 
-Used identically in Case Board focus mode, New Investigation, and `/dossier/:id`. Printed on `paper`.
+The result content itself (verdict line, headline, chart, methodology layers, actions) is specified in §4.2 as part of `<Investigation />` — there is no separate dossier component/screen anymore. This section covers the data rules every result must follow regardless of where it's shown (a live query or a `<CasesGrid />` shortcut).
 
-1. **Didactic loader (step by step):** `Requesting MERRA-2 archive…` → `Discarding missing readings (-999)…` → `Running Mann-Kendall test…` → `Estimating Sen's slope…`. Presets load instantly from static JSON.
-2. **Plain-language verdict sentence (top, i18n template):** e.g. *"Night-time minimum temperatures in Ariquemes rose +1.1 °C since 1981. Strong evidence (99% confidence)."* This is the most important element for non-experts and the video.
-3. **Verdict stamp ("stamp slam" animation: scale 1.4 → 1 with slight rotation):**
-   | Condition | EN | PT | Ink |
-   |---|---|---|---|
-   | p < 0.01 | `STRONG EVIDENCE` | `EVIDÊNCIA FORTE` | `evidence` |
-   | p < 0.05 | `EVIDENCE CONFIRMED` | `EVIDÊNCIA CONFIRMADA` | `evidence` |
-   | p ≥ 0.05 | `INSUFFICIENT EVIDENCE` | `EVIDÊNCIA INSUFICIENTE` | `ink-muted` |
-4. **The 4 challenge answers:**
-   - **What?** variable + unit
-   - **Where?** location label + coordinates + **static SVG mini-map** (same style as the board)
-   - **How much?** **headline = total change over the period** (e.g. `+1.1 °C since 1981`); secondary = per decade
-   - **Significant?** Mann-Kendall `p`, `Z`, confidence level, direction arrow
-5. **Chart (Recharts, on paper):** observed series in `ink`, Sen's Slope trend in dashed `evidence`, extreme anomalies (|z| > 1.5 vs full-period mean) as `brass` dots, units on axes. A text summary doubles as the chart's accessible description.
-6. **Climate stripes strip** at the bottom (see §6).
-7. **Attribution badge:** `Source: NASA POWER / MERRA-2` + data retrieval date.
-8. **Actions:** `Share` (opens share sheet) and `← Back`.
+- **The 4 challenge answers** every result must answer: **What?** (variable + unit) · **Where?** (location label + coordinates) · **How much?** (headline = total change over the period, e.g. `+1.1 °C since 1981`; secondary = per decade) · **Significant?** (Mann-Kendall `p`, `Z`, confidence level, direction arrow).
+- **Chart:** observed series in `text`, Sen's Slope trend in dashed `accent`, extreme anomalies (|z| > 1.5 vs full-period mean) marked distinctly, units on axes. A text summary doubles as the chart's accessible description. (The "View as" toggle in §4.2 switches the chart type; this still applies to whichever view is active.)
+- **Attribution:** `Source: NASA POWER / MERRA-2` + data retrieval date, always visible near the result.
 
 ### 5.1 Units & aggregation (must match the backend)
 | Variable | Unit shown | Annual / seasonal aggregation |
@@ -148,22 +143,22 @@ Used identically in Case Board focus mode, New Investigation, and `/dossier/:id`
 
 ## 6. Share Flow & Evidence Card
 
-- **One `Share` button** → share sheet with: `Copy link` (auto-saves the dossier to D1), `Download PNG`, and native `Share…` on mobile (`navigator.share` with file, when supported).
-- **Evidence Card** (inspired by *Show Your Stripes*, showyourstripes.info), exactly **2 variants**:
-  1. **Story 9:16 (with stats):** case title, full-width yearly stripes, total change headline, verdict stamp, NASA credit, QR code + short URL.
-  2. **Square 1:1 (minimal stripes):** stripes + location + years + small credit.
+- From `<Investigation />`'s actions row (§4.2): `Copy link` (persists the computed result so the link resolves later — this is the one feature in the new structure that still needs a backend/D1 write, see `TASK.md`), `Download image`, and native `Share…` on mobile when supported.
+- **Evidence Card/image**, inspired by *Show Your Stripes* (showyourstripes.info): a downloadable image with yearly stripes, the headline change, the verdict line, and NASA credit. Exact variant count/sizes TBD when this is implemented (R3) — not re-specified further here to avoid over-committing to a layout before the result area itself is built.
 - Stripe palettes: temperature `dir-cool → dir-warm`; precipitation/soil `dir-dry → dir-wet`. Centered on the full-period mean.
-- `/dossier/:id` page: read-only dossier + CTA "Open your own investigation". Static OG image for link previews.
+- A shared-link page is read-only + a CTA to start your own investigation. Static OG image for link previews.
 - **No free-text fields are ever stored or displayed publicly.**
 
 ---
 
 ## 7. Accessibility Checklist
-- WCAG AA contrast for all text (`ink` on `paper`, `smoke` on `room`).
-- Modal focus trap, `Esc` closes, focus returns to trigger.
-- All cards and tabs keyboard-navigable; visible `brass` focus ring.
-- Never color-only meaning (text + arrow + stamp).
+- WCAG AA contrast for all text (`text` on `bg`/`surface`, `text-muted` on `bg`/`surface`).
+- Expanded "method" panel and the Methods page: focus-manageable, `Esc` closes an expanded panel, focus returns to its trigger.
+- All interactive elements (header links, form controls, "View as" toggle, actions) keyboard-navigable; visible `accent` focus ring.
+- Never color-only meaning (text + arrow + direction color, never a color alone).
 - `prefers-reduced-motion` respected.
 
 ## 8. Component Inventory
-`<AppHeader />` · `<LanguageToggle />` · `<CaseBoard />` · `<CaseCard />` · `<YarnLayer />` · `<PaperWorldMap />` (experimental) · `<ForensicDossier />` · `<VerdictStamp />` · `<TrendChart />` · `<MiniMap />` · `<ClimateStripes />` · `<DidacticLoader />` · `<IntakeForm />` · `<LocationSearch />` · `<PickerMap />` (Leaflet) · `<ShareSheet />` · `<EvidenceCard />` · `<MethodsFile />`
+`<AppHeader />` · `<LanguageToggle />` · `<Hero />` · `<Investigation />` (form + result area, incl. verdict line, "View as" toggle, methodology disclosure, actions row) · `<TrendChart />` (line/bars/stripes views) · `<CasesGrid />` · `<CaseCard />` · `<MethodsPage />`
+
+*Deferred/removed from the old 3-screen spec (not part of the current plan):* `<CaseBoard />`, `<YarnLayer />`, `<PaperWorldMap />`, `<ForensicDossier />`, `<VerdictStamp />`, `<MiniMap />`, `<ClimateStripes />` (strip component — the share-card stripes in §6 are a separate, smaller piece), `<DidacticLoader />`, `<IntakeForm />`, `<LocationSearch />`, `<PickerMap />`, `<ShareSheet />`, `<EvidenceCard />`, `<MethodsFile />`. Some of this functionality still exists (e.g. a location picker, a share action) but now lives inside `<Investigation />` rather than as a standalone screen-level component — pull the relevant piece from §4.2 instead of resurrecting the old name.

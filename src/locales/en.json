@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "wordmark": "EarthTrend Detective",
+    "investigate": "Investigate",
+    "cases": "Cases",
+    "methods": "Methods"
+  },
+  "cases": {
+    "01": { "hook": "Is the dry season getting drier?" },
+    "02": { "hook": "Is the Madeira basin soil drying out?" },
+    "03": { "hook": "Are tropical nights getting hotter?" },
+    "04": { "hook": "How fast is the Arctic warming?" }
+  }
+}

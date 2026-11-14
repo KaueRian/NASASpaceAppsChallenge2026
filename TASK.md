@@ -11,11 +11,15 @@
 
 ---
 
+> ⚠️ **In transition (2026-11-13):** Mylena proposed restructuring the product from 3 tab-screens to **one home page with sections (`<Hero />` → `<Investigation />` → `<CasesGrid />` → method teaser) + one separate `<MethodsPage />`**, with the live investigation running **client-side** (fetch NASA POWER directly from the browser + a stats engine computed in TS) instead of via a D1-cached `/api/investigate` endpoint. R0–R4 below already reflect this new structure. **This still needs Kauê's sign-off** — it changes/removes some of his planned R2 backend work (D1 cache, `/api/investigate`) and raises an open question (which stats engine — his tested `src/lib/stats/`, or Mylena's own JS engine with more features — becomes the one ported to/used in TS). See the flagged items below and `DESIGN.md`'s own transition note.
+
+---
+
 ## 👥 Team Roster & Ownership
 | Member | Role | Owned Paths / Assets |
 |---|---|---|
-| **Kauê** (`Dev 1`) | Stats engine, NASA data, API, D1, CI/Deploy, **Evidence Card & Share flow** | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.jsonc`, `src/components/share/` |
-| **Mylena** (`Dev 2`) | Frontend UI: Case Board, Dossier, New Investigation, Methods File layout, i18n wiring | `src/components/` (except `share/`), `src/pages/`, `src/styles/` |
+| **Kauê** (`Dev 1`) | Stats engine *(pending alignment — see transition note above)*, NASA data, API, CI/Deploy, **Evidence Card & Share flow** (D1 now scoped to shared-link persistence only, not query caching) | `src/lib/`, `scripts/`, `src/worker/`, `d1/`, `tests/`, `.github/`, `wrangler.jsonc`, `src/components/share/` |
+| **Mylena** (`Dev 2`) | Frontend UI: `<Hero />`, `<Investigation />` (form + result area), `<CasesGrid />`, `<MethodsPage />` layout, i18n wiring | `src/components/` (except `share/`), `src/pages/`, `src/styles/` |
 | **Higor & Luis** | **All product copy** (hooks, microcopy, Methods File text, EN + PT), logo/OG image, pitch, slides, 30s video, submission | `src/locales/` (text content), `docs/submission/`, `public/brand/` + external Canva/Drive |
 | **Shared Contract** | Frontend ↔ Backend TypeScript types | `src/types/investigation.ts` |
 
@@ -30,12 +34,12 @@
 
 | Release | Target (UTC-4) | What judges can see if we stop here |
 |---|---|---|
-| **R0 — Foundation** | Sat 11:00 | Live URL with the noir shell (header, tabs, EN/PT) |
-| **R1 — Minimum Shippable Detective** ⭐ | Sat 17:00 | Case Board with 4 real NASA cases + full Forensic Dossier (verdict, stamp, chart, 4 answers). **Works offline (static data).** |
-| **R2 — Live Investigation** | Sat 23:30 | + Investigate any place on Earth (search/map → live NASA POWER → dossier) |
-| **R3 — Showtime** | Sun 08:30 | + Opening animation, stamp slam, didactic loader, Evidence Card PNG + Share link, mobile layout |
+| **R0 — Foundation** | Sat 11:00 | Live URL with the Dark Editorial shell (header with 3 links, EN/PT) |
+| **R1 — Minimum Shippable Demo** ⭐ | Sat 17:00 | One page: `<Investigation />` + `<CasesGrid />` (4 real NASA cases as shortcuts) + short `<MethodsPage />`. **Works offline (static preset data).** |
+| **R2 — Live Investigation (client-side)** | Sat 23:30 | + Investigate any place on Earth, computed in the browser (fetch NASA POWER directly + client-side stats, no D1 needed for this) |
+| **R3 — Showtime** | Sun 08:30 | + Real `<Hero />`, "View as" chart toggle, Evidence image + Share link (this is where D1 comes back, just for the shareable link), mobile layout |
 | — **UI Freeze** | Sun 09:00 | Higor & Luis capture screenshots & record the 30s video |
-| **R4 — Credibility & Extras** | Sun 13:30 | + Methods File, OG image, extras (Could items) |
+| **R4 — Credibility & Extras** | Sun 13:30 | + `<MethodsPage />` complete, OG image, extras (Could items) |
 | — **Code Freeze** | Sun 14:00 | Final `dev -> main` deploy, nothing else merged |
 
 ---
@@ -84,57 +88,62 @@
 - [x] **(Kauê)** Scaffold project (`package.json`, Vite + React + TS + Tailwind, Hono Worker, `wrangler.jsonc`, Vitest, Biome)
 - [x] **(Kauê)** Migrate from legacy Cloudflare Pages Functions to **Cloudflare Workers + Static Assets** (`src/worker/index.ts`)
 - [x] **(Kauê)** GitHub Actions CI (`.github/workflows/ci.yml`): Biome, `tsc --noEmit`, `vitest` on PRs to `dev`/`main`
-- [ ] **(Kauê)** Create Cloudflare Worker (`earthtrend-detective`) connected to GitHub and deploy the shell to production
+- [x] **(Kauê)** Create Cloudflare Worker (`nasaspaceappschallenge2026`) connected to GitHub and deploy the shell to production
 - [x] **(Kauê)** Define shared contract `src/types/investigation.ts` (variables, seasons, series point, trend result, verdict enum, case preset, dossier)
-- [ ] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
-- [ ] **(Mylena)** `<AppHeader />` with 3 tabs + `<LanguageToggle />` (`EN | PT`, auto-detect) + i18n setup (`en.json`, `pt.json`)
+- [x] **(Mylena)** Tailwind tokens (`room`, `board`, `paper`, `ink`, `brass`, `evidence`, direction colors), 3 fonts, paper/board textures
+  - *Note (Mylena):* implemented as the "Dark Editorial" palette (`bg`/`surface`/`text`/`text-muted`/`accent`/`border`) instead of the noir `room`/`board`/`paper`/`brass`/`evidence` tokens — see `DESIGN.md` update needed before other components rely on the old names.
+- [x] **(Mylena)** `<AppHeader />` with 3 links (`Investigate`/`Cases` scroll to a home section, `Methods` opens `<MethodsPage />`) + `<LanguageToggle />` (`EN | PT`) + i18n setup (`en.json`, `pt.json`)
+  - *Note (Mylena):* default locale is `pt` unless a different value is already saved in `localStorage` — no `navigator.language` detection for now (kept commented in code as a future option). The attention-grabbing `<Hero />` treatment is prototyped separately before implementing for real.
+  - *Note (Mylena):* `src/locales/en.json`/`pt.json`'s 4 `cases.0N.hook` strings are my draft placeholders (DESIGN.md §4.3's draft hooks) — final copy is Higor & Luis's to write, per their R1 task below.
 - [ ] **(Higor & Luis)** Review NASA judging criteria + HUBEE rules; create `docs/submission/` and the Canva/Drive workspace
 - [ ] **(Kauê)** 🚀 **Release R0:** merge `dev -> main`, deploy, smoke test
 
-## ⭐ R1 — Minimum Shippable Detective (target Sat 17:00)
-*Static, real NASA data for the 4 cases. No runtime backend needed → the demo survives venue Wi-Fi failures.*
-- [ ] **(Kauê)** TDD: `-999` filtering + monthly → Annual / Oct–Mar (`2024/25` labels) / Apr–Sep aggregation with correct units (`PRECTOTCORR` = monthly mm/day × days summed; `GWETROOT` × 100) in `src/lib/`
-- [ ] **(Kauê)** TDD: **Mann-Kendall** (S, variance with ties, Z, two-sided p) in `src/lib/stats/`
-- [ ] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
-- [ ] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
-- [ ] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
-- [ ] **(Higor & Luis)** Write final case hooks + all dossier microcopy and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts
-- [ ] **(Mylena)** `<CaseBoard />` + 4 `<CaseCard />` + `<YarnLayer />` (cards linked to each other), focus mode (dim + blur, `Esc`, Back), mobile vertical stack
-- [ ] **(Mylena)** `<ForensicDossier />` on paper: verdict sentence, `<VerdictStamp />` (static), 4 answers with units, `<MiniMap />` (static SVG), NASA attribution badge
-- [ ] **(Mylena)** `<TrendChart />` (Recharts on paper): `ink` series, dashed `evidence` Sen's line, `brass` anomaly dots, axis units
-- [ ] **(Mylena)** Auto-open Case #01 on load (no animation yet) + deep link `/?case=0X`
+## ⭐ R1 — Minimum Shippable Demo (target Sat 17:00)
+*One page, no runtime backend needed: `<Investigation />` wired only to the 4 real presets as shortcuts → the demo survives venue Wi-Fi failures.*
+- [x] **(Kauê)** TDD: `-999` filtering + monthly → Annual / Oct–Mar (`2024/25` labels) / Apr–Sep aggregation with correct units (`PRECTOTCORR` = monthly mm/day × days summed; `GWETROOT` × 100) in `src/lib/`
+- [x] **(Kauê)** TDD: **Mann-Kendall** (S, variance with ties, Z, two-sided p) in `src/lib/stats/`
+- [x] **(Kauê)** TDD: **Sen's Slope** (per year, per decade, total change over period) + anomalies vs full-period mean (|z| > 1.5) + verdict enum (`STRONG` p<0.01 / `CONFIRMED` p<0.05 / `INSUFFICIENT`)
+  - *Note:* pending alignment with Mylena (see transition banner at top) — she has her own JS engine (adds confidence intervals, regression, Benjamini-Hochberg) already validated against `pymannkendall`/`scipy`, proposed to port to TS. Needs a joint decision before R2 on which engine is canonical.
+- [x] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
+- [x] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
+- [ ] **(Higor & Luis)** Write final case hooks + result copy templates and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts
+- [ ] **(Mylena)** `<Hero />` placeholder (simple version; the real attention-grabbing treatment is prototyped separately, lands in R3)
+- [ ] **(Mylena)** `<Investigation />` wired only to the 4 presets: form pre-filled when a case is picked, result area (verdict line, headline, chart, layered methodology disclosure, actions row) rendered from the static preset JSON
+- [ ] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
+- [ ] **(Mylena)** `<TrendChart />` (line/trend view only for R1 — "View as" bars/stripes land in R3): `text` series, dashed `accent` Sen's line, marked anomalies, axis units
+- [ ] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
 - [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
-## 🔎 R2 — Live Investigation (target Sat 23:30)
-- [ ] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc`
-- [ ] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
-- [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
-- [ ] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
-- [ ] **(Mylena)** `New Investigation` screen: desk layout (clutter at edges only), `<IntakeForm />`, `<LocationSearch />` (autocomplete + pasted `lat, lon`), `<PickerMap />` (Leaflet, sepia-filtered tiles)
-- [ ] **(Mylena)** Render `<ForensicDossier />` below the form from `/api/investigate`; error states (NASA down, all `-999`, no geocode result, invalid coords) + empty states
-- [ ] **(Mylena)** "Derived investigation" mode when variables/season change on a preset, with `Restore original case`
+## 🔎 R2 — Live Investigation, client-side (target Sat 23:30)
+*No D1 for this: the analysis runs in the browser (direct fetch to NASA POWER + stats computed client-side, with browser-side caching). Backend is only a CORS-proxy fallback here — D1 comes back in R3, just for the shareable-link feature.*
+- [ ] **(Kauê + Mylena, joint)** Finalize and port the canonical stats engine to TS (Mann-Kendall, Sen's Slope with CI, regression, Benjamini-Hochberg, monthly→annual aggregation), reconciling Kauê's tested `src/lib/stats/` with Mylena's JS engine
+- [ ] **(Kauê)** `GET /api/power-proxy` (Hono) — **only if** a direct browser fetch to NASA POWER is blocked by CORS; skip entirely if not needed
+- [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results) — only needed if free-text location search is attempted; it's an explicit stretch, not required for R2
+- [ ] **(Kauê)** TDD: request/response validation for whichever of the above endpoints actually gets built (coordinate bounds, allowed variables/seasons, year range)
+- [ ] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine, with browser-side caching; minimum 15 years validation
+- [ ] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
+- [ ] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
 - [ ] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT)
 - [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
 
 ## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
-- [ ] **(Mylena)** Opening sequence (~1.5 s: pins drop, yarn draws, `START HERE` pulse → Case #01 opens) with `prefers-reduced-motion`
-- [ ] **(Mylena)** Stamp slam animation on `<VerdictStamp />` + `<DidacticLoader />` (4 steps)
-- [ ] **(Mylena)** Experimental `<PaperWorldMap />` in the board center with yarn to location pins (behind a flag; remove if cluttered)
-- [ ] **(Mylena)** Mobile polish: bottom tab bar, dossier as full-screen sheet, no horizontal overflow
-- [ ] **(Kauê)** `<ClimateStripes />` + `<EvidenceCard />` (Story 9:16 with stats, Square 1:1 minimal) + `Download PNG` (`html-to-image`)
-- [ ] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) + `/dossier/:id` read-only page with CTA
-- [ ] **(Kauê)** `<ShareSheet />`: `Copy link` (auto-save), `Download PNG`, native `navigator.share` on mobile; deep link `/investigate?…`
+- [ ] **(Mylena)** `<Hero />` real/attention-grabbing version, built from the separately-approved prototype, with `prefers-reduced-motion`
+- [ ] **(Mylena)** "View as" toggle finished on the result chart (line+trend / bars / stripes)
+- [ ] **(Mylena)** Mobile polish: header + home sections stack cleanly, no horizontal overflow
+- [ ] **(Kauê)** Evidence/share image generation (stripes + headline change + verdict line + NASA credit) + `Download image` (`html-to-image` or similar)
+- [ ] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **this is the one feature that still needs D1** in the new structure — + a read-only shared-result page with a CTA
+- [ ] **(Kauê)** Wire the share action into `<Investigation />`'s actions row: `Copy link` (auto-save via the endpoint above), `Download image`, native `navigator.share` on mobile
 - [ ] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/`
 - [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
-- [ ] **(Mylena)** **Should:** `<MethodsFile />` binder (`01. NASA Data`, `02. Mann-Kendall`, `03. Sen's Slope`, `04. Limitations`) + contextual "How do we know?" links from the dossier
-- [ ] **(Higor & Luis)** **Should:** Methods File text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records)
-- [ ] **(Kauê)** **Should:** OG meta tags (static image) for `/` and `/dossier/:id`
-- [ ] **(Mylena)** **Could:** `REVIEWED` seal on opened cards (`localStorage`)
-- [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
-- [ ] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI
+- [ ] **(Mylena)** **Should:** `<MethodsPage />` complete (all sections with real content: NASA data, tests, limitations)
+- [ ] **(Higor & Luis)** **Should:** Methods page text in plain language (EN + PT), including Limitations (MERRA-2 ~50 km grid, autocorrelation, short records)
+- [ ] **(Kauê)** **Should:** OG meta tags (static image) for `/` and the shared-result page
+- [ ] **(Mylena)** **Could:** "Already viewed" indicator on Featured Cases (`localStorage`)
+- [ ] **(Kauê)** **Could:** QR code + short URL on the share image
+- [ ] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI
 - [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
@@ -145,7 +154,7 @@
 
 ## 🎤 Pitch, Video & Submission Track (Higor & Luis — runs in parallel)
 - [ ] **(Higor & Luis)** Research regional impact context for the 4 cases (agriculture, water, health in Rondônia + Arctic relevance)
-- [ ] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s board intro, 5–15s case + stamp slam, 15–25s live search, 25–30s impact + share card)
+- [ ] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s hero/intro, 5–15s a Featured Case result, 15–25s live investigation, 25–30s impact + share image) — *update once the new one-page structure (see transition banner) is final*
 - [ ] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
 - [ ] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
 - [ ] **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
