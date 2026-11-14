@@ -50,6 +50,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
   const [shareOpen, setShareOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [isDerived, setIsDerived] = useState(false);
 
   const [query, setQuery] = useState<InvestigationQuery>(() =>
     toQuery(getCasePresetById(presetId)),
@@ -70,7 +71,20 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
     setErrorCode(null);
     setEditing(false);
     setAdvancedOpen(false);
+    setIsDerived(false);
   }, [presetId]);
+
+  const handleRestore = () => {
+    requestIdRef.current += 1; // invalidate any in-flight request
+    const preset = getCasePresetById(presetId);
+    setQuery(toQuery(preset));
+    setResult(preset.result);
+    setLoading(false);
+    setErrorCode(null);
+    setEditing(false);
+    setAdvancedOpen(false);
+    setIsDerived(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +97,7 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
       setResult(next);
       setEditing(false);
       setAdvancedOpen(false);
+      setIsDerived(true);
     } catch (err) {
       if (thisRequestId !== requestIdRef.current) return;
       const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
@@ -227,17 +242,27 @@ export function Investigation({ presetId, onNavigateMethods }: InvestigationProp
           )}
         </form>
       ) : (
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3">
-          <p className="font-mono text-xs uppercase tracking-wide text-text-muted">
-            {variableLabel} · {location.label} · {seasonLabel} · {stats.startYear}–{stats.endYear}
-          </p>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="font-mono text-xs uppercase tracking-wide text-accent hover:underline"
-          >
-            {t("form.changeButton")}
-          </button>
+        <div className="mb-8 space-y-2">
+          {isDerived && (
+            <div className="flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wide text-text-muted">
+              <span>{t("cases.derivedBanner", { id: presetId })}</span>
+              <button type="button" onClick={handleRestore} className="text-accent hover:underline">
+                {t("cases.restoreAction")}
+              </button>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3">
+            <p className="font-mono text-xs uppercase tracking-wide text-text-muted">
+              {variableLabel} · {location.label} · {seasonLabel} · {stats.startYear}–{stats.endYear}
+            </p>
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="font-mono text-xs uppercase tracking-wide text-accent hover:underline"
+            >
+              {t("form.changeButton")}
+            </button>
+          </div>
         </div>
       )}
 

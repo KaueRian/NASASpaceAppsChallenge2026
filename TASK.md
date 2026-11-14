@@ -141,7 +141,8 @@
   - *Note (Mylena):* added `leaflet`+`react-leaflet@5` (not installed before, despite the tech-stack line) + `<LocationPicker />` (search via `/api/geocode`, manual lat/lon, click-to-pick map — OSM tiles, not CARTO, which now requires an API key). Reuses Kauê's `investigateClientSide`/`validateInvestigateQuery` as-is. Race protection via a request-id ref (stale submit/preset-switch responses are ignored). Error display is minimal (`errors.*` text only) — full illustrated error/empty states are the next task.
 - [x] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
   - *Note (Mylena):* a bordered notice block (title + the existing `errors.*` message + "still showing the previous result below") replaces the one-line error text; "More options" auto-opens for errors fixable there (year range, coordinates). DESIGN.md groups error/empty as one concept — no separate empty state exists since Investigation always has a valid preset result to fall back to.
-- [ ] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
+- [x] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
+  - *Note (Mylena):* any successful live submit while a preset is loaded flips to "derived" (banner + restore button, using Kauê's existing `cases.derivedBanner`/`cases.restoreAction` copy) — not just variable/season specifically, since editing location/years counts too.
 - [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
 - [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
 
