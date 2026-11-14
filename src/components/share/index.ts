@@ -17,10 +17,13 @@ export {
 export {
   buildNasaGibsTileUrl,
   buildNasaWorldviewUrl,
+  type GibsComparisonWindow,
   type GibsLayerId,
   latLonToTileXY,
+  resolveGibsComparisonWindow,
   SatelliteTimelapse,
   type SatelliteTimelapseProps,
+  type SatelliteViewMode,
 } from "./SatelliteTimelapse.tsx";
 export {
   SharedDossierView,

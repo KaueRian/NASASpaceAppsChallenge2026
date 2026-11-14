@@ -19,10 +19,10 @@
    - **Caso #02 — Ariquemes, RO (Noites Tropicais, `T2M_MIN`):** **`+1,82 °C`** nas temperaturas mínimas noturnas ($p = 0,000001$).
    - **Caso #03 — Corumbá / Pantanal, MS (Brasil, `GWETROOT`):** **`-5,60 pontos (%)`** de umidade na zona radicular ($p = 0,000024$).
    - **Caso #04 — Svalbard (Contraste Ártico Global, `T2M`):** **`+3,50 °C`** — provando como processos globais geram velocidades e direções diferentes em cada região.
-5. **Slide 5 — Demonstração Visual (`<ForensicDossier />` + `<SatelliteTimelapse />` + `<EvidenceCard />`):**
-   - Print de alto contraste do Dossiê em papel, busca ao vivo para qualquer município brasileiro (Sugestão #2 do Manual da Banca) e Timelapse de Satélite NASA GIBS.
+5. **Slide 5 — Demonstração Visual (`<Investigation />` + `<TrendChart />` + `<SatelliteTimelapse />` + `<EvidenceCard />`):**
+   - Visualização no tema Dark Editorial com alternância *Linha / Barras / Faixas Climáticas*, busca ao vivo em frase natural para qualquer município brasileiro (Sugestão #2 do Manual da Banca) + Opções avançadas com varredura FDR das 4 variáveis, comparação orbital **Antes vs. Depois (`2000` vs. `2025`)** no NASA GIBS / MODIS e Cartão de Evidência arquival em PNG com QR Code.
 6. **Slide 6 — Rigor Científico (`Correlação ≠ Causalidade`) & Missão Amazônia (ODS 6, 13 e 15):**
-   - Nosso **Methods File** ensina em sala de aula que significância estatística prova tendência direcional observada, sem confundir correlação com causa única isolada, dialogando com dados de cobertura vegetal (*MapBiomas*).
+   - Nossa página **Metodologia Completa (`<MethodsPage />`, seções `01–07`)** ensina em sala de aula que significância estatística prova tendência direcional observada, sem confundir correlação com causa única isolada, dialogando com dados de cobertura vegetal (*MapBiomas*).
 7. **Slide 7 — Encerramento & Chamada para Ação:** QR Code do app ao vivo + Cartão *Show Your Stripes* de Vilhena.
 
 ---

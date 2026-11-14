@@ -88,7 +88,7 @@ export async function handleInvestigate(c: Context<{ Bindings: WorkerBindings }>
         try {
           await c.env.DB.prepare(
             `INSERT OR REPLACE INTO nasa_cache
-              (cache_key, lat_key, lon_key, variable, start_year, end_year, payload_json, retrieved_at)
+              (cache_key, lat_round, lon_round, variable, start_year, end_year, payload_json, retrieved_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           )
             .bind(

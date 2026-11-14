@@ -29,16 +29,17 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
       vilhenaTile.y,
     );
     expect(trueColorUrl).toContain("MODIS_Terra_CorrectedReflectance_TrueColor");
-    expect(trueColorUrl).toContain("/2024-08-13/GoogleMapsCompatible_Level9/7/");
+    expect(trueColorUrl).toContain("/2024-08-29/GoogleMapsCompatible_Level9/7/");
     expect(trueColorUrl.endsWith(".jpg")).toBe(true);
 
     const ndviUrl = buildNasaGibsTileUrl(
-      "MODIS_Terra_NDVI_8Day",
+      "MODIS_Terra_L3_NDVI_Monthly",
       2024,
       7,
       vilhenaTile.x,
       vilhenaTile.y,
     );
+    expect(ndviUrl).toContain("/2024-08-01/GoogleMapsCompatible_Level7/7/");
     expect(ndviUrl.endsWith(".png")).toBe(true);
 
     const worldviewUrl = buildNasaWorldviewUrl(-12.7406, -60.1458, 2024);

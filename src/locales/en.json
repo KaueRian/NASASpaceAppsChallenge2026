@@ -229,5 +229,42 @@
       "regionalItem": "Regional Contrast & Amazon Context: Global climate change does not act uniformly — different regions and seasons can warm or dry at distinct rates. In Rondônia and the Pantanal, pairing NASA POWER climate trends with land-use series (such as MapBiomas) supports environmental education and territorial planning aligned with UN SDGs 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land).",
       "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. EarthTrend Detective enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
     }
+  },
+  "satellite": {
+    "eyebrow": "ORBITAL VISUAL ARCHIVE · NASA GIBS / MODIS TERRA",
+    "title": "Satellite Landscape Evidence ({{beforeYear}} vs. {{afterYear}})",
+    "subtitle": "August dry-season clear-sky composite across MODIS Terra (Aug 29 True Color / August Monthly NDVI) — inspect physical land-cover changes alongside the statistical series.",
+    "showAction": "Show satellite view",
+    "hideAction": "Hide satellite view",
+    "modeCompare": "Before vs. After",
+    "modeTimelapse": "Timelapse ({{minYear}}–{{maxYear}})",
+    "layerTrueColor": "True Color",
+    "layerNdvi": "Vegetation (NDVI)",
+    "beforeLabel": "BEFORE · {{year}}",
+    "afterLabel": "AFTER · {{year}}",
+    "monthTag": "AUG",
+    "archiveNote": "MODIS Terra imagery begins in 2000 (climatology selected starts in {{startYear}}).",
+    "play": "Play Timelapse",
+    "pause": "Pause",
+    "worldviewLink": "Open in NASA Worldview ↗",
+    "tileAlt": "NASA MODIS {{layer}} satellite tile for {{year}}",
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "zoomLabel": "Zoom {{zoom}}x"
+  },
+  "dossier": {
+    "recentButton": "Recent dossiers",
+    "recentClose": "Close recent dossiers",
+    "recentTitle": "Recent shared dossiers (D1)",
+    "recentLoading": "Loading archived dossiers…",
+    "recentEmpty": "No shared dossiers saved in D1 yet.",
+    "recentInspect": "Load in console",
+    "recentOpenLink": "Permalink",
+    "sharedLoading": "Retrieving archived dossier {{id}}…",
+    "sharedNotFoundTitle": "Dossier Not Found",
+    "sharedNotFoundBody": "This forensic investigation link could not be found or has not been persisted.",
+    "sharedBackHome": "← Return to Case Board",
+    "sharedBadge": "READ-ONLY ARCHIVED DOSSIER · ID {{id}}",
+    "sharedOpenNew": "Open your own investigation →"
   }
 }
