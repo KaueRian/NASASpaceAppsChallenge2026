@@ -106,10 +106,10 @@
 - [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
-- [ ] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc`
-- [ ] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
-- [ ] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
-- [ ] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
+- [~] **(Kauê)** Create Cloudflare D1 (`earthtrend-db`) + `d1/schema.sql` (`nasa_cache`, `dossiers`) and bind it in `wrangler.jsonc` (`d1/schema.sql` ready; waiting on Cloudflare D1 `database_id`)
+- [x] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
+- [x] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results)
+- [x] **(Kauê)** TDD: request validation (coordinate bounds, allowed variables/seasons, year range)
 - [ ] **(Mylena)** `New Investigation` screen: desk layout (clutter at edges only), `<IntakeForm />`, `<LocationSearch />` (autocomplete + pasted `lat, lon`), `<PickerMap />` (Leaflet, sepia-filtered tiles)
 - [ ] **(Mylena)** Render `<ForensicDossier />` below the form from `/api/investigate`; error states (NASA down, all `-999`, no geocode result, invalid coords) + empty states
 - [ ] **(Mylena)** "Derived investigation" mode when variables/season change on a preset, with `Restore original case`
