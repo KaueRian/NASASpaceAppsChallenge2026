@@ -137,7 +137,8 @@
 - [x] **(Kauê)** `GET /api/investigate` (Hono): NASA POWER fetch with timeout/retry, D1 cache keyed by `(round(lat,2), round(lon,2), variable)`, reuse `src/lib/` engine, min 15 years validation
 - [x] **(Kauê)** `GET /api/geocode` (Open-Meteo Geocoding wrapper, max 5 results) — ready if free-text location search is used
 - [x] **(Kauê)** TDD: request/response validation (`src/lib/validation/investigate.ts`, `tests/validation.test.ts`, `tests/workerApi.test.ts`: coordinate bounds, allowed variables/seasons, year range)
-- [ ] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine (or `/api/investigate`), with browser-side caching; minimum 15 years validation
+- [x] **(Mylena)** `<Investigation />` form: location via a city list + coordinates + map (Leaflet); wire to a live NASA POWER fetch + the client-side stats engine (or `/api/investigate`), with browser-side caching; minimum 15 years validation
+  - *Note (Mylena):* added `leaflet`+`react-leaflet@5` (not installed before, despite the tech-stack line) + `<LocationPicker />` (search via `/api/geocode`, manual lat/lon, click-to-pick map — OSM tiles, not CARTO, which now requires an API key). Reuses Kauê's `investigateClientSide`/`validateInvestigateQuery` as-is. Race protection via a request-id ref (stale submit/preset-switch responses are ignored). Error display is minimal (`errors.*` text only) — full illustrated error/empty states are the next task.
 - [ ] **(Mylena)** Error/empty states in the result area: NASA unavailable, all `-999`, invalid coordinates, fewer than 15 years of data
 - [ ] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
 - [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
