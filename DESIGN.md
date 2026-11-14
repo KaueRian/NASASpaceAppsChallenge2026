@@ -130,9 +130,10 @@ Used identically in Case Board focus mode, New Investigation, and `/dossier/:id`
    - **How much?** **headline = total change over the period** (e.g. `+1.1 °C since 1981`); secondary = per decade
    - **Significant?** Mann-Kendall `p`, `Z`, confidence level, direction arrow
 5. **Chart (Recharts, on paper):** observed series in `ink`, Sen's Slope trend in dashed `evidence`, extreme anomalies (|z| > 1.5 vs full-period mean) as `brass` dots, units on axes. A text summary doubles as the chart's accessible description.
-6. **Climate stripes strip** at the bottom (see §6).
-7. **Attribution badge:** `Source: NASA POWER / MERRA-2` + data retrieval date.
-8. **Actions:** `Share` (opens share sheet) and `← Back`.
+6. **Satellite Evidence Timelapse (`<SatelliteTimelapse />`, optional R4 Could):** an expandable panel right below the chart ("Inspect Satellite Timelapse 2000–2025") that lazy-loads a Leaflet view with **NASA GIBS / Worldview WMTS** tiles (`MODIS_Terra_CorrectedReflectance_TrueColor` and `MODIS_Terra_NDVI_8Day`) and a **Play/Pause year-by-year timeline scrubber** (`2000 → 2025`, sampled at mid-August `YYYY-08-15` for low cloud cover in Amazonia), letting users visually see land-cover and vegetation changes alongside the numbers.
+7. **Climate stripes strip** at the bottom (see §6).
+8. **Attribution badge:** `Source: NASA POWER / MERRA-2` (+ `NASA GIBS / MODIS` when timelapse is expanded) + data retrieval date.
+9. **Actions:** `Share` (opens share sheet) and `← Back`.
 
 ### 5.1 Units & aggregation (must match the backend)
 | Variable | Unit shown | Annual / seasonal aggregation |
@@ -170,4 +171,4 @@ Used identically in Case Board focus mode, New Investigation, and `/dossier/:id`
 - `prefers-reduced-motion` respected.
 
 ## 8. Component Inventory
-`<AppHeader />` · `<LanguageToggle />` · `<CaseBoard />` · `<CaseCard />` · `<YarnLayer />` · `<PaperWorldMap />` (experimental) · `<ForensicDossier />` · `<VerdictStamp />` · `<TrendChart />` · `<MiniMap />` · `<ClimateStripes />` · `<DidacticLoader />` · `<IntakeForm />` · `<LocationSearch />` · `<PickerMap />` (Leaflet) · `<ShareSheet />` · `<EvidenceCard />` · `<MethodsFile />`
+`<AppHeader />` · `<LanguageToggle />` · `<CaseBoard />` · `<CaseCard />` · `<YarnLayer />` · `<PaperWorldMap />` (experimental) · `<ForensicDossier />` · `<VerdictStamp />` · `<TrendChart />` · `<SatelliteTimelapse />` (optional R4) · `<MiniMap />` · `<ClimateStripes />` · `<DidacticLoader />` · `<IntakeForm />` · `<LocationSearch />` · `<PickerMap />` (Leaflet) · `<ShareSheet />` · `<EvidenceCard />` · `<MethodsFile />`

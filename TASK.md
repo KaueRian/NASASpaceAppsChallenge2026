@@ -148,6 +148,7 @@
 - [ ] **(Mylena)** **Could:** `REVIEWED` seal on opened cards (`localStorage`)
 - [ ] **(Kauê)** **Could:** QR code + short URL on the Story Evidence Card
 - [~] **(Kauê)** **Could:** `GET /api/dossiers` "Recent Case Files" list (structured fields only) + drawer UI (`GET /api/dossiers` endpoint implemented in `src/worker/routes/dossiers.ts`)
+- [ ] **(Kauê / Mylena)** **Could:** `<SatelliteTimelapse />` expandable panel below `<TrendChart />` in `<ForensicDossier />`: Leaflet + **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber** so users visually witness landscape/vegetation evolution alongside the statistical numbers
 - [ ] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (screenshots, live URL, architecture, NASA citations, **Missão Amazônia & ODS 6/13/15 alignment**)
 - [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
 - [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
