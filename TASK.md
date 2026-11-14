@@ -120,12 +120,15 @@
 - [x] **(Kauê)** Script `scripts/build-presets.ts`: fetch NASA POWER `temporal/monthly/point` for the 4 cases, run the engine, write `src/data/presets/*.json` (with retrieval date)
 - [x] **(Kauê)** Run the 4 cases with real data and report verdicts to the team; swap/reorder cases if needed (strongest = #01, max 1 inconclusive)
 - [x] **(Higor & Luis)** Write final case hooks + result copy templates and verdict sentence templates (EN + PT) in `src/locales/`, based on the real verdicts (4 geographic scales × 4 variables: `#01 Vilhena, RO`, `#02 Ariquemes, RO`, `#03 Corumbá/Pantanal, MS`, `#04 Svalbard, Arctic`, including regional Amazon/Pantanal context, school/research usability, and explicit note that statistical trend ≠ direct single-cause causation per the HUBEE Challenge Manual)
-- [ ] **(Mylena)** `<Hero />` placeholder (simple version; the real attention-grabbing treatment is prototyped separately, lands in R3)
-- [ ] **(Mylena)** `<Investigation />` wired only to the 4 presets: form pre-filled when a case is picked, result area (verdict line, headline, chart, layered methodology disclosure, actions row) rendered from the static preset JSON
-- [ ] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
-- [ ] **(Mylena)** `<TrendChart />` (line/trend view only for R1 — "View as" bars/stripes land in R3): `text` series, dashed `accent` Sen's line, marked anomalies, axis units
-- [ ] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
-- [ ] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
+- [x] **(Mylena)** `<Hero />` placeholder (simple version; the real attention-grabbing treatment is prototyped separately, lands in R3)
+- [x] **(Mylena)** `<Investigation />` wired only to the 4 presets: form pre-filled when a case is picked, result area (verdict line, headline, chart, layered methodology disclosure, actions row) rendered from the static preset JSON
+  - *Note (Mylena):* defaults to case `01` (no picker yet — `<CasesGrid />` wires that next); chart is a placeholder until `<TrendChart />` lands; actions row reuses Kauê's `<ShareSheet />` as-is (covers share link/image/CSV/citation in one). Headline/methodology copy in `src/locales/*.json` is my draft, final wording is Higor & Luis's per their task above.
+- [x] **(Mylena)** `<CasesGrid />` with the 4 **"Featured Cases"** `<CaseCard />`s — clicking one fills `<Investigation />` and shows its result in place
+- [x] **(Mylena)** `<TrendChart />` (line/trend view only for R1 — "View as" bars/stripes land in R3): `text` series, dashed `accent` Sen's line, marked anomalies, axis units
+  - *Note (Mylena):* hand-rolled inline SVG (no charting lib added — Recharts is still listed in the tech stack line above but unused so far; matches Kauê's existing hand-rolled approach in `ClimateStripes`/`EvidenceCard`).
+- [x] **(Mylena)** `<MethodsPage />` short version (data source, aggregation, tests, limitations) + the 1-line method teaser/link on the home page
+  - *Note (Mylena):* Limitations section covers the HUBEE Manual alignment points from `CLAUDE.md` (significance ≠ single-cause causation, Rondônia vs. Arctic regional contrast, classroom education/MapBiomas context, UN SDGs 6/13/15). Copy is my draft; final wording is Higor & Luis's.
+- [x] **(Kauê)** 🚀 **Release R1:** merge `dev -> main`, deploy, test in incognito **and with network throttled**
 
 ## 🔎 R2 — Live Investigation (target Sat 23:30)
 *Analysis can run in the browser (direct fetch to NASA POWER + stats computed client-side, with browser-side caching) or via the ready `/api/investigate` endpoint; D1 also backs the shareable-link feature in R3.*

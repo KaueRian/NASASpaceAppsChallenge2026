@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader, type SectionId } from "./components/AppHeader";
+import { CasesGrid } from "./components/CasesGrid";
+import { Hero } from "./components/Hero";
+import { Investigation } from "./components/Investigation";
+import { MethodsPage } from "./components/MethodsPage";
+import { MethodTeaser } from "./components/MethodTeaser";
+import type { CasePresetId } from "./types/investigation";
 
 type View = "home" | "methods";
 
 export function App() {
   const [view, setView] = useState<View>("home");
+  const [presetId, setPresetId] = useState<CasePresetId>("01");
   const pendingScrollRef = useRef<SectionId | null>(null);
 
   useEffect(() => {
@@ -24,6 +31,11 @@ export function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const selectPreset = (id: CasePresetId) => {
+    setPresetId(id);
+    document.getElementById("investigation")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-bg text-text">
       <AppHeader
@@ -33,13 +45,14 @@ export function App() {
       />
       <main className="p-6">
         {view === "methods" ? (
-          <p className="font-sans text-text-muted">
-            Methods page placeholder — built in a later task.
-          </p>
+          <MethodsPage />
         ) : (
-          <p className="font-sans text-text-muted">
-            Home page placeholder — Hero / Investigation / CasesGrid land in later tasks.
-          </p>
+          <>
+            <Hero />
+            <Investigation presetId={presetId} onNavigateMethods={() => setView("methods")} />
+            <CasesGrid activePresetId={presetId} onSelectPreset={selectPreset} />
+            <MethodTeaser onNavigateMethods={() => setView("methods")} />
+          </>
         )}
       </main>
     </div>
