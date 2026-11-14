@@ -14,5 +14,48 @@
     "02": { "hook": "O solo da bacia do Madeira está secando?" },
     "03": { "hook": "As noites tropicais estão mais quentes?" },
     "04": { "hook": "Com que rapidez o Ártico está esquentando?" }
+  },
+  "variableName": {
+    "T2M": "Temperatura média",
+    "T2M_MIN": "Temperatura mínima noturna",
+    "PRECTOTCORR": "Precipitação",
+    "GWETROOT": "Umidade do solo (zona de raízes)"
+  },
+  "season": {
+    "annual": "Anual",
+    "oct_mar": "Out–Mar",
+    "apr_sep": "Abr–Set"
+  },
+  "direction": {
+    "warming": "aquecimento",
+    "cooling": "resfriamento",
+    "wetter": "mais úmido",
+    "drier": "mais seco",
+    "neutral": "sem tendência clara"
+  },
+  "verdict": {
+    "STRONG_EVIDENCE": "Evidência forte",
+    "EVIDENCE_CONFIRMED": "Evidência confirmada",
+    "INSUFFICIENT_EVIDENCE": "Evidência insuficiente"
+  },
+  "result": {
+    "headline": "{{variable}} perto de {{location}}: {{change}} desde {{startYear}} ({{direction}})."
+  },
+  "investigation": {
+    "locationLabel": "Local",
+    "variableLabel": "Variável",
+    "seasonLabel": "Estação",
+    "yearsLabel": "Anos",
+    "methodLine": "NASA POWER → {{years}} anos → teste de Mann-Kendall → {{headline}}",
+    "seeMethod": "Ver método desta análise",
+    "hideMethod": "Esconder método",
+    "fullMethod": "Método completo",
+    "share": "Compartilhar",
+    "chartPlaceholder": "Gráfico chega na próxima task",
+    "ciPerYear": "IC 95% (por ano)",
+    "warnings": {
+      "shortRecord": "Série curta — interprete com cautela",
+      "highAutocorrelation": "Alta autocorrelação ano a ano detectada"
+    }
   }
 }

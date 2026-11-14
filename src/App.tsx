@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader, type SectionId } from "./components/AppHeader";
 import { Hero } from "./components/Hero";
+import { Investigation } from "./components/Investigation";
+import type { CasePresetId } from "./types/investigation";
 
 type View = "home" | "methods";
 
 export function App() {
   const [view, setView] = useState<View>("home");
+  // TODO: lift to useState once <CasesGrid /> can change which case is loaded.
+  const presetId: CasePresetId = "01";
   const pendingScrollRef = useRef<SectionId | null>(null);
 
   useEffect(() => {
@@ -40,8 +44,9 @@ export function App() {
         ) : (
           <>
             <Hero />
+            <Investigation presetId={presetId} onNavigateMethods={() => setView("methods")} />
             <p className="p-6 font-sans text-text-muted">
-              Investigation / CasesGrid placeholder — land in later tasks.
+              CasesGrid placeholder — lands in a later task.
             </p>
           </>
         )}

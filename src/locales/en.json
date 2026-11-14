@@ -14,5 +14,48 @@
     "02": { "hook": "Is the Madeira basin soil drying out?" },
     "03": { "hook": "Are tropical nights getting hotter?" },
     "04": { "hook": "How fast is the Arctic warming?" }
+  },
+  "variableName": {
+    "T2M": "Average temperature",
+    "T2M_MIN": "Night-time minimum temperature",
+    "PRECTOTCORR": "Precipitation",
+    "GWETROOT": "Root-zone soil wetness"
+  },
+  "season": {
+    "annual": "Annual",
+    "oct_mar": "Oct–Mar",
+    "apr_sep": "Apr–Sep"
+  },
+  "direction": {
+    "warming": "warming",
+    "cooling": "cooling",
+    "wetter": "wetter",
+    "drier": "drier",
+    "neutral": "no clear trend"
+  },
+  "verdict": {
+    "STRONG_EVIDENCE": "Strong evidence",
+    "EVIDENCE_CONFIRMED": "Evidence confirmed",
+    "INSUFFICIENT_EVIDENCE": "Insufficient evidence"
+  },
+  "result": {
+    "headline": "{{variable}} near {{location}}: {{change}} since {{startYear}} ({{direction}})."
+  },
+  "investigation": {
+    "locationLabel": "Location",
+    "variableLabel": "Variable",
+    "seasonLabel": "Season",
+    "yearsLabel": "Years",
+    "methodLine": "NASA POWER → {{years}} years → Mann-Kendall test → {{headline}}",
+    "seeMethod": "See method for this analysis",
+    "hideMethod": "Hide method",
+    "fullMethod": "Full method",
+    "share": "Share",
+    "chartPlaceholder": "Chart coming in the next task",
+    "ciPerYear": "95% CI (per year)",
+    "warnings": {
+      "shortRecord": "Short record — interpret with caution",
+      "highAutocorrelation": "High year-to-year autocorrelation detected"
+    }
   }
 }
