@@ -4,6 +4,13 @@ export {
   downloadDossierCsv,
 } from "../../lib/export/dossierExport.ts";
 export {
+  BirthdayCard,
+  type BirthdayCardCopy,
+  type BirthdayCardProps,
+  downloadBirthdayCardPng,
+  shareBirthdayCardPng,
+} from "./BirthdayCard.tsx";
+export {
   ClimateStripes,
   type ClimateStripesProps,
   computeStripeTooltipAnchor,
@@ -13,13 +20,6 @@ export {
   isTemperatureVariable,
   type StripeTooltipAnchor,
 } from "./ClimateStripes.tsx";
-export {
-  BirthdayCard,
-  type BirthdayCardCopy,
-  type BirthdayCardProps,
-  downloadBirthdayCardPng,
-  shareBirthdayCardPng,
-} from "./BirthdayCard.tsx";
 export {
   buildQrMatrix,
   downloadEvidenceCardPng,
