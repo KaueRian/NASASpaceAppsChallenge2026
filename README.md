@@ -6,7 +6,7 @@
 
 Official project for the **2026 NASA International Space Apps Challenge** (**Vilhena, Rondônia, Brazil** — HUBEE *Missão Amazônia*), competing in the **`Be An Earth System Trend Detective!`** challenge.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Cloudflare_Workers-f38020?style=flat-square)](https://nasaspaceappschallenge2026.kauerian342.workers.dev)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-geotrend.earth-f38020?style=flat-square)](https://geotrend.earth)
 [![NASA POWER MERRA-2](https://img.shields.io/badge/NASA_POWER-MERRA--2_1981--2025-b33b24?style=flat-square)](https://power.larc.nasa.gov/)
 [![NASA GIBS MODIS](https://img.shields.io/badge/NASA_GIBS-MODIS_2000--2025-d4a84b?style=flat-square)](https://earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/gibs)
 [![Tests](https://img.shields.io/badge/Vitest-19_Suites_·_127_Tests-2e7d32?style=flat-square)](tests/)

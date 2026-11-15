@@ -2,6 +2,7 @@
 
 > **Challenge:** `Be An Earth System Trend Detective!`  
 > **Project Title:** `GeoTrend: Forensic Climate Trend Analysis with Statistical Rigor`  
+> **Live Application:** `https://geotrend.earth`  
 > **Language:** English (Required for Global Judging)
 
 ---

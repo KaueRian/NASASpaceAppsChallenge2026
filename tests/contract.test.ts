@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CASE_PRESET_IDS,
@@ -33,5 +35,38 @@ describe("R0 shared contract and API health", () => {
     const body = (await res.json()) as { ok: boolean; service: string };
     expect(body.ok).toBe(true);
     expect(body.service).toBe("geotrend");
+  });
+
+  it("binds geotrend.earth custom domain in wrangler.jsonc without breaking previews or workers.dev", () => {
+    const raw = readFileSync(resolve(process.cwd(), "wrangler.jsonc"), "utf8");
+    const wrangler = JSON.parse(raw) as {
+      workers_dev?: boolean;
+      preview_urls?: boolean;
+      routes?: Array<{
+        pattern?: string;
+        custom_domain?: boolean;
+        previews_enabled?: boolean;
+      }>;
+    };
+
+    expect(wrangler.workers_dev).toBe(true);
+    expect(wrangler.preview_urls).toBe(true);
+    expect(wrangler.routes).toContainEqual({
+      pattern: "geotrend.earth",
+      custom_domain: true,
+      previews_enabled: false,
+    });
+  });
+
+  it("declares canonical geotrend.earth metadata and absolute OG image in index.html", () => {
+    const html = readFileSync(resolve(process.cwd(), "index.html"), "utf8");
+    expect(html).toContain('<link rel="canonical" href="https://geotrend.earth/" />');
+    expect(html).toContain('<meta property="og:url" content="https://geotrend.earth/" />');
+    expect(html).toContain(
+      '<meta property="og:image" content="https://geotrend.earth/brand/og-card.png" />',
+    );
+    expect(html).toContain(
+      '<meta name="twitter:image" content="https://geotrend.earth/brand/og-card.png" />',
+    );
   });
 });
