@@ -430,6 +430,8 @@
     "tryValidQuestion": "Sugestões válidas em 1 clique:",
     "errorTitle": "Assistente de IA indisponível no momento",
     "openManualRecovery": "Abrir filtros manuais (Avançado)",
+    "fallbackTitle": "Modo Resiliente Local Ativo",
+    "fallbackBody": "O serviço Gemini está temporariamente indisponível ou sem chave configurada. A pergunta foi convertida localmente e a síntese abaixo usa os cálculos verificados da NASA POWER.",
     "errors": {
       "AI_INVALID_REQUEST": "Digite uma pergunta climática concisa (até 500 caracteres).",
       "AI_NOT_CONFIGURED": "A chave Gemini ainda não está configurada neste servidor. Você pode investigar normalmente pelos filtros manuais em Avançado.",

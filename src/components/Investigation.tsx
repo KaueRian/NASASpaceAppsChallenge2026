@@ -9,6 +9,11 @@ import {
   requestAiTranslate,
   resolveAiLocation,
 } from "../lib/ai/clientAi";
+import {
+  interpretWithLocalFallback,
+  isAiOutageError,
+  translateQuestionWithLocalFallback,
+} from "../lib/ai/fallback";
 import { ClientInvestigationError, investigateClientSide } from "../lib/nasa/clientInvestigate";
 import {
   formatMerraGridCell,
@@ -116,6 +121,7 @@ export function Investigation({
   const [aiTranslation, setAiTranslation] = useState<AiTranslateResult | null>(null);
   const [aiInterpretation, setAiInterpretation] = useState<AiInterpretResult | null>(null);
   const [aiErrorCode, setAiErrorCode] = useState<AiErrorCode | null>(null);
+  const [aiFallbackActive, setAiFallbackActive] = useState(false);
   const aiAbortRef = useRef<AbortController | null>(null);
 
   const [scanItems, setScanItems] = useState<MultiVariableScanItem[] | null>(null);
@@ -133,6 +139,7 @@ export function Investigation({
     setAiTranslation(null);
     setAiInterpretation(null);
     setAiErrorCode(null);
+    setAiFallbackActive(false);
   }, []);
 
   const resetToPreset = useCallback(
@@ -269,6 +276,7 @@ export function Investigation({
     setErrorCode(null);
     setAiTranslation(null);
     setAiInterpretation(null);
+    setAiFallbackActive(false);
 
     const activeContext = {
       lat: query.lat,
@@ -281,16 +289,31 @@ export function Investigation({
     };
 
     try {
-      const translation = await requestAiTranslate(
-        {
-          question: trimmed,
-          lang: locale,
-          currentContext: activeContext,
-        },
-        controller.signal,
-      );
+      const translatePayload = {
+        question: trimmed,
+        lang: locale,
+        currentContext: activeContext,
+      };
+      let translation: AiTranslateResult;
+      let usedFallback = false;
+      let skipRemoteInterpret = false;
+
+      try {
+        translation = await requestAiTranslate(translatePayload, controller.signal);
+      } catch (translateErr) {
+        if (!isAiOutageError(translateErr)) {
+          throw translateErr;
+        }
+        translation = translateQuestionWithLocalFallback(translatePayload);
+        usedFallback = true;
+        skipRemoteInterpret =
+          translateErr instanceof ClientAiError &&
+          (translateErr.code === "AI_NOT_CONFIGURED" || translateErr.code === "AI_RATE_LIMITED");
+      }
+
       if (thisRequestId !== requestIdRef.current) return;
       setAiTranslation(translation);
+      setAiFallbackActive(usedFallback);
 
       if (!translation.inScope) {
         setAiStage("done");
@@ -353,24 +376,36 @@ export function Investigation({
       if (basePresetId !== null) setIsDerived(true);
 
       setAiStage("interpreting");
-      const interpretation = await requestAiInterpret(
-        {
-          question: trimmed,
-          lang: locale,
-          ...(translation.limitationNotice
-            ? { limitationNotice: translation.limitationNotice }
-            : {}),
-          location: nextResult.location,
-          variable: nextResult.variable,
-          unit: nextResult.unit,
-          season: nextResult.season,
-          stats: nextResult.stats,
-          extremeYears: extractExtremeYearsForAi(nextResult.series),
-          ...(scanFindings ? { scanSummary: scanFindings } : {}),
-        },
-        controller.signal,
-      );
+      const interpretPayload = {
+        question: trimmed,
+        lang: locale,
+        ...(translation.limitationNotice ? { limitationNotice: translation.limitationNotice } : {}),
+        location: nextResult.location,
+        variable: nextResult.variable,
+        unit: nextResult.unit,
+        season: nextResult.season,
+        stats: nextResult.stats,
+        extremeYears: extractExtremeYearsForAi(nextResult.series),
+        ...(scanFindings ? { scanSummary: scanFindings } : {}),
+      };
+
+      let interpretation: AiInterpretResult;
+      if (skipRemoteInterpret) {
+        interpretation = interpretWithLocalFallback(interpretPayload, tempUnit);
+      } else {
+        try {
+          interpretation = await requestAiInterpret(interpretPayload, controller.signal);
+        } catch (interpretErr) {
+          if (!isAiOutageError(interpretErr)) {
+            throw interpretErr;
+          }
+          usedFallback = true;
+          interpretation = interpretWithLocalFallback(interpretPayload, tempUnit);
+        }
+      }
+
       if (thisRequestId !== requestIdRef.current) return;
+      setAiFallbackActive(usedFallback);
       setAiInterpretation(interpretation);
       setAiStage("done");
     } catch (err) {
@@ -526,6 +561,7 @@ export function Investigation({
           isBusy={isAiBusy || loading}
           translation={aiTranslation}
           errorCode={aiErrorCode}
+          fallbackActive={aiFallbackActive}
           hasScanApplied={scanItems !== null}
           filterSummaryLine={activeFilterSummaryLine}
           advancedOpen={advancedOpen}

@@ -11,6 +11,7 @@ interface AiAssistantBarProps {
   isBusy: boolean;
   translation: AiTranslateResult | null;
   errorCode: AiErrorCode | null;
+  fallbackActive?: boolean;
   hasScanApplied: boolean;
   filterSummaryLine: string;
   advancedOpen: boolean;
@@ -50,6 +51,7 @@ export function AiAssistantBar({
   isBusy,
   translation,
   errorCode,
+  fallbackActive = false,
   hasScanApplied,
   filterSummaryLine,
   advancedOpen,
@@ -182,6 +184,15 @@ export function AiAssistantBar({
             {t("ai.limitationTitle")}
           </p>
           <p className="mt-1 font-sans text-xs text-text-muted">{translation.limitationNotice}</p>
+        </div>
+      )}
+
+      {fallbackActive && (
+        <div role="status" className="border border-border bg-bg p-3">
+          <p className="font-mono text-[11px] uppercase tracking-wide text-accent">
+            {t("ai.fallbackTitle")}
+          </p>
+          <p className="mt-1 font-sans text-xs text-text-muted">{t("ai.fallbackBody")}</p>
         </div>
       )}
 
