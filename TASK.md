@@ -231,7 +231,7 @@
 - [ ] **[10M]** **[priority: medium]** **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
 - [ ] **[11H]** **[priority: high]** **(Higor & Luis)** Capture 4–7 English UI screenshots after UI Freeze
 - [ ] **[12H]** **[priority: high]** **(Higor & Luis)** Record/edit the 30s video (≤ 30s, EN audio or PT audio + EN subtitles) and upload to YouTube; verify playback
-- [ ] **[13H]** **[priority: high]** **(Higor & Luis)** Final PDF slides (PT-BR) + offline copy of slides, demo video and screenshots on the stage laptop
+- [~] **[13H]** **[priority: high]** **(Antigravity — Higor & Luis)** Final PDF slides (PT-BR) + offline copy of slides, demo video and screenshots on the stage laptop (building Dark Editorial 16:9 HTML/CSS print-to-PDF deck & offline bundle)
 - [ ] **[14H]** **[priority: high]** **(Higor & Luis + Stage Rep)** Rehearse the 3-minute pitch at least twice
 - [ ] **[15H]** **[priority: high]** **(All)** Submit local HUBEE deliverables (15:00–15:30)
 - [ ] **[16H]** **[priority: high]** **(Stage Rep)** Deliver the 3-minute pitch (15:30–17:00)
