@@ -10,9 +10,11 @@ import {
   type AppRoute,
   buildDossierPath,
   buildHomePath,
+  buildInvestigatePath,
   buildMethodsPath,
   parseAppRoute,
 } from "./lib/routing";
+import type { ValidatedInvestigateQuery } from "./lib/validation/investigate";
 import type { CasePresetId } from "./types/investigation";
 
 function scrollToSection(id: string) {
@@ -108,6 +110,18 @@ export function App() {
     scrollToSection("investigation");
   };
 
+  const selectLiveInvestigation = (query: ValidatedInvestigateQuery) => {
+    setRoute({
+      view: "home",
+      presetId: "01",
+      initialLiveQuery: query,
+      scrollToInvestigation: true,
+    });
+    setPresetNonce((n) => n + 1);
+    pushHistoryUrl(buildInvestigatePath(query));
+    scrollToSection("investigation");
+  };
+
   return (
     <div className="min-h-screen overflow-x-clip bg-bg text-text">
       <AppHeader
@@ -133,7 +147,12 @@ export function App() {
               onNavigateMethods={navigateMethods}
               onOpenDossierPermalink={navigateDossier}
             />
-            <CasesGrid activePresetId={route.presetId} onSelectPreset={selectPreset} />
+            <CasesGrid
+              activePresetId={route.presetId}
+              activeLiveQuery={route.initialLiveQuery ?? null}
+              onSelectPreset={selectPreset}
+              onSelectInvestigation={selectLiveInvestigation}
+            />
             <MethodTeaser onNavigateMethods={navigateMethods} />
           </>
         )}

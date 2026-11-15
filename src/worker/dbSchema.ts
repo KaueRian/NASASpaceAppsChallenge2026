@@ -40,6 +40,16 @@ export async function ensureD1Schema(db?: D1Database): Promise<void> {
         )`,
       )
       .run();
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS ai_cache (
+          cache_key TEXT PRIMARY KEY,
+          stage TEXT NOT NULL,
+          response_json TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )`,
+      )
+      .run();
     schemaInitialized = true;
   } catch {
     // Mock D1 instances in unit tests may only implement targeted prepared statements; ignore safely.

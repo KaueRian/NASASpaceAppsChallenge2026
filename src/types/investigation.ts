@@ -31,6 +31,12 @@ export type TrendDirection = "warming" | "cooling" | "wetter" | "drier" | "neutr
 export const CASE_PRESET_IDS = ["01", "02", "03", "04"] as const;
 export type CasePresetId = (typeof CASE_PRESET_IDS)[number];
 
+export const INVESTIGATION_SCALES = ["local", "state", "national", "global"] as const;
+export type InvestigationScale = (typeof INVESTIGATION_SCALES)[number];
+
+export const INVESTIGATION_TOPICS = ["agro", "warming", "hydrology", "urban", "benchmark"] as const;
+export type InvestigationTopic = (typeof INVESTIGATION_TOPICS)[number];
+
 export const NASA_MISSING_VALUE = -999;
 export const MIN_ANALYSIS_YEARS = 15;
 export const DEFAULT_START_YEAR = 1981;
@@ -155,10 +161,30 @@ export interface SavedDossier {
   result: InvestigationResult;
 }
 
+export interface CatalogInvestigation {
+  id: string;
+  presetId?: CasePresetId;
+  scale: InvestigationScale;
+  topic: InvestigationTopic;
+  variable: VariableId;
+  season: SeasonId;
+  startYear: number;
+  endYear: number;
+  lat: number;
+  lon: number;
+  label: string;
+  /** Key prefix under `cases.catalog.<key>` (or `cases.<presetId>`) in locales */
+  titleKey: string;
+  regionKey: string;
+  hookKey: string;
+  tags: readonly string[];
+}
+
 export type InvestigationErrorCode =
   | "INVALID_COORDINATES"
   | "INVALID_VARIABLE"
   | "INVALID_SEASON"
+  | "INVALID_FILTER"
   | "INSUFFICIENT_YEARS"
   | "NO_DATA_ALL_MISSING"
   | "NASA_UPSTREAM_TIMEOUT"

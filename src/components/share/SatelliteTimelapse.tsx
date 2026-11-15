@@ -1,10 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../../i18n/i18n.tsx";
 import type { LocationInfo } from "../../types/investigation.ts";
+import {
+  buildFrameTileUrls,
+  buildNasaGibsTileUrl,
+  buildNasaWorldviewUrl,
+  buildPriorityYears,
+  GIBS_MAX_YEAR,
+  GIBS_MIN_YEAR,
+  type GibsComparisonWindow,
+  type GibsLayerId,
+  isFrameUrlsCached,
+  latLonToTileXY,
+  preloadFrameTiles,
+  preloadTimelapseSequence,
+  resolveGibsComparisonWindow,
+} from "./gibsTileCache.ts";
 
-export type GibsLayerId =
-  | "MODIS_Terra_CorrectedReflectance_TrueColor"
-  | "MODIS_Terra_L3_NDVI_Monthly";
+export {
+  buildNasaGibsTileUrl,
+  buildNasaWorldviewUrl,
+  type GibsComparisonWindow,
+  type GibsLayerId,
+  latLonToTileXY,
+  resolveGibsComparisonWindow,
+};
+
 export type SatelliteViewMode = "compare" | "timelapse";
 
 export interface SatelliteTimelapseProps {
@@ -14,86 +35,108 @@ export interface SatelliteTimelapseProps {
   defaultExpanded?: boolean;
 }
 
-export interface GibsComparisonWindow {
-  beforeYear: number;
-  afterYear: number;
-  startsBeforeArchive: boolean;
+const TILE_SLOT_IDS = ["nw", "n", "ne", "w", "c", "e", "sw", "s", "se"] as const;
+const TIMELAPSE_TICK_MS = 750;
+const SLOT_PAINT_TIMEOUT_MS = 3000;
+
+interface FrameBuffer {
+  key: string;
+  year: number;
+  urls: string[];
 }
 
-const GIBS_MIN_YEAR = 2000;
-const GIBS_MAX_YEAR = 2025;
-const TILE_OFFSETS = [-1, 0, 1] as const;
-
-/**
- * Resolves valid NASA GIBS MODIS Terra year bounds (`2000–2025`) for side-by-side
- * "Before vs. After" and Timelapse inspection.
- */
-export function resolveGibsComparisonWindow(
-  startYear?: number,
-  endYear?: number,
-): GibsComparisonWindow {
-  const startsBeforeArchive = startYear !== undefined && startYear < GIBS_MIN_YEAR;
-  const clampedStart = Math.max(GIBS_MIN_YEAR, Math.min(GIBS_MAX_YEAR, startYear ?? GIBS_MIN_YEAR));
-  const clampedEnd = Math.max(GIBS_MIN_YEAR, Math.min(GIBS_MAX_YEAR, endYear ?? GIBS_MAX_YEAR));
-
-  if (clampedStart >= clampedEnd) {
-    return {
-      beforeYear: GIBS_MIN_YEAR,
-      afterYear: GIBS_MAX_YEAR,
-      startsBeforeArchive,
-    };
-  }
-
-  return {
-    beforeYear: clampedStart,
-    afterYear: clampedEnd,
-    startsBeforeArchive,
-  };
-}
-
-/**
- * Converts geographic coordinates (lat, lon) to Web Mercator slippy-map tile (x, y) at zoom `z`.
- */
-export function latLonToTileXY(lat: number, lon: number, z: number): { x: number; y: number } {
-  const clampedLat = Math.max(-85.0511, Math.min(85.0511, lat));
-  const n = 2 ** z;
-  const x = Math.floor(((lon + 180) / 360) * n);
-  const latRad = (clampedLat * Math.PI) / 180;
-  const y = Math.floor(((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n);
-  return {
-    x: Math.max(0, Math.min(n - 1, x)),
-    y: Math.max(0, Math.min(n - 1, y)),
-  };
-}
-
-/**
- * Builds an official NASA GIBS WMTS tile URL for a given year and layer.
- * Uses August 29 (`YYYY-08-29`) for True Color (continuous 2000–2025 coverage avoiding Terra's
- * mid-August 2000 formatter outage) and August 1 (`YYYY-08-01`) for monthly Level-3 NDVI
- * (`GoogleMapsCompatible_Level7`), ensuring 100% HTTP 200 availability across 2000–2025.
- */
-export function buildNasaGibsTileUrl(
+function buildFrameKey(
+  location: LocationInfo,
   layer: GibsLayerId,
+  zoom: number,
   year: number,
-  z: number,
-  x: number,
-  y: number,
 ): string {
-  const safeYear = Math.max(GIBS_MIN_YEAR, Math.min(GIBS_MAX_YEAR, year));
-  const isNdvi = layer === "MODIS_Terra_L3_NDVI_Monthly";
-  const dateStr = isNdvi ? `${safeYear}-08-01` : `${safeYear}-08-29`;
-  const matrixSet = isNdvi ? "GoogleMapsCompatible_Level7" : "GoogleMapsCompatible_Level9";
-  const safeZ = isNdvi ? Math.min(7, z) : z;
-  const ext = isNdvi ? "png" : "jpg";
-  return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer}/default/${dateStr}/${matrixSet}/${safeZ}/${y}/${x}.${ext}`;
+  return `${location.lat.toFixed(4)}:${location.lon.toFixed(4)}:${layer}:${zoom}:${year}`;
 }
 
-export function buildNasaWorldviewUrl(lat: number, lon: number, year: number): string {
-  const minLon = (lon - 1.5).toFixed(3);
-  const minLat = (lat - 1.0).toFixed(3);
-  const maxLon = (lon + 1.5).toFixed(3);
-  const maxLat = (lat + 1.0).toFixed(3);
-  return `https://worldview.earthdata.nasa.gov/?v=${minLon},${minLat},${maxLon},${maxLat}&t=${year}-08-29-T00%3A00%3A00Z`;
+async function waitForSlotPaint(container: HTMLDivElement, signal: AbortSignal): Promise<void> {
+  const imgs = Array.from(container.querySelectorAll("img"));
+
+  await Promise.all(
+    imgs.map((img) => {
+      if (img.complete) {
+        if (typeof img.decode === "function" && img.naturalWidth > 0) {
+          return img.decode().catch(() => undefined);
+        }
+        return Promise.resolve();
+      }
+
+      return new Promise<void>((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          signal.removeEventListener("abort", finish);
+          img.removeEventListener("load", finish);
+          img.removeEventListener("error", finish);
+          if (typeof img.decode === "function" && img.naturalWidth > 0) {
+            void img
+              .decode()
+              .catch(() => undefined)
+              .finally(resolve);
+          } else {
+            resolve();
+          }
+        };
+
+        const timeout = setTimeout(finish, SLOT_PAINT_TIMEOUT_MS);
+        signal.addEventListener("abort", finish, { once: true });
+        img.addEventListener("load", finish, { once: true });
+        img.addEventListener("error", finish, { once: true });
+      });
+    }),
+  );
+
+  if (signal.aborted) return;
+
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      if (signal.aborted) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
+function TileGridLayer({
+  urls,
+  alt,
+  isFront,
+  containerRef,
+}: {
+  urls: readonly string[];
+  alt: string;
+  isFront: boolean;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <div
+      ref={containerRef}
+      aria-hidden={!isFront}
+      className={`absolute inset-0 grid h-full w-full grid-cols-3 grid-rows-3 ${
+        isFront ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"
+      }`}
+    >
+      {urls.map((tileUrl, idx) => (
+        <img
+          key={TILE_SLOT_IDS[idx]}
+          src={tileUrl}
+          alt={isFront ? alt : ""}
+          loading="eager"
+          decoding="async"
+          className="h-full w-full object-cover"
+        />
+      ))}
+    </div>
+  );
 }
 
 interface SatelliteTileFrameProps {
@@ -102,9 +145,10 @@ interface SatelliteTileFrameProps {
   layerLabel: string;
   year: number;
   zoom: number;
-  badgeText: string;
   monthTag: string;
-  altTemplate: (year: number, layerLabel: string) => string;
+  updatingLabel: string;
+  formatBadge: (frameYear: number) => string;
+  altTemplate: (frameYear: number, layerLabel: string) => string;
   emphasis?: "before" | "after";
 }
 
@@ -114,50 +158,118 @@ function SatelliteTileFrame({
   layerLabel,
   year,
   zoom,
-  badgeText,
   monthTag,
+  updatingLabel,
+  formatBadge,
   altTemplate,
   emphasis,
 }: SatelliteTileFrameProps) {
-  const centerTile = latLonToTileXY(location.lat, location.lon, zoom);
-  const maxTileIdx = 2 ** zoom - 1;
+  const targetKey = buildFrameKey(location, layer, zoom, year);
+  const targetUrls = useMemo(
+    () => buildFrameTileUrls(location.lat, location.lon, layer, year, zoom),
+    [location.lat, location.lon, layer, year, zoom],
+  );
+
+  // Double-buffered slots keep the active decoded mosaic visible while the next frame loads & paints.
+  const [slots, setSlots] = useState<[FrameBuffer, FrameBuffer | null]>(() => [
+    { key: targetKey, year, urls: targetUrls },
+    null,
+  ]);
+  const [frontIndex, setFrontIndex] = useState<0 | 1>(0);
+  const [isUpdatingFrame, setIsUpdatingFrame] = useState(false);
+
+  const slot0Ref = useRef<HTMLDivElement | null>(null);
+  const slot1Ref = useRef<HTMLDivElement | null>(null);
+
+  const frontSlot = slots[frontIndex] ?? slots[0];
+  const backIndex: 0 | 1 = frontIndex === 0 ? 1 : 0;
+  const backSlot = slots[backIndex];
+
+  useEffect(() => {
+    if (frontSlot.key === targetKey) {
+      setIsUpdatingFrame(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setIsUpdatingFrame(!isFrameUrlsCached(targetUrls));
+
+    void preloadFrameTiles(targetUrls, controller.signal).then(() => {
+      if (controller.signal.aborted) return;
+      setSlots((prev) => {
+        if (prev[backIndex]?.key === targetKey) return prev;
+        const next: [FrameBuffer, FrameBuffer | null] = [...prev];
+        next[backIndex] = { key: targetKey, year, urls: targetUrls };
+        return next;
+      });
+    });
+
+    return () => controller.abort();
+  }, [targetKey, targetUrls, year, frontSlot.key, backIndex]);
+
+  useEffect(() => {
+    if (!backSlot || backSlot.key !== targetKey || frontSlot.key === targetKey) {
+      return;
+    }
+
+    const backContainer = backIndex === 0 ? slot0Ref.current : slot1Ref.current;
+    if (!backContainer) return;
+
+    const controller = new AbortController();
+
+    void waitForSlotPaint(backContainer, controller.signal).then(() => {
+      if (controller.signal.aborted) return;
+      setFrontIndex(backIndex);
+      setIsUpdatingFrame(false);
+    });
+
+    return () => controller.abort();
+  }, [backSlot, backIndex, frontSlot.key, targetKey]);
+
   const badgeColor =
     emphasis === "after"
       ? "border border-accent/60 bg-bg/90 text-text"
       : "border border-border bg-bg/85 text-text";
+  const displayedAlt = altTemplate(frontSlot.year, layerLabel);
 
   return (
     <div className="relative aspect-video w-full overflow-hidden border border-border bg-bg">
-      <div className="grid h-full w-full grid-cols-3 grid-rows-3">
-        {TILE_OFFSETS.map((dy) =>
-          TILE_OFFSETS.map((dx) => {
-            const tx = Math.max(0, Math.min(maxTileIdx, centerTile.x + dx));
-            const ty = Math.max(0, Math.min(maxTileIdx, centerTile.y + dy));
-            const tileUrl = buildNasaGibsTileUrl(layer, year, zoom, tx, ty);
-            return (
-              <img
-                key={`${zoom}-${tx}-${ty}-${year}-${layer}`}
-                src={tileUrl}
-                alt={altTemplate(year, layerLabel)}
-                loading="lazy"
-                className="h-full w-full object-cover"
-              />
-            );
-          }),
-        )}
-      </div>
+      <TileGridLayer
+        urls={slots[0].urls}
+        alt={displayedAlt}
+        isFront={frontIndex === 0}
+        containerRef={slot0Ref}
+      />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      {slots[1] && (
+        <TileGridLayer
+          urls={slots[1].urls}
+          alt={displayedAlt}
+          isFront={frontIndex === 1}
+          containerRef={slot1Ref}
+        />
+      )}
+
+      <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
         <div className="h-5 w-5 rounded-full border-2 border-accent bg-accent/20 shadow" />
       </div>
 
       <div
-        className={`absolute left-2.5 top-2.5 px-2.5 py-1 font-mono text-xs font-bold tracking-wider ${badgeColor}`}
+        className={`absolute left-2.5 top-2.5 z-20 px-2.5 py-1 font-mono text-xs font-bold tracking-wider ${badgeColor}`}
       >
-        {badgeText} · {monthTag}
+        {formatBadge(frontSlot.year)} · {monthTag}
       </div>
 
-      <div className="absolute bottom-2 right-2 bg-bg/85 px-2 py-0.5 font-mono text-[10px] text-text-muted">
+      {isUpdatingFrame && (
+        <div
+          role="status"
+          className="absolute bottom-2 left-2 z-20 border border-border bg-bg/90 px-2 py-0.5 font-mono text-[10px] text-accent"
+        >
+          {updatingLabel}
+        </div>
+      )}
+
+      <div className="absolute bottom-2 right-2 z-20 bg-bg/85 px-2 py-0.5 font-mono text-[10px] text-text-muted">
         {location.label} ({location.lat.toFixed(2)}°, {location.lon.toFixed(2)}°)
       </div>
     </div>
@@ -179,33 +291,121 @@ export function SatelliteTimelapse({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [mode, setMode] = useState<SatelliteViewMode>("compare");
   const [year, setYear] = useState(beforeYear);
-  const [playing, setPlaying] = useState(false);
   const [layer, setLayer] = useState<GibsLayerId>("MODIS_Terra_CorrectedReflectance_TrueColor");
   const [zoom, setZoom] = useState(7);
 
   const safeYear = Math.max(beforeYear, Math.min(afterYear, year));
+  const maxZoomForLayer = layer === "MODIS_Terra_L3_NDVI_Monthly" ? 7 : 8;
+  const effectiveZoom = Math.min(zoom, maxZoomForLayer);
+
+  const priorityYears = useMemo(
+    () => buildPriorityYears(beforeYear, afterYear),
+    [beforeYear, afterYear],
+  );
+  const totalYears = priorityYears.length;
+  const preloadSignature = `${location.lat.toFixed(4)}:${location.lon.toFixed(4)}:${layer}:${effectiveZoom}:${beforeYear}:${afterYear}`;
+
+  const [playSession, setPlaySession] = useState<{ signature: string; active: boolean }>({
+    signature: preloadSignature,
+    active: false,
+  });
+  const [preloadState, setPreloadState] = useState<{ signature: string; count: number }>(() => ({
+    signature: preloadSignature,
+    count: 0,
+  }));
+  const settledYearsRef = useRef<{ signature: string; years: Set<number> }>({
+    signature: preloadSignature,
+    years: new Set(),
+  });
+
+  const playRequested = playSession.signature === preloadSignature && playSession.active;
+  const readyCount = preloadState.signature === preloadSignature ? preloadState.count : 0;
+  const allFramesReady = totalYears > 0 && readyCount >= totalYears;
+  const isPlaying = playRequested && allFramesReady && expanded && mode === "timelapse";
+  const isBufferingToPlay = playRequested && !allFramesReady && expanded && mode === "timelapse";
 
   useEffect(() => {
     setYear(beforeYear);
-    setPlaying(false);
   }, [beforeYear]);
 
   useEffect(() => {
-    if (!playing || !expanded || mode !== "timelapse") return;
+    if (!expanded) return;
+
+    if (settledYearsRef.current.signature !== preloadSignature) {
+      settledYearsRef.current = { signature: preloadSignature, years: new Set() };
+    }
+
+    for (const candidateYear of priorityYears) {
+      if (settledYearsRef.current.years.has(candidateYear)) continue;
+      const urls = buildFrameTileUrls(
+        location.lat,
+        location.lon,
+        layer,
+        candidateYear,
+        effectiveZoom,
+      );
+      if (isFrameUrlsCached(urls)) {
+        settledYearsRef.current.years.add(candidateYear);
+      }
+    }
+
+    setPreloadState({
+      signature: preloadSignature,
+      count: settledYearsRef.current.years.size,
+    });
+
+    const pendingYears = priorityYears.filter((y) => !settledYearsRef.current.years.has(y));
+    if (pendingYears.length === 0) return;
+
+    const controller = new AbortController();
+    const concurrency = mode === "timelapse" || playRequested ? 4 : 2;
+
+    void preloadTimelapseSequence({
+      lat: location.lat,
+      lon: location.lon,
+      layer,
+      zoom: effectiveZoom,
+      years: pendingYears,
+      concurrency,
+      signal: controller.signal,
+      onYearSettled: (settledYear) => {
+        if (controller.signal.aborted) return;
+        settledYearsRef.current.years.add(settledYear);
+        setPreloadState({
+          signature: preloadSignature,
+          count: settledYearsRef.current.years.size,
+        });
+      },
+    });
+
+    return () => controller.abort();
+  }, [
+    expanded,
+    preloadSignature,
+    priorityYears,
+    location.lat,
+    location.lon,
+    layer,
+    effectiveZoom,
+    mode,
+    playRequested,
+  ]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
     const timer = setInterval(() => {
       setYear((prev) => (prev >= afterYear ? beforeYear : prev + 1));
-    }, 850);
+    }, TIMELAPSE_TICK_MS);
     return () => clearInterval(timer);
-  }, [playing, expanded, mode, beforeYear, afterYear]);
+  }, [isPlaying, beforeYear, afterYear]);
 
-  const maxZoomForLayer = layer === "MODIS_Terra_L3_NDVI_Monthly" ? 7 : 8;
-  const effectiveZoom = Math.min(zoom, maxZoomForLayer);
   const layerLabel =
     layer === "MODIS_Terra_L3_NDVI_Monthly"
       ? t("satellite.layerNdvi")
       : t("satellite.layerTrueColor");
   const monthTag = t("satellite.monthTag");
   const worldviewYear = mode === "compare" ? afterYear : safeYear;
+  const preloadPercent = Math.min(100, Math.round((readyCount / Math.max(1, totalYears)) * 100));
 
   return (
     <section
@@ -228,7 +428,7 @@ export function SatelliteTimelapse({
           onClick={() => {
             setExpanded((prev) => {
               const next = !prev;
-              if (!next) setPlaying(false);
+              if (!next) setPlaySession({ signature: preloadSignature, active: false });
               return next;
             });
           }}
@@ -247,7 +447,7 @@ export function SatelliteTimelapse({
                   type="button"
                   onClick={() => {
                     setMode("compare");
-                    setPlaying(false);
+                    setPlaySession({ signature: preloadSignature, active: false });
                   }}
                   aria-pressed={mode === "compare"}
                   className={`px-2.5 py-1 transition-colors ${
@@ -334,8 +534,9 @@ export function SatelliteTimelapse({
                 layerLabel={layerLabel}
                 year={beforeYear}
                 zoom={effectiveZoom}
-                badgeText={t("satellite.beforeLabel", { year: beforeYear })}
                 monthTag={monthTag}
+                updatingLabel={t("satellite.frameUpdating", { year: beforeYear })}
+                formatBadge={(frameYear) => t("satellite.beforeLabel", { year: frameYear })}
                 altTemplate={(y, l) => t("satellite.tileAlt", { year: y, layer: l })}
                 emphasis="before"
               />
@@ -345,8 +546,9 @@ export function SatelliteTimelapse({
                 layerLabel={layerLabel}
                 year={afterYear}
                 zoom={effectiveZoom}
-                badgeText={t("satellite.afterLabel", { year: afterYear })}
                 monthTag={monthTag}
+                updatingLabel={t("satellite.frameUpdating", { year: afterYear })}
+                formatBadge={(frameYear) => t("satellite.afterLabel", { year: frameYear })}
                 altTemplate={(y, l) => t("satellite.tileAlt", { year: y, layer: l })}
                 emphasis="after"
               />
@@ -360,41 +562,70 @@ export function SatelliteTimelapse({
                   layerLabel={layerLabel}
                   year={safeYear}
                   zoom={effectiveZoom}
-                  badgeText={String(safeYear)}
                   monthTag={monthTag}
+                  updatingLabel={t("satellite.frameUpdating", { year: safeYear })}
+                  formatBadge={(frameYear) => String(frameYear)}
                   altTemplate={(y, l) => t("satellite.tileAlt", { year: y, layer: l })}
                   emphasis="after"
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
-                <button
-                  type="button"
-                  onClick={() => setPlaying((p) => !p)}
-                  className="bg-accent px-3.5 py-1.5 font-bold text-bg hover:opacity-90"
-                >
-                  {playing ? `⏸ ${t("satellite.pause")}` : `▶ ${t("satellite.play")}`}
-                </button>
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPlaySession((prev) => ({
+                        signature: preloadSignature,
+                        active: !(prev.signature === preloadSignature && prev.active),
+                      }))
+                    }
+                    className="bg-accent px-3.5 py-1.5 font-bold text-bg hover:opacity-90"
+                  >
+                    {isPlaying
+                      ? `⏸ ${t("satellite.pause")}`
+                      : isBufferingToPlay
+                        ? `⏳ ${t("satellite.buffering", { ready: readyCount, total: totalYears })}`
+                        : `▶ ${t("satellite.play")}`}
+                  </button>
 
-                <input
-                  type="range"
-                  min={beforeYear}
-                  max={afterYear}
-                  value={safeYear}
-                  onChange={(e) => {
-                    setPlaying(false);
-                    setYear(Number(e.target.value));
-                  }}
-                  aria-label={t("satellite.modeTimelapse", {
-                    minYear: beforeYear,
-                    maxYear: afterYear,
-                  })}
-                  className="flex-1 accent-accent"
-                />
+                  <input
+                    type="range"
+                    min={beforeYear}
+                    max={afterYear}
+                    value={safeYear}
+                    onChange={(e) => {
+                      setPlaySession({ signature: preloadSignature, active: false });
+                      setYear(Number(e.target.value));
+                    }}
+                    aria-label={t("satellite.modeTimelapse", {
+                      minYear: beforeYear,
+                      maxYear: afterYear,
+                    })}
+                    className="flex-1 accent-accent"
+                  />
 
-                <span className="font-bold text-text">
-                  {safeYear} / {afterYear}
-                </span>
+                  <span className="font-bold text-text">
+                    {safeYear} / {afterYear}
+                  </span>
+                </div>
+
+                <div className="space-y-1 font-mono text-[11px] text-text-muted">
+                  <div className="flex items-center justify-between gap-2">
+                    <span>
+                      {allFramesReady
+                        ? t("satellite.preloadReady", { total: totalYears })
+                        : t("satellite.preloadProgress", { ready: readyCount, total: totalYears })}
+                    </span>
+                    <span>{preloadPercent}%</span>
+                  </div>
+                  <div className="h-1 w-full overflow-hidden bg-bg">
+                    <div
+                      className="h-full bg-accent transition-[width] duration-200"
+                      style={{ width: `${preloadPercent}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}

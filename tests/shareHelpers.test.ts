@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { getStripeColor } from "../src/components/share/ClimateStripes.tsx";
 import {
+  buildFrameTileUrls,
+  buildPriorityYears,
+  clearGibsTileCacheForTests,
+  isFrameUrlsCached,
+  preloadTileUrl,
+  preloadTimelapseSequence,
+} from "../src/components/share/gibsTileCache.ts";
+import {
   buildNasaGibsTileUrl,
   buildNasaWorldviewUrl,
   latLonToTileXY,
@@ -61,5 +69,93 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
     const citationPt = buildCitationText(vilhenaResult, "pt");
     expect(citationPt).toContain("Teste não-paramétrico de Mann-Kendall");
     expect(citationPt).toContain("sem implicar atribuição causal isolada");
+  });
+
+  it("prioritizes endpoints and preloads/deduplicates 3x3 NASA GIBS frame tiles cleanly", async () => {
+    clearGibsTileCacheForTests();
+
+    expect(buildPriorityYears(2000, 2004)).toEqual([2000, 2004, 2001, 2002, 2003]);
+    expect(buildPriorityYears(2025, 2025)).toEqual([2025]);
+
+    const urls2020 = buildFrameTileUrls(
+      -12.7406,
+      -60.1458,
+      "MODIS_Terra_CorrectedReflectance_TrueColor",
+      2020,
+      7,
+    );
+    expect(urls2020).toHaveLength(9);
+    expect(isFrameUrlsCached(urls2020)).toBe(false);
+
+    const requestedUrls: string[] = [];
+    const originalImage = globalThis.Image;
+
+    class MockImage {
+      decoding = "";
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      private _src = "";
+
+      get src() {
+        return this._src;
+      }
+
+      set src(value: string) {
+        this._src = value;
+        requestedUrls.push(value);
+        queueMicrotask(() => {
+          if (value.includes("/2002-08-29/")) {
+            this.onerror?.();
+          } else {
+            this.onload?.();
+          }
+        });
+      }
+
+      async decode() {
+        return undefined;
+      }
+    }
+
+    Object.defineProperty(globalThis, "Image", { value: MockImage, configurable: true });
+
+    try {
+      const settled: number[] = [];
+      await preloadTimelapseSequence({
+        lat: -12.7406,
+        lon: -60.1458,
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        zoom: 7,
+        years: [2000, 2003, 2002],
+        concurrency: 2,
+        onYearSettled: (year) => settled.push(year),
+      });
+
+      // Even if 2002 failed an upstream tile, every year settles cleanly so playback never deadlocks.
+      expect(settled.sort((a, b) => a - b)).toEqual([2000, 2002, 2003]);
+
+      const urls2000 = buildFrameTileUrls(
+        -12.7406,
+        -60.1458,
+        "MODIS_Terra_CorrectedReflectance_TrueColor",
+        2000,
+        7,
+      );
+      expect(isFrameUrlsCached(urls2000)).toBe(true);
+
+      const countBeforeHit = requestedUrls.length;
+      const hitStatus = await preloadTileUrl(urls2000[0]);
+      expect(hitStatus).toBe("ok");
+      expect(requestedUrls.length).toBe(countBeforeHit);
+
+      const controller = new AbortController();
+      controller.abort();
+      expect(
+        await preloadTileUrl("https://gibs.earthdata.nasa.gov/aborted.jpg", controller.signal),
+      ).toBe("error");
+    } finally {
+      Object.defineProperty(globalThis, "Image", { value: originalImage, configurable: true });
+      clearGibsTileCacheForTests();
+    }
   });
 });

@@ -31,3 +31,11 @@ CREATE TABLE IF NOT EXISTS dossiers (
 
 CREATE INDEX IF NOT EXISTS idx_dossiers_created_at
   ON dossiers (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS ai_cache (
+  cache_key TEXT PRIMARY KEY,
+  stage TEXT NOT NULL,
+  response_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
