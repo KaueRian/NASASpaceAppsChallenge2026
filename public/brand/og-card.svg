@@ -1,38 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <title>GeoTrend — NASA Space Apps 2026</title>
-  <rect width="1200" height="630" fill="#12100E" />
-  <rect x="36" y="36" width="1128" height="558" fill="#F4EFE6" stroke="#D4A84F" stroke-width="4" />
-  <text x="80" y="105" font-family="monospace" font-size="20" font-weight="bold" fill="#5C5346" letter-spacing="3">
-    NASA SPACE APPS CHALLENGE 2026 · VILHENA, RO, BRAZIL
-  </text>
-  <text x="80" y="185" font-family="Georgia, serif" font-size="64" font-weight="bold" fill="#14110F">
-    GeoTrend
-  </text>
-  <text x="80" y="235" font-family="monospace" font-size="24" fill="#5C5346">
-    Forensic Climate Trend Analysis · NASA POWER / MERRA-2 (1981–2025)
-  </text>
-  <g transform="translate(830, 120) rotate(-4)">
-    <rect x="0" y="0" width="270" height="64" fill="none" stroke="#C83E2B" stroke-width="5" />
-    <text x="20" y="42" font-family="monospace" font-size="24" font-weight="bold" fill="#C83E2B" letter-spacing="2">
-      STRONG EVIDENCE
-    </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" fill="none">
+  <title>GeoTrend — NASA Space Apps Challenge 2026</title>
+  <rect width="1200" height="630" fill="#121212" />
+  <rect x="36" y="36" width="1128" height="558" rx="4" fill="#1C1C1E" stroke="#2E2E30" stroke-width="2" />
+  <rect x="36" y="36" width="1128" height="5" fill="#C1472E" />
+
+  <text x="84" y="102" font-family="'Courier Prime', monospace" font-size="19" font-weight="700" letter-spacing="3.5" fill="#C1472E">NASA SPACE APPS CHALLENGE 2026 · VILHENA, RO</text>
+
+  <g transform="translate(80, 146) scale(3.25)">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
   </g>
-  <g transform="translate(80, 290)">
-    <rect x="0" y="0" width="115" height="160" fill="#08306B" />
-    <rect x="115" y="0" width="115" height="160" fill="#2171B5" />
-    <rect x="230" y="0" width="115" height="160" fill="#6BAED6" />
-    <rect x="345" y="0" width="115" height="160" fill="#C6DBEF" />
-    <rect x="460" y="0" width="115" height="160" fill="#F4EFE6" />
-    <rect x="575" y="0" width="115" height="160" fill="#FCBBA1" />
-    <rect x="690" y="0" width="115" height="160" fill="#FB6A4A" />
-    <rect x="805" y="0" width="115" height="160" fill="#CB181D" />
-    <rect x="920" y="0" width="120" height="160" fill="#67000D" />
-    <rect x="0" y="0" width="1040" height="160" fill="none" stroke="#14110F" stroke-width="3" />
+  <text x="206" y="232" font-family="'Playfair Display', Georgia, serif" font-size="88" font-weight="700" letter-spacing="-1.5" fill="#EDEDEA">GeoTrend</text>
+
+  <text x="84" y="294" font-family="'Inter', sans-serif" font-size="27" font-weight="400" fill="#9B9B98">Forensic Climate Trend Analysis · NASA POWER / MERRA-2 (1981–2025)</text>
+
+  <g transform="translate(866, 152)">
+    <rect x="0" y="0" width="250" height="54" rx="2" fill="#C1472E" fill-opacity="0.14" stroke="#C1472E" stroke-width="2" />
+    <text x="125" y="34" text-anchor="middle" font-family="'Courier Prime', monospace" font-size="18" font-weight="700" letter-spacing="2.2" fill="#C1472E">STRONG EVIDENCE</text>
   </g>
-  <text x="80" y="515" font-family="monospace" font-size="22" font-weight="bold" fill="#14110F">
-    WHAT CHANGED? · WHERE? · BY HOW MUCH (SEN&apos;S SLOPE)? · IS IT SIGNIFICANT (MANN-KENDALL)?
-  </text>
-  <text x="80" y="555" font-family="monospace" font-size="18" fill="#5C5346">
-    1981–2025 Verified Dossiers: Vilhena (-234.5 mm) · Porto Velho (-14.3% soil moisture) · Ariquemes (+1.82°C) · Svalbard (+3.50°C)
-  </text>
+
+  <g>
+    <rect x="84.0" y="344" width="86.6" height="118" fill="#08306B" />
+    <rect x="170.0" y="344" width="86.6" height="118" fill="#2171B5" />
+    <rect x="256.0" y="344" width="86.6" height="118" fill="#6BAED6" />
+    <rect x="342.0" y="344" width="86.6" height="118" fill="#9ECAE1" />
+    <rect x="428.0" y="344" width="86.6" height="118" fill="#DEEBF7" />
+    <rect x="514.0" y="344" width="86.6" height="118" fill="#F4EFE6" />
+    <rect x="600.0" y="344" width="86.6" height="118" fill="#FCBBA1" />
+    <rect x="686.0" y="344" width="86.6" height="118" fill="#FC9272" />
+    <rect x="772.0" y="344" width="86.6" height="118" fill="#FB6A4A" />
+    <rect x="858.0" y="344" width="86.6" height="118" fill="#EF3B2C" />
+    <rect x="944.0" y="344" width="86.6" height="118" fill="#CB181D" />
+    <rect x="1030.0" y="344" width="86.6" height="118" fill="#67000D" />
+    <rect x="84" y="344" width="1032" height="118" stroke="#2E2E30" stroke-width="1.5" />
+  </g>
+
+  <text x="84" y="516" font-family="'Courier Prime', monospace" font-size="16" font-weight="700" letter-spacing="1.1" fill="#EDEDEA">WHAT CHANGED · WHERE · HOW MUCH (SEN&apos;S SLOPE) · REAL OR NOISE (MANN-KENDALL)</text>
+  <text x="84" y="552" font-family="'Courier Prime', monospace" font-size="14.5" letter-spacing="0.3" fill="#9B9B98">1981–2025 Verified: Vilhena (-234.5 mm) · Porto Velho (-14.3% soil) · Ariquemes (+1.82°C) · Svalbard (+3.50°C)</text>
 </svg>
