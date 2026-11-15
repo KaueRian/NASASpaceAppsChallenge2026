@@ -48,13 +48,24 @@ const MODEL_SUPPORTED_THINKING_LEVELS: Record<string, readonly AiThinkingLevel[]
 
 const STAGE_ROUTE_BUDGET_MS: Record<GeminiStage, number> = {
   translate: 11_500,
-  interpret: 25_000,
+  interpret: 27_000,
 };
 
-const STAGE_ATTEMPT_TIMEOUT_MS: Record<GeminiStage, number> = {
-  translate: 5_000,
-  interpret: 6_000,
-};
+function resolveAttemptTimeoutMs(stage: GeminiStage, effectiveLevel: AiThinkingLevel): number {
+  if (stage === "translate") {
+    return 5_000;
+  }
+  switch (effectiveLevel) {
+    case "xhigh":
+    case "high":
+      return 9_500;
+    case "medium":
+      return 6_500;
+    case "low":
+    case "minimal":
+      return 5_000;
+  }
+}
 
 const STAGE_EFFORT_WAVES: Record<GeminiStage, readonly AiThinkingLevel[]> = {
   // Layer 1 prioritizes low latency ("low" -> "minimal" on Flash/Lite).
@@ -397,7 +408,6 @@ export async function callGeminiStructured<T>(opts: {
   }
 
   const waves = resolveEffortWaves(opts.stage, opts.thinkingLevel);
-  const perAttemptCapMs = opts.timeoutMs ?? STAGE_ATTEMPT_TIMEOUT_MS[stage];
   const totalBudgetMs = opts.routeBudgetMs ?? STAGE_ROUTE_BUDGET_MS[stage];
   const deadlineMs = Date.now() + totalBudgetMs;
 
@@ -408,6 +418,7 @@ export async function callGeminiStructured<T>(opts: {
 
   for (let waveIndex = 0; waveIndex < waves.length; waveIndex++) {
     const waveTarget = waves[waveIndex];
+    const hasLowerEffortWave = waveIndex + 1 < waves.length;
 
     for (const candidateModel of healthyCandidates) {
       if (failedInThisRequest.has(candidateModel)) {
@@ -429,6 +440,7 @@ export async function callGeminiStructured<T>(opts: {
         );
       }
 
+      const perAttemptCapMs = opts.timeoutMs ?? resolveAttemptTimeoutMs(stage, effectiveLevel);
       attemptsExecuted += 1;
       const attempt = await callSingleGeminiModel<T>({
         apiKey: opts.apiKey,
@@ -459,6 +471,17 @@ export async function callGeminiStructured<T>(opts: {
       lastError = attempt.error;
       if (!attempt.retryable) {
         throw attempt.error;
+      }
+
+      if (
+        attempt.error.code === "AI_TIMEOUT" &&
+        hasLowerEffortWave &&
+        (effectiveLevel === "xhigh" || effectiveLevel === "high" || effectiveLevel === "medium")
+      ) {
+        // High/medium reasoning can exceed the wave latency cap while the model itself remains
+        // responsive at lower effort—preserve it for faster waves without D1 cooldown poisoning
+        // and immediately step down effort instead of repeating slow timeouts.
+        break;
       }
 
       if (attempt.cooldownReason) {

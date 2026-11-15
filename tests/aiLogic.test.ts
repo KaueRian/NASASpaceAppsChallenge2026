@@ -406,4 +406,46 @@ describe("AI domain schemas, validation & Gemini payload rules (TDD)", () => {
     // Two attempts x 6,000ms = 12,000ms exceeds 11,500ms budget -> stops after 2 calls instead of burning all 8 candidates.
     expect(slowFetch).toHaveBeenCalledTimes(2);
   });
+
+  it("steps down Layer 3 thinking effort immediately on high/medium timeout without poisoning model cooldowns", async () => {
+    const abortErr = new Error("The operation was aborted.");
+    abortErr.name = "AbortError";
+
+    const stepDownFetch = vi
+      .fn()
+      .mockRejectedValueOnce(abortErr)
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                finishReason: "STOP",
+                content: { parts: [{ text: JSON.stringify({ ok: true }) }] },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    vi.stubGlobal("fetch", stepDownFetch);
+
+    const cooldownSpy = vi.fn();
+    const res = await callGeminiStructured<{ ok: boolean }>({
+      apiKey: "test-key",
+      model: "auto",
+      stage: "interpret",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: INTERPRETATION_JSON_SCHEMA,
+      onModelFailure: cooldownSpy,
+    });
+
+    expect(res.parsed).toEqual({ ok: true });
+    expect(res.model).toBe("gemini-4-hydrogen");
+    expect(res.thinkingLevel).toBe("low");
+    expect(res.fallbackUsed).toBe(true);
+    expect(stepDownFetch).toHaveBeenCalledTimes(3);
+    expect(cooldownSpy).not.toHaveBeenCalled();
+  });
 });
