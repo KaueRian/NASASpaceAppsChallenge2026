@@ -3,6 +3,15 @@
   "name": "nasaspaceappschallenge2026",
   "main": "src/worker/index.ts",
   "compatibility_date": "2025-10-01",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "geotrend.earth",
+      "custom_domain": true,
+      "previews_enabled": false
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
