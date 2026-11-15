@@ -9,6 +9,8 @@ import type {
 
 export type AiLocale = "en" | "pt";
 
+export type AiThinkingLevel = "minimal" | "low" | "medium" | "high" | "xhigh";
+
 export const AI_UNIT_IDS: readonly VariableUnit[] = ["C", "mm", "pct"] as const;
 export const AI_VERDICT_LEVELS: readonly VerdictLevel[] = [
   "STRONG_EVIDENCE",
@@ -82,6 +84,8 @@ export interface AiTranslateResult {
   initialHypothesis: string;
   filters: AiTranslatedFilters;
   model: string;
+  thinkingLevel?: AiThinkingLevel;
+  fallbackUsed?: boolean;
   cached: boolean;
 }
 
@@ -132,6 +136,8 @@ export interface AiInterpretResult {
   causalityWarning: string;
   followUpQuestions: string[];
   model: string;
+  thinkingLevel?: AiThinkingLevel;
+  fallbackUsed?: boolean;
   cached: boolean;
 }
 
