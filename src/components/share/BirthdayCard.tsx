@@ -56,9 +56,7 @@ export function BirthdayCard({
       style={{ color: CREAM, minHeight: 420 }}
     >
       <header>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70">
-          EarthTrend Detective
-        </p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70">GeoTrend</p>
         <p className="mt-2 font-display text-lg font-extrabold uppercase leading-snug tracking-tight">
           {tagline}
         </p>
@@ -127,7 +125,7 @@ function renderBirthdayCardCanvas(
 
   ctx.globalAlpha = 0.7;
   ctx.font = "600 26px monospace";
-  ctx.fillText("EARTHTREND DETECTIVE", 72, 120);
+  ctx.fillText("GEOTREND", 72, 120);
   ctx.globalAlpha = 1;
 
   ctx.font = "bold 46px Georgia, serif";
@@ -226,7 +224,7 @@ export async function shareBirthdayCardPng(
   try {
     await navigator.share({
       files: [file],
-      title: "EarthTrend Detective",
+      title: "GeoTrend",
       text: copy.headlineText,
     });
     return true;

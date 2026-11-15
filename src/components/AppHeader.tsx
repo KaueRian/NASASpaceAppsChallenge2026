@@ -1,4 +1,5 @@
 import { useI18n } from "../i18n/i18n";
+import { BrandLogo } from "./BrandLogo";
 import { LanguageToggle } from "./LanguageToggle";
 import { TemperatureUnitToggle } from "./TemperatureUnitToggle";
 
@@ -25,9 +26,9 @@ export function AppHeader({
         <button
           type="button"
           onClick={onNavigateHome}
-          className="font-display text-base text-text sm:text-lg"
+          className="inline-flex items-center rounded-sm transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
-          {t("nav.wordmark")}
+          <BrandLogo variant="wordmark" tone="dark" label={t("nav.wordmark")} size={24} />
         </button>
 
         <nav className="flex flex-wrap items-center gap-4 font-sans text-sm text-text-muted sm:gap-6">

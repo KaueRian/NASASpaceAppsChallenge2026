@@ -6,6 +6,7 @@ import {
   type TemperatureUnit,
 } from "../../lib/temperatureUnit.ts";
 import type { InvestigationResult } from "../../types/investigation.ts";
+import { BrandLogo, drawBrandMarkOnCanvas } from "../BrandLogo.tsx";
 import { ClimateStripes, getStripeColor } from "./ClimateStripes.tsx";
 
 export type EvidenceCardAspect = "story" | "square";
@@ -102,8 +103,11 @@ export function EvidenceCard({
       }`}
     >
       <header className="border-b border-[#14110F]/20 pb-3">
-        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#5C5346]">
-          <span>{t("share.card.headerLabel")}</span>
+        <div className="flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest text-[#5C5346]">
+          <span className="inline-flex items-center gap-1.5">
+            <BrandLogo variant="mark" tone="paper" size={16} decorative />
+            <span>{t("share.card.headerLabel")}</span>
+          </span>
           <span>
             {stats.startYear}–{stats.endYear}
           </span>
@@ -238,10 +242,11 @@ export function downloadEvidenceCardPng(
   ctx.lineWidth = 8;
   ctx.strokeRect(28, 28, width - 56, height - 56);
 
-  // Header metadata
+  // Header metadata + paper brand seal
+  drawBrandMarkOnCanvas(ctx, { x: 72, y: 74, size: 32, tone: "paper" });
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 26px monospace";
-  ctx.fillText(tr("share.card.pngHeaderLabel"), 72, 100);
+  ctx.fillText(tr("share.card.pngHeaderLabel"), 116, 100);
   ctx.fillText(`${result.stats.startYear}-${result.stats.endYear}`, width - 220, 100);
 
   // Location title
