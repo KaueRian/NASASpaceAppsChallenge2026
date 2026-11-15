@@ -165,21 +165,12 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
           </button>
           <button
             type="button"
-            onClick={() => setAspect("paper")}
+            onClick={() => setAspect("figure")}
             className={`rounded px-3 py-1 ${
-              aspect === "paper" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
+              aspect === "figure" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
             }`}
           >
-            {t("share.aspectPaper")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setAspect("slide")}
-            className={`rounded px-3 py-1 ${
-              aspect === "slide" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
-            }`}
-          >
-            {t("share.aspectSlide")}
+            {t("share.aspectFigure")}
           </button>
         </div>
 

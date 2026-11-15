@@ -2,14 +2,20 @@ import { type Locale, translateForLocale, useResolvedI18n } from "../../i18n/i18
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import {
   convertDeltaValue,
+  convertInvestigationResultForDisplay,
+  getDisplayUnitLabel,
   getEvidenceUnitSuffix,
   type TemperatureUnit,
 } from "../../lib/temperatureUnit.ts";
-import type { InvestigationResult } from "../../types/investigation.ts";
+import type { InvestigationResult, SeriesPoint, TrendStats } from "../../types/investigation.ts";
 import { BrandLogo, drawBrandMarkOnCanvas } from "../BrandLogo.tsx";
 import { ClimateStripes, getStripeColor } from "./ClimateStripes.tsx";
 
-export type EvidenceCardAspect = "story" | "square" | "paper" | "slide";
+export type EvidenceCardAspect = "story" | "square" | "figure";
+
+/** Reused by canvas text drawing to approximate `--color-accent` from index.css
+ * (canvas fillStyle cannot resolve CSS custom properties). */
+const ACCENT_COLOR = "#c1472e";
 
 export interface EvidenceCardProps {
   result: InvestigationResult;
@@ -87,11 +93,8 @@ export function EvidenceCard({
   const contextTempUnit = useOptionalTemperatureUnit();
   const resolvedTempUnit = tempUnit ?? contextTempUnit;
 
-  if (aspect === "paper") {
-    return <PaperArticleCard result={result} locale={resolvedLocale} tempUnit={resolvedTempUnit} />;
-  }
-  if (aspect === "slide") {
-    return <SlideCard result={result} locale={resolvedLocale} tempUnit={resolvedTempUnit} />;
+  if (aspect === "figure") {
+    return <FigureCard result={result} locale={resolvedLocale} tempUnit={resolvedTempUnit} />;
   }
 
   const { location, variable, unit, season, stats, series, source } = result;
@@ -229,157 +232,222 @@ interface SubCardProps {
   tempUnit: TemperatureUnit;
 }
 
-/** Shared provenance rows for the Paper/Article and Slide figures: Sen's Slope (95% CI),
- * Mann-Kendall S/Z/p, n years, OLS R² (when available), and coordinates. */
-/** Shared provenance rows for the Paper/Article and Slide figures (JSX and canvas export alike):
- * Sen's Slope (95% CI), Mann-Kendall S/Z/p, n years, OLS R² (when available), and coordinates. */
-function buildProvenanceRows(
-  result: InvestigationResult,
-  locale: Locale,
-  tempUnit: TemperatureUnit,
-): Array<[string, string]> {
-  const tr = (key: string, params?: Record<string, string | number>) =>
-    translateForLocale(locale, key, params);
-  const { location, unit, stats } = result;
-  const unitSuffix = getEvidenceUnitSuffix(unit, tempUnit);
-  const ciPart =
-    stats.senSlopeCiLowerPerDecade !== undefined && stats.senSlopeCiUpperPerDecade !== undefined
-      ? ` [${convertDeltaValue(stats.senSlopeCiLowerPerDecade, unit, tempUnit).toFixed(2)}, ${convertDeltaValue(stats.senSlopeCiUpperPerDecade, unit, tempUnit).toFixed(2)}]`
-      : "";
-  const rows: Array<[string, string]> = [
-    [
-      tr("share.card.senSlopeCi"),
-      `${formatSigned(stats.senSlopePerDecade, unit, tempUnit)}${ciPart} ${unitSuffix}/dec`,
-    ],
-    [
-      tr("share.card.mannKendallFull"),
-      `S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue < 0.0001 ? "< 0.0001" : stats.pValue.toFixed(4)}`,
-    ],
-    [tr("share.card.nYearsLabel"), String(stats.nYears)],
-    [tr("share.card.coordinates"), `${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°`],
-  ];
-  if (stats.rSquared !== undefined) {
-    rows.splice(2, 0, [tr("share.card.olsR2"), stats.rSquared.toFixed(3)]);
-  }
-  return rows;
+interface FigureGridLine {
+  y: number;
+  label: string;
+  isZero?: boolean;
 }
 
-/** High-contrast "Paper / Article" figure (white/black, 4:3) with full statistical provenance —
- * suitable for pasting directly into a research paper or report figure slot. */
-function PaperArticleCard({ result, locale, tempUnit }: SubCardProps) {
-  const { t } = useResolvedI18n(locale);
-  const { location, variable, season, stats, series, source } = result;
-  const rows = buildProvenanceRows(result, locale, tempUnit);
+interface FigureChartGeometry {
+  width: number;
+  height: number;
+  observed: Array<[number, number]>;
+  trend: Array<[number, number]>;
+  ciBand?: Array<[number, number]>;
+  gridLines: FigureGridLine[];
+  xLabels: { first: { x: number; label: string }; last: { x: number; label: string } };
+}
 
+interface FigureChartDims {
+  width: number;
+  height: number;
+  padLeft: number;
+  padRight: number;
+  padTop: number;
+  padBottom: number;
+}
+
+/**
+ * Builds the plot geometry for the minimalist Figure aspect, shared by the DOM preview and the
+ * canvas PNG export. Handles the edge cases a shared scientific chart must get right:
+ * - never forces the y-axis to start at 0 (would misrepresent a mostly-negative anomaly series);
+ *   draws a labeled zero gridline only when 0 actually falls inside the data range.
+ * - guards a constant/near-constant series against a zero-range divide (`range = max - min || 1`),
+ *   the same guard already used by `TrendChart`'s line mode.
+ * - drops any non-finite point before computing the scale or the polylines, so a gap is simply
+ *   not drawn rather than interpolated across or fabricated.
+ * - renders Sen's-Slope confidence interval as a shaded band (pivoted at the median-index fitted
+ *   point, extrapolated using the per-year CI bounds) only when the CI is actually defined.
+ */
+function buildFigureChartGeometry(
+  series: readonly SeriesPoint[],
+  stats: TrendStats,
+  formatValue: (value: number) => string,
+  dims: FigureChartDims,
+): FigureChartGeometry | null {
+  const { width, height, padLeft, padRight, padTop, padBottom } = dims;
+  const valid = series.filter((p) => Number.isFinite(p.value) && Number.isFinite(p.trendValue));
+  if (valid.length === 0) return null;
+
+  const hasCi =
+    stats.senSlopeCiLowerPerYear !== undefined && stats.senSlopeCiUpperPerYear !== undefined;
+  const pivot = valid[Math.floor((valid.length - 1) / 2)];
+  const ciLowerValues = hasCi
+    ? valid.map(
+        (p) => pivot.trendValue + (stats.senSlopeCiLowerPerYear as number) * (p.year - pivot.year),
+      )
+    : [];
+  const ciUpperValues = hasCi
+    ? valid.map(
+        (p) => pivot.trendValue + (stats.senSlopeCiUpperPerYear as number) * (p.year - pivot.year),
+      )
+    : [];
+
+  const allValues = [
+    ...valid.map((p) => p.value),
+    ...valid.map((p) => p.trendValue),
+    ...ciLowerValues,
+    ...ciUpperValues,
+  ];
+  const min = Math.min(...allValues);
+  const max = Math.max(...allValues);
+  const range = max - min || 1;
+
+  const plotWidth = width - padLeft - padRight;
+  const plotHeight = height - padTop - padBottom;
+  const xStep = plotWidth / Math.max(valid.length - 1, 1);
+  const xAt = (index: number) => padLeft + index * xStep;
+  const yAt = (value: number) => padTop + plotHeight - ((value - min) / range) * plotHeight;
+
+  const observed: Array<[number, number]> = valid.map((p, i) => [xAt(i), yAt(p.value)]);
+  const trend: Array<[number, number]> = valid.map((p, i) => [xAt(i), yAt(p.trendValue)]);
+  const ciBand: Array<[number, number]> | undefined = hasCi
+    ? [
+        ...valid.map((_p, i): [number, number] => [xAt(i), yAt(ciUpperValues[i])]),
+        ...valid.map((_p, i): [number, number] => [xAt(i), yAt(ciLowerValues[i])]).reverse(),
+      ]
+    : undefined;
+
+  const mid = (min + max) / 2;
+  const gridLines: FigureGridLine[] = [min, mid, max].map((value) => ({
+    y: yAt(value),
+    label: formatValue(value),
+  }));
+  if (min < 0 && max > 0) {
+    const zeroY = yAt(0);
+    if (!gridLines.some((g) => Math.abs(g.y - zeroY) < 14)) {
+      gridLines.push({ y: zeroY, label: formatValue(0), isZero: true });
+    }
+  }
+
+  return {
+    width,
+    height,
+    observed,
+    trend,
+    ciBand,
+    gridLines,
+    xLabels: {
+      first: { x: xAt(0), label: valid[0].label },
+      last: { x: xAt(valid.length - 1), label: valid[valid.length - 1].label },
+    },
+  };
+}
+
+const toPolylinePoints = (points: Array<[number, number]>) =>
+  points.map(([x, y]) => `${x},${y}`).join(" ");
+
+/** Static (non-interactive) line chart for the Figure aspect, adapted from `TrendChart`'s "line"
+ * mode geometry but restyled for a plain-white, OWID/Datawrapper-style scientific figure. */
+function FigureChart({ geometry }: { geometry: FigureChartGeometry }) {
+  const { width, height, observed, trend, ciBand, gridLines, xLabels } = geometry;
   return (
-    <article className="flex aspect-[4/3] w-full max-w-[520px] flex-col justify-between border-2 border-black bg-white p-6 text-black">
-      <header className="border-b border-black/30 pb-2">
-        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-black/60">
-          <span>
-            {t("share.card.figureLabel")} — {source.provider}
-          </span>
-          <span>
-            {stats.startYear}–{stats.endYear}
-          </span>
-        </div>
-        <h3 className="mt-1 font-serif text-lg font-bold leading-snug">
-          {location.label} — {t(`variables.${variable}.label`)} ({variable},{" "}
-          {t(`seasons.${season}`)})
-        </h3>
-      </header>
-
-      <div className="my-3 grid grid-cols-[1.1fr_1fr] gap-4">
-        <ClimateStripes
-          series={series}
-          variable={variable}
-          unit={result.unit}
-          locale={locale}
-          tempUnit={tempUnit}
-          height={120}
-          tone="light"
-        />
-        <dl className="space-y-1.5 font-mono text-[10px] leading-snug">
-          {rows.map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-2 border-b border-black/10 pb-1">
-              <dt className="text-black/60">{label}</dt>
-              <dd className="font-bold">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <footer className="border-t border-black/30 pt-2 font-mono text-[9px] leading-snug text-black/70">
-        <p className="font-bold uppercase tracking-wide text-black/50">
-          {t("share.card.caveatLabel")}
-        </p>
-        <p>{t("verdict.causationNote")}</p>
-      </footer>
-    </article>
+    <svg viewBox={`0 0 ${width} ${height}`} className="my-2 w-full" role="img" aria-hidden="true">
+      {gridLines.map((g) => (
+        <g key={`${g.y}-${g.label}`}>
+          <line
+            x1={0}
+            x2={width}
+            y1={g.y}
+            y2={g.y}
+            stroke={g.isZero ? "#9CA3AF" : "#E5E7EB"}
+            strokeWidth={1}
+            strokeDasharray={g.isZero ? "2 3" : undefined}
+          />
+          <text x={2} y={Math.max(9, g.y - 3)} style={{ fontSize: 9, fill: "#9CA3AF" }}>
+            {g.label}
+          </text>
+        </g>
+      ))}
+      {ciBand && (
+        <polygon points={toPolylinePoints(ciBand)} fill="var(--color-accent)" opacity={0.12} />
+      )}
+      <polyline
+        points={toPolylinePoints(trend)}
+        fill="none"
+        stroke="var(--color-accent)"
+        strokeWidth={1.5}
+        strokeDasharray="4 3"
+      />
+      <polyline points={toPolylinePoints(observed)} fill="none" stroke="#111827" strokeWidth={2} />
+      <text x={xLabels.first.x} y={height - 4} style={{ fontSize: 9, fill: "#9CA3AF" }}>
+        {xLabels.first.label}
+      </text>
+      <text
+        x={xLabels.last.x}
+        y={height - 4}
+        textAnchor="end"
+        style={{ fontSize: 9, fill: "#9CA3AF" }}
+      >
+        {xLabels.last.label}
+      </text>
+    </svg>
   );
 }
 
-/** Dark, 16:9 "Slide" figure for dropping straight into a presentation deck: giant stat + chart
- * on the left, full provenance list on the right, source/caveat footer. */
-function SlideCard({ result, locale, tempUnit }: SubCardProps) {
-  const { t } = useResolvedI18n(locale);
-  const { location, variable, season, unit, stats, series, source } = result;
-  const rows = buildProvenanceRows(result, locale, tempUnit);
-  const stampColor =
-    stats.verdict === "STRONG_EVIDENCE"
-      ? "#C83E2B"
-      : stats.verdict === "EVIDENCE_CONFIRMED"
-        ? "#D4A84F"
-        : "#9B9B98";
+/** Minimalist, OWID/Datawrapper-style scientific figure: plain white background, a plain
+ * line+trend chart, a clearly separated provenance line (period/variable/location/coordinates)
+ * and plain-language summary sentence, and a small, unobtrusive source/brand footer. */
+function FigureCard({ result, locale, tempUnit }: SubCardProps) {
+  const { t, formatNumber } = useResolvedI18n(locale);
+  const display = convertInvestigationResultForDisplay(result, tempUnit);
+  const { location, variable, season, stats, series, source } = display;
+  const unitSuffix = getDisplayUnitLabel(display.unit, tempUnit);
+  const formatPValue = (p: number) =>
+    p < 0.001 ? "< 0.001" : formatNumber(p, { maximumFractionDigits: 3 });
+  const geometry = buildFigureChartGeometry(
+    series,
+    stats,
+    (value) => formatNumber(value, { maximumFractionDigits: 1 }),
+    { width: 560, height: 220, padLeft: 46, padRight: 12, padTop: 12, padBottom: 26 },
+  );
+
+  const headline = t(`verdict.sentence.${stats.direction}`, {
+    variable: t(`variables.${variable}.label`),
+    season: t(`seasons.${season}`),
+    location: location.label,
+    totalChange: formatNumber(Math.abs(stats.totalChangeOverPeriod), { maximumFractionDigits: 1 }),
+    unit: unitSuffix,
+    startYear: stats.startYear,
+    endYear: stats.endYear,
+    perDecade: formatNumber(Math.abs(stats.senSlopePerDecade), { maximumFractionDigits: 1 }),
+    pValue: formatPValue(stats.pValue),
+  });
 
   return (
-    <article className="flex aspect-video w-full max-w-[720px] flex-col justify-between bg-[#121212] p-6 text-[#EDEDEA]">
-      <header className="flex items-center justify-between border-b border-[#2E2E30] pb-2">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-[#9B9B98]">
-          <BrandLogo variant="mark" tone="dark" size={16} decorative />
-          {location.label} · {t(`variables.${variable}.label`)} ({t(`seasons.${season}`)})
-        </span>
-        <span
-          className="rounded border px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
-          style={{ borderColor: stampColor, color: stampColor }}
-        >
-          {t(`share.card.verdictShort.${stats.verdict}`)}
-        </span>
+    <article className="flex aspect-[3/2] w-full max-w-[640px] flex-col justify-between bg-white p-6 text-[#111827]">
+      <header>
+        <h3 className="font-sans text-lg font-semibold leading-snug">
+          {location.label} — {t(`variables.${variable}.label`)} ({t(`seasons.${season}`)})
+        </h3>
+        <p className="mt-0.5 font-sans text-[11px] text-[#6B7280]">
+          {stats.startYear}–{stats.endYear} (n={stats.nYears}) · {location.lat.toFixed(2)}°,{" "}
+          {location.lon.toFixed(2)}° · {variable}
+        </p>
+        <p className="mt-2 font-sans text-sm leading-snug text-[#374151]">{headline}</p>
       </header>
 
-      <div className="my-2 grid flex-1 grid-cols-[1.2fr_1fr] gap-5">
-        <div className="flex flex-col justify-center">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-[#9B9B98]">
-            {t("share.card.totalShiftPng", { nYears: stats.nYears })}
-          </span>
-          <span className="font-display text-5xl font-extrabold tracking-tight">
-            {formatSigned(stats.totalChangeOverPeriod, unit, tempUnit)}
-          </span>
-          <div className="mt-3">
-            <ClimateStripes
-              series={series}
-              variable={variable}
-              unit={unit}
-              locale={locale}
-              tempUnit={tempUnit}
-              height={56}
-              tone="dark"
-            />
-          </div>
-        </div>
-        <dl className="space-y-1.5 self-center font-mono text-[10px] leading-snug">
-          {rows.map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-2 border-b border-[#2E2E30] pb-1">
-              <dt className="text-[#9B9B98]">{label}</dt>
-              <dd className="font-bold">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+      {geometry && <FigureChart geometry={geometry} />}
 
-      <footer className="border-t border-[#2E2E30] pt-2 font-mono text-[9px] leading-snug text-[#9B9B98]">
-        <p>
-          {t("share.card.sourcePrefix")} {source.provider}
-        </p>
+      <footer className="flex items-end justify-between gap-3 font-sans text-[9px] leading-snug text-[#9CA3AF]">
+        <div>
+          <p>
+            {t("share.card.sourcePrefix")} {source.provider} · {t("share.card.retrievedPrefix")}{" "}
+            {source.retrievedAt}
+          </p>
+          <p className="mt-0.5 italic">{t("verdict.causationNote")}</p>
+        </div>
+        <BrandLogo variant="mark" tone="paper" size={14} decorative />
       </footer>
     </article>
   );
@@ -395,12 +463,8 @@ export function downloadEvidenceCardPng(
   tempUnit: TemperatureUnit = "C",
   locale: Locale = "en",
 ): void {
-  if (aspect === "paper") {
-    drawPaperArticlePng(result, tempUnit, locale);
-    return;
-  }
-  if (aspect === "slide") {
-    drawSlidePng(result, tempUnit, locale);
+  if (aspect === "figure") {
+    drawFigurePng(result, tempUnit, locale);
     return;
   }
 
@@ -597,16 +661,88 @@ function wrapCanvasText(
   if (line) ctx.fillText(line, x, cursorY);
 }
 
-/** Draws the high-contrast "Paper / Article" figure (white/black, 4:3) to canvas and downloads it. */
-function drawPaperArticlePng(
+function drawFigureChartGeometry(
+  ctx: CanvasRenderingContext2D,
+  geometry: FigureChartGeometry,
+  chartLeft: number,
+  chartTop: number,
+): void {
+  ctx.save();
+  ctx.translate(chartLeft, chartTop);
+
+  ctx.font = "400 20px Arial, Helvetica, sans-serif";
+  ctx.textAlign = "left";
+  for (const g of geometry.gridLines) {
+    ctx.strokeStyle = g.isZero ? "#9CA3AF" : "#E5E7EB";
+    ctx.lineWidth = 1;
+    ctx.setLineDash(g.isZero ? [4, 4] : []);
+    ctx.beginPath();
+    ctx.moveTo(0, g.y);
+    ctx.lineTo(geometry.width, g.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#9CA3AF";
+    ctx.fillText(g.label, 0, Math.max(14, g.y - 6));
+  }
+
+  if (geometry.ciBand) {
+    ctx.fillStyle = "rgba(193, 71, 46, 0.12)";
+    ctx.beginPath();
+    geometry.ciBand.forEach(([x, y], i) => {
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = ACCENT_COLOR;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  geometry.trend.forEach(([x, y], i) => {
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = "#111827";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  geometry.observed.forEach(([x, y], i) => {
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle = "#9CA3AF";
+  ctx.font = "400 20px Arial, Helvetica, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(geometry.xLabels.first.label, geometry.xLabels.first.x, geometry.height - 4);
+  ctx.textAlign = "right";
+  ctx.fillText(geometry.xLabels.last.label, geometry.xLabels.last.x, geometry.height - 4);
+  ctx.textAlign = "left";
+
+  ctx.restore();
+}
+
+/** Draws the minimalist Figure aspect (plain white background, line+trend chart, clearly
+ * separated provenance line + plain-language summary, small source/brand footer) to canvas and
+ * downloads it. Shares its design 1:1 with `FigureCard`'s DOM preview. */
+function drawFigurePng(
   result: InvestigationResult,
   tempUnit: TemperatureUnit,
   locale: Locale,
 ): void {
   const tr = (key: string, params?: Record<string, string | number>) =>
     translateForLocale(locale, key, params);
-  const width = 1600;
-  const height = 1200;
+  const display = convertInvestigationResultForDisplay(result, tempUnit);
+  const { location, variable, season, stats, series, source } = display;
+  const unitSuffix = getDisplayUnitLabel(display.unit, tempUnit);
+
+  const width = 1500;
+  const height = 1000;
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -615,165 +751,69 @@ function drawPaperArticlePng(
 
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 6;
-  ctx.strokeRect(24, 24, width - 48, height - 48);
 
-  ctx.fillStyle = "rgba(0,0,0,0.6)";
-  ctx.font = "600 22px monospace";
-  ctx.fillText(`${tr("share.card.figureLabel")} — ${result.source.provider}`, 60, 90);
-  ctx.textAlign = "right";
-  ctx.fillText(`${result.stats.startYear}-${result.stats.endYear}`, width - 60, 90);
-  ctx.textAlign = "left";
-
-  ctx.fillStyle = "#000000";
-  ctx.font = "bold 34px Georgia, serif";
-  const title = `${result.location.label} — ${tr(`variables.${result.variable}.label`)} (${result.variable}, ${tr(`seasons.${result.season}`)})`;
-  ctx.fillText(title, 60, 150, width - 120);
-
-  ctx.strokeStyle = "rgba(0,0,0,0.3)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(60, 180);
-  ctx.lineTo(width - 60, 180);
-  ctx.stroke();
-
-  const chartLeft = 60;
-  const chartTop = 230;
-  const chartWidth = Math.round(width * 0.55);
-  const chartHeight = 420;
-  const barW = chartWidth / Math.max(1, result.series.length);
-  result.series.forEach((pt, idx) => {
-    ctx.fillStyle = getStripeColor(pt.zScore, result.variable);
-    ctx.fillRect(chartLeft + idx * barW, chartTop, Math.ceil(barW), chartHeight);
-  });
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(chartLeft, chartTop, chartWidth, chartHeight);
-
-  const rows = buildProvenanceRows(result, locale, tempUnit);
-  const statsLeft = chartLeft + chartWidth + 50;
-  const statsWidth = width - statsLeft - 60;
-  let y = chartTop + 10;
-  for (const [label, value] of rows) {
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.font = "600 18px monospace";
-    ctx.fillText(label, statsLeft, y, statsWidth);
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 24px monospace";
-    ctx.fillText(value, statsLeft, y + 30, statsWidth);
-    ctx.strokeStyle = "rgba(0,0,0,0.15)";
-    ctx.beginPath();
-    ctx.moveTo(statsLeft, y + 46);
-    ctx.lineTo(statsLeft + statsWidth, y + 46);
-    ctx.stroke();
-    y += 72;
-  }
-
-  const caveatTop = chartTop + chartHeight + 60;
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  ctx.font = "600 16px monospace";
-  ctx.fillText(tr("share.card.caveatLabel"), 60, caveatTop);
-  ctx.fillStyle = "#000000";
-  ctx.font = "400 18px Georgia, serif";
-  wrapCanvasText(ctx, tr("verdict.causationNote"), 60, caveatTop + 32, width - 120, 26);
-
-  triggerPngDownload(canvas, result, "paper");
-}
-
-/** Draws the dark 16:9 "Slide" figure (for presentation decks) to canvas and downloads it. */
-function drawSlidePng(
-  result: InvestigationResult,
-  tempUnit: TemperatureUnit,
-  locale: Locale,
-): void {
-  const tr = (key: string, params?: Record<string, string | number>) =>
-    translateForLocale(locale, key, params);
-  const width = 1920;
-  const height = 1080;
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  ctx.fillStyle = "#121212";
-  ctx.fillRect(0, 0, width, height);
-
-  drawBrandMarkOnCanvas(ctx, { x: 60, y: 54, size: 28, tone: "dark" });
-  ctx.fillStyle = "#9B9B98";
-  ctx.font = "600 22px monospace";
+  ctx.fillStyle = "#111827";
+  ctx.font = "600 38px Arial, Helvetica, sans-serif";
   ctx.fillText(
-    `${result.location.label} · ${tr(`variables.${result.variable}.label`)} (${tr(`seasons.${result.season}`)})`,
-    104,
-    76,
-    width - 400,
+    `${location.label} — ${tr(`variables.${variable}.label`)} (${tr(`seasons.${season}`)})`,
+    70,
+    90,
+    width - 140,
   );
 
-  const stampColor =
-    result.stats.verdict === "STRONG_EVIDENCE"
-      ? "#C83E2B"
-      : result.stats.verdict === "EVIDENCE_CONFIRMED"
-        ? "#D4A84F"
-        : "#9B9B98";
-  const verdictLabel = tr(`share.card.verdictShort.${result.stats.verdict}`);
-  ctx.font = "bold 22px monospace";
-  const stampWidth = Math.ceil(ctx.measureText(verdictLabel).width) + 40;
-  ctx.strokeStyle = stampColor;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(width - 60 - stampWidth, 48, stampWidth, 44);
-  ctx.fillStyle = stampColor;
-  ctx.fillText(verdictLabel, width - 60 - stampWidth + 20, 76);
+  ctx.fillStyle = "#6B7280";
+  ctx.font = "400 22px Arial, Helvetica, sans-serif";
+  ctx.fillText(
+    `${stats.startYear}–${stats.endYear} (n=${stats.nYears}) · ${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}° · ${variable}`,
+    70,
+    130,
+    width - 140,
+  );
 
-  ctx.strokeStyle = "#2E2E30";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(60, 112);
-  ctx.lineTo(width - 60, 112);
-  ctx.stroke();
-
-  ctx.fillStyle = "#9B9B98";
-  ctx.font = "600 24px monospace";
-  ctx.fillText(tr("share.card.totalShiftPng", { nYears: result.stats.nYears }), 60, 200);
-  ctx.fillStyle = "#EDEDEA";
-  ctx.font = "bold 108px Georgia, serif";
-  ctx.fillText(formatSigned(result.stats.totalChangeOverPeriod, result.unit, tempUnit), 60, 320);
-
-  const stripeLeft = 60;
-  const stripeTop = 400;
-  const stripeWidth = Math.round(width * 0.5);
-  const stripeHeight = 160;
-  const barW = stripeWidth / Math.max(1, result.series.length);
-  result.series.forEach((pt, idx) => {
-    ctx.fillStyle = getStripeColor(pt.zScore, result.variable);
-    ctx.fillRect(stripeLeft + idx * barW, stripeTop, Math.ceil(barW), stripeHeight);
+  const headline = tr(`verdict.sentence.${stats.direction}`, {
+    variable: tr(`variables.${variable}.label`),
+    season: tr(`seasons.${season}`),
+    location: location.label,
+    totalChange: Math.abs(stats.totalChangeOverPeriod).toFixed(1),
+    unit: unitSuffix,
+    startYear: stats.startYear,
+    endYear: stats.endYear,
+    perDecade: Math.abs(stats.senSlopePerDecade).toFixed(1),
+    pValue: stats.pValue < 0.001 ? "< 0.001" : stats.pValue.toFixed(3),
   });
-  ctx.strokeStyle = "#2E2E30";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(stripeLeft, stripeTop, stripeWidth, stripeHeight);
+  ctx.fillStyle = "#374151";
+  ctx.font = "400 26px Arial, Helvetica, sans-serif";
+  wrapCanvasText(ctx, headline, 70, 174, width - 140, 34);
 
-  const rows = buildProvenanceRows(result, locale, tempUnit);
-  const statsLeft = stripeLeft + stripeWidth + 80;
-  const statsWidth = width - statsLeft - 60;
-  let y = 220;
-  for (const [label, value] of rows) {
-    ctx.fillStyle = "#9B9B98";
-    ctx.font = "600 18px monospace";
-    ctx.fillText(label, statsLeft, y, statsWidth);
-    ctx.fillStyle = "#EDEDEA";
-    ctx.font = "bold 26px monospace";
-    ctx.fillText(value, statsLeft, y + 32, statsWidth);
-    ctx.strokeStyle = "#2E2E30";
-    ctx.beginPath();
-    ctx.moveTo(statsLeft, y + 48);
-    ctx.lineTo(statsLeft + statsWidth, y + 48);
-    ctx.stroke();
-    y += 76;
+  const chartLeft = 70;
+  const chartTop = 260;
+  const chartWidth = width - 140;
+  const chartHeight = 560;
+  const geometry = buildFigureChartGeometry(series, stats, (v) => v.toFixed(1), {
+    width: chartWidth,
+    height: chartHeight,
+    padLeft: 80,
+    padRight: 20,
+    padTop: 10,
+    padBottom: 40,
+  });
+  if (geometry) {
+    drawFigureChartGeometry(ctx, geometry, chartLeft, chartTop);
   }
 
-  ctx.fillStyle = "#9B9B98";
-  ctx.font = "600 20px monospace";
-  ctx.fillText(`${tr("share.card.sourcePrefix")} ${result.source.provider}`, 60, height - 50);
+  const footerTop = chartTop + chartHeight + 60;
+  ctx.fillStyle = "#9CA3AF";
+  ctx.font = "400 20px Arial, Helvetica, sans-serif";
+  ctx.fillText(
+    `${tr("share.card.sourcePrefix")} ${source.provider} · ${tr("share.card.retrievedPrefix")} ${source.retrievedAt}`,
+    70,
+    footerTop,
+    width - 180,
+  );
+  ctx.font = "italic 18px Arial, Helvetica, sans-serif";
+  wrapCanvasText(ctx, tr("verdict.causationNote"), 70, footerTop + 32, width - 220, 24);
 
-  triggerPngDownload(canvas, result, "slide");
+  drawBrandMarkOnCanvas(ctx, { x: width - 70, y: height - 60, size: 26, tone: "paper" });
+
+  triggerPngDownload(canvas, result, "figure");
 }
