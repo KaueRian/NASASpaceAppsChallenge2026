@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { type Locale, useResolvedI18n } from "../../i18n/i18n.tsx";
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
-import { buildCitationText, downloadDossierCsv } from "../../lib/export/dossierExport.ts";
+import {
+  type AcademicCitationFormat,
+  buildAcademicCitation,
+  buildCitationText,
+  downloadDossierCsv,
+} from "../../lib/export/dossierExport.ts";
 import type { TemperatureUnit } from "../../lib/temperatureUnit.ts";
 import type { InvestigationResult, SavedDossier } from "../../types/investigation.ts";
 import { downloadEvidenceCardPng, EvidenceCard, type EvidenceCardAspect } from "./EvidenceCard.tsx";
@@ -37,6 +42,9 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
   const [copied, setCopied] = useState(false);
   const [copiedCitation, setCopiedCitation] = useState(false);
   const [savingLink, setSavingLink] = useState(false);
+  const [copiedAcademicFormat, setCopiedAcademicFormat] = useState<AcademicCitationFormat | null>(
+    null,
+  );
 
   async function handleCopyLink() {
     setSavingLink(true);
@@ -80,6 +88,15 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
       await navigator.clipboard.writeText(text);
       setCopiedCitation(true);
       setTimeout(() => setCopiedCitation(false), 2500);
+    }
+  }
+
+  async function handleCopyAcademicCitation(format: AcademicCitationFormat) {
+    const text = buildAcademicCitation(result, format, resolvedLocale, resolvedTempUnit, shareUrl);
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      setCopiedAcademicFormat(format);
+      setTimeout(() => setCopiedAcademicFormat(null), 2500);
     }
   }
 
@@ -146,6 +163,24 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
           >
             {t("share.aspectSquare")}
           </button>
+          <button
+            type="button"
+            onClick={() => setAspect("paper")}
+            className={`rounded px-3 py-1 ${
+              aspect === "paper" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
+            }`}
+          >
+            {t("share.aspectPaper")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setAspect("slide")}
+            className={`rounded px-3 py-1 ${
+              aspect === "slide" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
+            }`}
+          >
+            {t("share.aspectSlide")}
+          </button>
         </div>
 
         <div className="flex flex-wrap gap-2 font-mono text-xs">
@@ -194,6 +229,37 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
             </button>
           )}
         </div>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2 border-t border-[#2E2E30] pt-3 font-mono text-xs">
+        <span className="text-[#9B9B98]">{t("share.academic.sectionTitle")}:</span>
+        <button
+          type="button"
+          onClick={() => handleCopyAcademicCitation("bibtex")}
+          className="rounded border border-[#2E2E30] bg-[#121212] px-3 py-1 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
+        >
+          {copiedAcademicFormat === "bibtex"
+            ? t("share.academic.copied")
+            : t("share.academic.copyBibtex")}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleCopyAcademicCitation("abnt")}
+          className="rounded border border-[#2E2E30] bg-[#121212] px-3 py-1 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
+        >
+          {copiedAcademicFormat === "abnt"
+            ? t("share.academic.copied")
+            : t("share.academic.copyAbnt")}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleCopyAcademicCitation("apa")}
+          className="rounded border border-[#2E2E30] bg-[#121212] px-3 py-1 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
+        >
+          {copiedAcademicFormat === "apa"
+            ? t("share.academic.copied")
+            : t("share.academic.copyApa")}
+        </button>
       </div>
 
       <div className="flex justify-center overflow-x-auto py-2">

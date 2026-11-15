@@ -125,3 +125,83 @@ export function buildCitationText(
     `Source: ${source.provider} (${source.resolution}), retrieved ${source.retrievedAt}.`
   );
 }
+
+export type AcademicCitationFormat = "bibtex" | "abnt" | "apa";
+
+/** Strips accents/diacritics and non-alphanumerics for a safe BibTeX citation key segment. */
+function slugifyForCitationKey(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+/**
+ * Generates a ready-to-copy academic reference for the investigation in BibTeX, ABNT (NBR 6023),
+ * or APA (7th ed.) format — for researchers/students citing a GeoTrend result in a paper or
+ * report. `url` is the shareable deep link (or saved dossier link) for this result, if available.
+ */
+export function buildAcademicCitation(
+  result: InvestigationResult,
+  format: AcademicCitationFormat,
+  locale: Locale = "en",
+  tempUnit: TemperatureUnit = "C",
+  url?: string,
+): string {
+  const displayResult = convertInvestigationResultForDisplay(result, tempUnit);
+  const { location, variable, season, stats, source } = displayResult;
+  const unitDisplay = getDisplayUnitLabel(displayResult.unit, tempUnit);
+  const decSign = stats.senSlopePerDecade > 0 ? "+" : "";
+  const variableLabel = `${translateForLocale(locale, `variables.${variable}.label`)} (${variable})`;
+  const seasonLabel = translateForLocale(locale, `seasons.${season}`);
+  const period = `${stats.startYear}–${stats.endYear}`;
+  const accessDate = source.retrievedAt;
+
+  const title =
+    locale === "pt"
+      ? `${location.label} — ${variableLabel} (${seasonLabel}): análise de tendência NASA POWER, ${period} (${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/década)`
+      : `${location.label} — ${variableLabel} (${seasonLabel}): NASA POWER trend analysis, ${period} (${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/decade)`;
+
+  if (format === "bibtex") {
+    const key = `geotrend_${slugifyForCitationKey(location.label)}_${variable.toLowerCase()}_${stats.endYear}`;
+    const note =
+      locale === "pt"
+        ? `Acessado em ${accessDate}. Fonte de dados: ${source.provider} (${source.resolution}).`
+        : `Accessed ${accessDate}. Data source: ${source.provider} (${source.resolution}).`;
+    const lines = [
+      `@misc{${key},`,
+      `  author = {GeoTrend},`,
+      `  title = {{${title}}},`,
+      `  year = {${stats.endYear}},`,
+      url ? `  url = {${url}},` : null,
+      `  note = {${note}}`,
+      `}`,
+    ].filter((line): line is string => line !== null);
+    return lines.join("\n");
+  }
+
+  if (format === "abnt") {
+    const urlPart =
+      url !== undefined
+        ? locale === "pt"
+          ? `Disponível em: ${url}. `
+          : `Available at: ${url}. `
+        : "";
+    return locale === "pt"
+      ? `GEOTREND. ${title}. [S. l.]: GeoTrend, ${stats.endYear}. ${urlPart}Acesso em: ${accessDate}.`
+      : `GEOTREND. ${title}. [S. l.]: GeoTrend, ${stats.endYear}. ${urlPart}Accessed: ${accessDate}.`;
+  }
+
+  // apa
+  const retrievedPart =
+    url !== undefined
+      ? locale === "pt"
+        ? `Recuperado em ${accessDate}, de ${url}`
+        : `Retrieved ${accessDate}, from ${url}`
+      : locale === "pt"
+        ? `Recuperado em ${accessDate}`
+        : `Retrieved ${accessDate}`;
+  return `GeoTrend. (${stats.endYear}). ${title}. ${retrievedPart}`;
+}
