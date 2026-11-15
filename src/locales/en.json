@@ -1,6 +1,6 @@
 {
   "nav": {
-    "wordmark": "EarthTrend Detective",
+    "wordmark": "GeoTrend",
     "investigate": "Investigate",
     "cases": "Cases",
     "methods": "Methods",
@@ -324,7 +324,7 @@
   },
   "methods": {
     "title": "Scientific Methodology & Limitations",
-    "subtitle": "How EarthTrend Detective processes NASA POWER / MERRA-2 records and evaluates statistical significance.",
+    "subtitle": "How GeoTrend processes NASA POWER / MERRA-2 records and evaluates statistical significance.",
     "teaser": "Every result here comes from the same NASA data and the same two statistical tests, explained in full on the",
     "backToHome": "← Back to Investigation",
     "nasaData": {
@@ -359,7 +359,7 @@
       "gridItem": "MERRA-2 Spatial Grid (~50 km): Values represent a ~0.5° × 0.625° regional grid cell, not an isolated farm rain gauge or urban microclimate station.",
       "causationItem": "Correlation vs. Causation: A statistically significant Mann-Kendall p-value proves that a directional shift occurred in the observed series above random noise; it does not isolate whether the driver is global greenhouse forcing, regional deforestation, or decadal ocean oscillations.",
       "regionalItem": "Regional Contrast & Amazon Context: Global climate change does not act uniformly — different regions and seasons can warm or dry at distinct rates. In Rondônia and the Pantanal, pairing NASA POWER climate trends with land-use series (such as MapBiomas) supports environmental education and territorial planning aligned with UN SDGs 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land).",
-      "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. EarthTrend Detective enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
+      "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. GeoTrend enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
     }
   },
   "satellite": {

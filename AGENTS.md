@@ -1,6 +1,6 @@
 # 🤖 AI Agent Operating Guide (`AGENTS.md`)
 
-This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective** software for the **NASA Space Apps Challenge 2026** (`Be An Earth System Trend Detective!` — Vilhena, RO, Brazil).
+This repository (`NASASpaceAppsChallenge2026`) hosts the **GeoTrend** software for the **NASA Space Apps Challenge 2026** (`Be An Earth System Trend Detective!` — Vilhena, RO, Brazil).
 
 ---
 

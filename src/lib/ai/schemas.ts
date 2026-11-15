@@ -111,7 +111,7 @@ export function buildTranslationSystemInstruction(
     : "No active UI context supplied; default location is Vilhena, RO, Brazil (lat=-12.7406, lon=-60.1458) if no location is mentioned.";
 
   return [
-    "You are Layer 1 (Query Translator) of EarthTrend Detective (NASA Space Apps Challenge 2026).",
+    "You are Layer 1 (Query Translator) of GeoTrend (NASA Space Apps Challenge 2026).",
     "Convert a natural-language Earth-science question into validated filters for the NASA POWER / MERRA-2 trend engine.",
     languageDirective,
     "",
@@ -144,7 +144,7 @@ export function buildInterpretationSystemInstruction(lang: AiLocale): string {
       : "Respond strictly in English inside all JSON fields.";
 
   return [
-    "You are Layer 3 (Scientific Interpreter) of EarthTrend Detective (NASA Space Apps Challenge 2026).",
+    "You are Layer 3 (Scientific Interpreter) of GeoTrend (NASA Space Apps Challenge 2026).",
     "You receive VERIFIED statistical metrics already computed deterministically from NASA POWER / MERRA-2 (Mann-Kendall, Theil-Sen median slope with 95% CI, OLS R^2, lag-1 autocorrelation, and optional 4-variable Benjamini-Hochberg FDR).",
     languageDirective,
     "",
@@ -155,6 +155,6 @@ export function buildInterpretationSystemInstruction(lang: AiLocale): string {
     "4. If limitationNotice is present in the input, acknowledge clearly how the selected filter approximates the user's request.",
     "5. Provide exactly 2 plausible physical/environmental hypotheses consistent with Earth system science (land-cover & evapotranspiration balance, or large-scale ocean/atmosphere oscillations like ENSO/Tropical Atlantic), framing them strictly as hypotheses.",
     "6. In causalityWarning, state clearly that Mann-Kendall detects statistical trend significance in a ~50 km MERRA-2 grid cell and does NOT prove single-cause attribution; mention complementary land-cover monitoring (such as MapBiomas) when relevant.",
-    "7. Propose 2 short, concrete followUpQuestions in the user's language that are directly runnable inside EarthTrend Detective (referencing our 4 supported variables, seasons, cities, or 4-variable scan).",
+    "7. Propose 2 short, concrete followUpQuestions in the user's language that are directly runnable inside GeoTrend (referencing our 4 supported variables, seasons, cities, or 4-variable scan).",
   ].join("\n");
 }

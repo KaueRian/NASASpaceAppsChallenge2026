@@ -25,7 +25,7 @@ export function buildDossierCsv(
   const { location, variable, unit, season, stats, series, source } = displayResult;
   const csvUnit = unit === "C" && tempUnit === "F" ? "F" : unit;
   const lines: string[] = [
-    `# EarthTrend Detective — Scientific Series Export`,
+    `# GeoTrend — Scientific Series Export`,
     `# Location: ${location.label} (${location.lat.toFixed(4)}, ${location.lon.toFixed(4)})`,
     `# Variable: ${variable} (${csvUnit}) | Season: ${season}`,
     `# Period: ${stats.startYear}-${stats.endYear} (n=${stats.nYears})`,
@@ -74,7 +74,7 @@ export function downloadDossierCsv(
     .replace(/^-|-$/g, "");
   const a = doc.createElement("a");
   a.href = url;
-  a.download = `earthtrend-${safeName || "case"}-${result.variable.toLowerCase()}-${result.stats.startYear}-${result.stats.endYear}.csv`;
+  a.download = `geotrend-${safeName || "case"}-${result.variable.toLowerCase()}-${result.stats.startYear}-${result.stats.endYear}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -101,7 +101,7 @@ export function buildCitationText(
 
   if (locale === "pt") {
     return (
-      `Análise gerada via EarthTrend Detective para ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
+      `Análise gerada via GeoTrend para ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
       `variável ${variable} (${season}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
       `Teste não-paramétrico de Mann-Kendall: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${stats.verdict}). ` +
       `Estimador de Sen's Slope: ${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/década${ciPart}, mudança total de ${sign}${stats.totalChangeOverPeriod.toFixed(2)} ${unitDisplay} no período. ` +
@@ -111,7 +111,7 @@ export function buildCitationText(
   }
 
   return (
-    `Analysis generated via EarthTrend Detective for ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
+    `Analysis generated via GeoTrend for ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
     `variable ${variable} (${season}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
     `Mann-Kendall non-parametric test: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${stats.verdict}). ` +
     `Sen's Slope estimator: ${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/decade${ciPart}, total shift of ${sign}${stats.totalChangeOverPeriod.toFixed(2)} ${unitDisplay} over the period. ` +

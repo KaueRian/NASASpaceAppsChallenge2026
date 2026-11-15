@@ -18,7 +18,7 @@
    - Use **Conventional Commits** (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
    - Work in small, atomic commits and avoid editing files owned by the other developer without coordination.
    - Never commit secrets (`.env*`), dependencies (`node_modules/`, `.venv/`), or build artifacts.
-5. **Project Context (`EarthTrend Detective`):**
+5. **Project Context (`GeoTrend`):**
    - Challenge: **NASA Space Apps Challenge 2026 — `Be An Earth System Trend Detective!`**
    - Core Engine: Locked MVP dataset **NASA POWER API / MERRA-2** (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT` via `temporal/monthly/point`) + TDD-verified statistical forensics (**Mann-Kendall** & **Sen's Slope**).
    - UI: Bilingual (`EN` / `PT-BR`) with browser auto-detection and a header language toggle.

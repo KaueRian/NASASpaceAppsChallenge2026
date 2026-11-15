@@ -1,7 +1,7 @@
 # 🌐 Official NASA Space Apps Portal Submission Copy (`nasa-portal-copy.md`)
 
 > **Challenge:** `Be An Earth System Trend Detective!`  
-> **Project Title:** `EarthTrend Detective: Forensic Climate Trend Analysis with Statistical Rigor`  
+> **Project Title:** `GeoTrend: Forensic Climate Trend Analysis with Statistical Rigor`  
 > **Language:** English (Required for Global Judging)
 
 ---
@@ -14,7 +14,7 @@ A Dark Editorial climate forensics workbench turning 45 years of NASA POWER/MERR
 
 ## 2. Project Details — What Does It Do?
 
-**EarthTrend Detective** transforms raw, complex Earth observation time series into clear, statistically rigorous forensic case files. Designed around a clean **Dark Editorial Investigative Interface** paired with high-contrast archival shareable Evidence Cards, the platform empowers farmers, educators, students, journalists, and policymakers to investigate whether local environmental shifts are temporary weather noise or **statistically significant long-term trends**.
+**GeoTrend** transforms raw, complex Earth observation time series into clear, statistically rigorous forensic case files. Designed around a clean **Dark Editorial Investigative Interface** paired with high-contrast archival shareable Evidence Cards, the platform empowers farmers, educators, students, journalists, and policymakers to investigate whether local environmental shifts are temporary weather noise or **statistically significant long-term trends**.
 
 For every investigation, the platform answers the four core questions of the **"Be An Earth System Trend Detective!"** challenge:
 1. **What is changing?** Users investigate four essential Earth system variables from NASA POWER / MERRA-2 (`1981–2025`):
@@ -36,7 +36,7 @@ For every investigation, the platform answers the four core questions of the **"
 ## 3. How It Works — Scientific & Software Architecture
 
 ### Addressing the Core Challenge Complexity: Removing Regular Seasonal Cycles
-A major pitfall in Earth science trend detection is running regression across raw monthly values, where regular seasonal cycles (wet vs. dry seasons) create artificial oscillations. **EarthTrend Detective** solves this through **Seasonal Window Stratification**:
+A major pitfall in Earth science trend detection is running regression across raw monthly values, where regular seasonal cycles (wet vs. dry seasons) create artificial oscillations. **GeoTrend** solves this through **Seasonal Window Stratification**:
 - Before any statistical test is executed, raw monthly NASA POWER readings (`YYYYMM`) are filtered for `-999` missing-value sentinels and aggregated into homologous interannual windows: **Annual (`Jan–Dec`)**, **Austral Wet Season (`Oct–Mar`, labeled `2024/25`)**, or **Austral Dry Season (`Apr–Sep`)**.
 - Incomplete seasons are strictly dropped, and a minimum span of **15 complete years** is enforced.
 - Physical units are preserved with exact calendar math: `PRECTOTCORR` daily rates (`mm/day`) are multiplied by exact days in each month (accounting for leap years) and summed into total `mm`; `GWETROOT` (`0–1`) is scaled to `0–100%`.
@@ -67,7 +67,7 @@ A major pitfall in Earth science trend detection is running regression across ra
 
 ## 5. Local & Global Impact (*Missão Amazônia* & UN SDGs)
 
-Developed in **Vilhena, Rondônia** (at the ecological transition between the Brazilian Cerrado and the Amazon Rainforest), **EarthTrend Detective** directly addresses regional sustainability and global climate literacy:
+Developed in **Vilhena, Rondônia** (at the ecological transition between the Brazilian Cerrado and the Amazon Rainforest), **GeoTrend** directly addresses regional sustainability and global climate literacy:
 - **Agricultural & Water-Resource Adaptation (SDG 6 & SDG 13):** Proves quantitatively that Vilhena's dry season (`Apr–Sep`) has lost **234.46 mm** of rainfall since 1981 while annual root-zone soil wetness in Corumbá (Pantanal) fell **5.60 percentage points** and minimum night-time temperature in Ariquemes rose **+1.82 °C**, equipping farmers and civil defense planners with empirical evidence for crop-window and water adaptation.
 - **Ecosystem Conservation & Environmental Education (SDG 15):** Designed for immediate classroom and research adoption, pairing NASA climate forensics with regional land-cover context (*MapBiomas*) and plain-language methodology files.
 

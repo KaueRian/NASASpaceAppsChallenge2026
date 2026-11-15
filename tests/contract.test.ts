@@ -32,6 +32,6 @@ describe("R0 shared contract and API health", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { ok: boolean; service: string };
     expect(body.ok).toBe(true);
-    expect(body.service).toBe("earthtrend-detective");
+    expect(body.service).toBe("geotrend");
   });
 });

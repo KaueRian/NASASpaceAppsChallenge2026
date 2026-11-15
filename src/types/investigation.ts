@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript API & Domain Contract for EarthTrend Detective.
+ * Shared TypeScript API & Domain Contract for GeoTrend.
  * Single source of truth between frontend (`src/`) and backend (`functions/api/`).
  *
  * i18n-first rule: Backend returns structured numeric metrics and enum keys;
