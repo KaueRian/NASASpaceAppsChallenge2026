@@ -3,14 +3,44 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { AiAssistantBar, resolvePipelineStepStates } from "../src/components/AiAssistantBar.tsx";
 import { AiSynthesisPanel } from "../src/components/AiSynthesisPanel.tsx";
+import { AiLayer1TranslationDetails } from "../src/components/Investigation.tsx";
 import { getCasePresetById } from "../src/data/presets/index.ts";
-import { I18nProvider } from "../src/i18n/i18n.tsx";
+import { I18nProvider, type Locale } from "../src/i18n/i18n.tsx";
 import { ClientAiError } from "../src/lib/ai/clientAi.ts";
 import {
   interpretWithLocalFallback,
   isAiOutageError,
   translateQuestionWithLocalFallback,
 } from "../src/lib/ai/fallback.ts";
+import en from "../src/locales/en.json";
+import pt from "../src/locales/pt.json";
+
+function renderWithLocale(locale: Locale, node: ReturnType<typeof createElement>): string {
+  const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  const store = new Map<string, string>([["etd.locale", locale]]);
+  Object.defineProperty(globalThis, "localStorage", {
+    value: {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        store.set(k, v);
+      },
+      removeItem: (k: string) => {
+        store.delete(k);
+      },
+    },
+    configurable: true,
+  });
+
+  try {
+    return renderToStaticMarkup(createElement(I18nProvider, null, node));
+  } finally {
+    if (originalDescriptor) {
+      Object.defineProperty(globalThis, "localStorage", originalDescriptor);
+    } else {
+      Reflect.deleteProperty(globalThis, "localStorage");
+    }
+  }
+}
 
 describe("AI outage resilient fallback mode (TDD)", () => {
   it("detects AI outage and unconfigured errors cleanly while excluding validation and abort errors", () => {
@@ -375,5 +405,119 @@ describe("AI outage resilient fallback mode (TDD)", () => {
     expect(localPanelHtml).toContain("Síntese Estatística Local (sem IA)");
     expect(localPanelHtml).not.toContain("Gemini");
     expect(localPanelHtml).not.toContain("local-statistical-fallback");
+  });
+
+  it("never exposes Gemini, provider names, Model/Modelo labels, or technical model IDs in PT or EN UI", () => {
+    const collectLeafStrings = (obj: unknown): string[] => {
+      if (typeof obj === "string") return [obj];
+      if (typeof obj !== "object" || obj === null) return [];
+      return Object.values(obj as Record<string, unknown>).flatMap(collectLeafStrings);
+    };
+
+    for (const [localeName, aiDict] of [
+      ["pt", pt.ai],
+      ["en", en.ai],
+    ] as const) {
+      for (const value of collectLeafStrings(aiDict)) {
+        expect(value, `${localeName} ai string leaked forbidden term: ${value}`).not.toMatch(
+          /\bgemini\b|\bmodelo\b|\bmodel\b|local-deterministic-fallback|local-statistical-fallback/i,
+        );
+      }
+    }
+
+    expect(pt.ai.eyebrow).toBe("PERGUNTE EM LINGUAGEM NATURAL · NASA POWER + IA");
+    expect(en.ai.eyebrow).toBe("ASK IN PLAIN LANGUAGE · NASA POWER + AI");
+
+    const sampleAiTranslation = {
+      ...translateQuestionWithLocalFallback({
+        question: "Is Vilhena losing rainfall in the dry season?",
+        lang: "en",
+      }),
+      model: "gemini-3.5-flash-lite",
+    };
+
+    const layer1DetailsPt = renderWithLocale(
+      "pt",
+      createElement(AiLayer1TranslationDetails, { translation: sampleAiTranslation }),
+    );
+    expect(layer1DetailsPt).toContain("Camada 1 · Parâmetros estruturados pela IA");
+    expect(layer1DetailsPt).not.toMatch(/gemini|modelo|\bmodel\b/i);
+
+    const layer1DetailsEn = renderWithLocale(
+      "en",
+      createElement(AiLayer1TranslationDetails, { translation: sampleAiTranslation }),
+    );
+    expect(layer1DetailsEn).toContain("Layer 1 · AI Filter Translation (Structured Parameters)");
+    expect(layer1DetailsEn).not.toMatch(/gemini|modelo|\bmodel\b/i);
+
+    const enBarUnconfigured = renderWithLocale(
+      "en",
+      createElement(AiAssistantBar, {
+        question: "Dry season rainfall in Vilhena?",
+        onQuestionChange: () => {},
+        onAskQuestion: () => {},
+        stage: "error",
+        failedStage: "translating",
+        isBusy: false,
+        translation: sampleAiTranslation,
+        errorCode: "AI_NOT_CONFIGURED",
+        hasScanApplied: false,
+        filterSummaryLine: "Vilhena · PRECTOTCORR",
+        advancedOpen: false,
+        onToggleAdvanced: () => {},
+        onOpenAdvancedForRecovery: () => {},
+      }),
+    );
+    expect(enBarUnconfigured).toContain("ASK IN PLAIN LANGUAGE · NASA POWER + AI");
+    expect(enBarUnconfigured).toContain("AI service is not configured on this server yet");
+    expect(enBarUnconfigured).not.toMatch(/gemini|\bmodel\b/i);
+
+    const ptBarUpstream = renderWithLocale(
+      "pt",
+      createElement(AiAssistantBar, {
+        question: "Seca em Vilhena?",
+        onQuestionChange: () => {},
+        onAskQuestion: () => {},
+        stage: "error",
+        failedStage: "interpreting",
+        isBusy: false,
+        translation: sampleAiTranslation,
+        errorCode: "AI_UPSTREAM_ERROR",
+        hasScanApplied: false,
+        filterSummaryLine: "Vilhena · PRECTOTCORR",
+        advancedOpen: false,
+        onToggleAdvanced: () => {},
+        onOpenAdvancedForRecovery: () => {},
+      }),
+    );
+    expect(ptBarUpstream).toContain("PERGUNTE EM LINGUAGEM NATURAL · NASA POWER + IA");
+    expect(ptBarUpstream).toContain("Não foi possível conectar ao serviço de IA agora");
+    expect(ptBarUpstream).not.toMatch(/gemini|modelo|\bmodel\b/i);
+
+    const preset01 = getCasePresetById("01").result;
+    const aiSynth = {
+      ...interpretWithLocalFallback({
+        question: "Is Vilhena drying?",
+        lang: "en",
+        location: preset01.location,
+        variable: preset01.variable,
+        unit: preset01.unit,
+        season: preset01.season,
+        stats: preset01.stats,
+        extremeYears: [],
+      }),
+      model: "gemini-4-hydrogen",
+    };
+
+    const enPanelHtml = renderWithLocale(
+      "en",
+      createElement(AiSynthesisPanel, {
+        interpretation: aiSynth,
+        isInterpreting: false,
+        onSelectFollowUp: () => {},
+      }),
+    );
+    expect(enPanelHtml).toContain(">AI<");
+    expect(enPanelHtml).not.toMatch(/gemini|\bmodel\b/i);
   });
 });

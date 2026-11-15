@@ -82,6 +82,34 @@ function toQuery(preset: CasePreset): InvestigationQuery {
   };
 }
 
+/** Renders Layer 1 AI filter translation rationale inside method disclosure without exposing model IDs. */
+export function AiLayer1TranslationDetails({ translation }: { translation: AiTranslateResult }) {
+  const { t } = useI18n();
+  if (!translation.inScope) return null;
+
+  return (
+    <div className="mt-3 space-y-1 border border-border bg-bg p-3">
+      <p className="font-mono text-[11px] uppercase tracking-wide text-text">
+        {t("ai.layer1DetailsTitle")}
+      </p>
+      {translation.initialHypothesis && (
+        <p className="font-sans text-xs text-text-muted">
+          <strong className="text-text">{t("ai.layer1Hypothesis")}:</strong>{" "}
+          {translation.initialHypothesis}
+        </p>
+      )}
+      {translation.reasoning && (
+        <p className="font-sans text-xs text-text-muted">
+          <strong className="text-text">{t("ai.layer1Reasoning")}:</strong> {translation.reasoning}
+        </p>
+      )}
+      <pre className="mt-2 overflow-x-auto border border-border bg-surface p-2 font-mono text-[11px] text-text-muted">
+        {JSON.stringify(translation.filters, null, 2)}
+      </pre>
+    </div>
+  );
+}
+
 export function Investigation({
   presetId,
   presetNonce = 0,
@@ -873,28 +901,7 @@ export function Investigation({
               <p>{t("investigation.warnings.highAutocorrelation")}</p>
             )}
             <p className="pt-2 text-text-muted">{buildCitationText(result, locale, tempUnit)}</p>
-            {aiTranslation?.inScope && (
-              <div className="mt-3 space-y-1 border border-border bg-bg p-3">
-                <p className="font-mono text-[11px] uppercase tracking-wide text-text">
-                  {t("ai.layer1DetailsTitle")} ({t("ai.layer1Model")}: {aiTranslation.model})
-                </p>
-                {aiTranslation.initialHypothesis && (
-                  <p className="font-sans text-xs text-text-muted">
-                    <strong className="text-text">{t("ai.layer1Hypothesis")}:</strong>{" "}
-                    {aiTranslation.initialHypothesis}
-                  </p>
-                )}
-                {aiTranslation.reasoning && (
-                  <p className="font-sans text-xs text-text-muted">
-                    <strong className="text-text">{t("ai.layer1Reasoning")}:</strong>{" "}
-                    {aiTranslation.reasoning}
-                  </p>
-                )}
-                <pre className="mt-2 overflow-x-auto border border-border bg-surface p-2 font-mono text-[11px] text-text-muted">
-                  {JSON.stringify(aiTranslation.filters, null, 2)}
-                </pre>
-              </div>
-            )}
+            {aiTranslation && <AiLayer1TranslationDetails translation={aiTranslation} />}
             <button
               type="button"
               onClick={onNavigateMethods}

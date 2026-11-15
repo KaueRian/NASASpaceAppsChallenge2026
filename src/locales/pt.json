@@ -442,7 +442,7 @@
     "sharedOpenNew": "Abrir nova investigação →"
   },
   "ai": {
-    "eyebrow": "PERGUNTE EM LINGUAGEM NATURAL · NASA POWER + GEMINI",
+    "eyebrow": "PERGUNTE EM LINGUAGEM NATURAL · NASA POWER + IA",
     "inputLabel": "Faça uma pergunta investigativa sobre o clima",
     "placeholder": "Ex.: A estação seca em Vilhena está perdendo chuva desde 1990?",
     "submitButton": "Investigar com IA",
@@ -481,10 +481,10 @@
     "fallbackBody": "O serviço de IA não respondeu no momento. As etapas locais usaram regras determinísticas e os cálculos verificados da NASA POWER.",
     "errors": {
       "AI_INVALID_REQUEST": "Digite uma pergunta climática concisa (até 500 caracteres).",
-      "AI_NOT_CONFIGURED": "A chave Gemini ainda não está configurada neste servidor. Você pode investigar normalmente pelos filtros manuais em Avançado.",
+      "AI_NOT_CONFIGURED": "O serviço de IA ainda não está configurado neste servidor. Você pode investigar normalmente pelos filtros manuais em Avançado.",
       "AI_RATE_LIMITED": "Limite temporário de requisições de IA atingido. Aguarde um instante ou use os filtros manuais em Avançado.",
       "AI_TIMEOUT": "O serviço de IA demorou para responder. Tente novamente ou ajuste os filtros manualmente em Avançado.",
-      "AI_UPSTREAM_ERROR": "Não foi possível conectar ao Gemini agora. Os filtros manuais da NASA POWER continuam disponíveis em Avançado.",
+      "AI_UPSTREAM_ERROR": "Não foi possível conectar ao serviço de IA agora. Os filtros manuais da NASA POWER continuam disponíveis em Avançado.",
       "AI_BAD_RESPONSE": "A IA retornou um formato inesperado. Reformule a pergunta ou ajuste os filtros em Avançado."
     },
     "synthesisTitle": "Síntese Científica da IA",
@@ -497,7 +497,6 @@
     "layer1DetailsTitle": "Camada 1 · Parâmetros estruturados pela IA",
     "layer1Hypothesis": "Hipótese inicial",
     "layer1Reasoning": "Racional da tradução",
-    "layer1Model": "Modelo",
     "staleNotice": "Os filtros foram ajustados manualmente; faça uma nova pergunta à IA para atualizar a síntese."
   }
 }

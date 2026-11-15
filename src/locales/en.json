@@ -442,7 +442,7 @@
     "sharedOpenNew": "Open your own investigation →"
   },
   "ai": {
-    "eyebrow": "ASK IN PLAIN LANGUAGE · NASA POWER + GEMINI",
+    "eyebrow": "ASK IN PLAIN LANGUAGE · NASA POWER + AI",
     "inputLabel": "Ask a climate investigation question",
     "placeholder": "e.g., Is Vilhena's dry season losing rainfall since 1990?",
     "submitButton": "Investigate with AI",
@@ -481,10 +481,10 @@
     "fallbackBody": "The AI service did not respond right now. Local steps used deterministic rules and verified NASA POWER calculations.",
     "errors": {
       "AI_INVALID_REQUEST": "Enter a concise climate question (up to 500 characters).",
-      "AI_NOT_CONFIGURED": "Gemini API key is not configured on this server yet. You can still investigate using manual filters in Advanced.",
+      "AI_NOT_CONFIGURED": "AI service is not configured on this server yet. You can still investigate using manual filters in Advanced.",
       "AI_RATE_LIMITED": "AI rate limit reached temporarily. Please wait a moment or use Advanced filters manually.",
       "AI_TIMEOUT": "The AI service took too long to respond. Please retry or adjust filters manually in Advanced.",
-      "AI_UPSTREAM_ERROR": "Could not reach Gemini right now. Manual NASA POWER filters remain available in Advanced.",
+      "AI_UPSTREAM_ERROR": "Could not reach the AI service right now. Manual NASA POWER filters remain available in Advanced.",
       "AI_BAD_RESPONSE": "The AI returned an unexpected structure. Please rephrase or adjust filters in Advanced."
     },
     "synthesisTitle": "AI Scientific Synthesis",
@@ -497,7 +497,6 @@
     "layer1DetailsTitle": "Layer 1 · AI Filter Translation (Structured Parameters)",
     "layer1Hypothesis": "Initial hypothesis",
     "layer1Reasoning": "Translation rationale",
-    "layer1Model": "Model",
     "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
   }
 }
