@@ -1,10 +1,23 @@
 import { useState } from "react";
 import { type Locale, useResolvedI18n } from "../../i18n/i18n.tsx";
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
-import { buildCitationText, downloadDossierCsv } from "../../lib/export/dossierExport.ts";
+import {
+  type AcademicCitationFormat,
+  buildAcademicCitation,
+  downloadDossierCsv,
+} from "../../lib/export/dossierExport.ts";
 import type { TemperatureUnit } from "../../lib/temperatureUnit.ts";
 import type { InvestigationResult, SavedDossier } from "../../types/investigation.ts";
 import { downloadEvidenceCardPng, EvidenceCard, type EvidenceCardAspect } from "./EvidenceCard.tsx";
+
+const ASPECT_OPTIONS: ReadonlyArray<{ id: EvidenceCardAspect; labelKey: string }> = [
+  { id: "story", labelKey: "share.aspectStory" },
+  { id: "square", labelKey: "share.aspectSquare" },
+  { id: "slide", labelKey: "share.aspectSlide" },
+  { id: "paper", labelKey: "share.aspectPaper" },
+];
+
+const CITATION_FORMATS: readonly AcademicCitationFormat[] = ["summary", "abnt", "apa", "bibtex"];
 
 export interface ShareSheetProps {
   result: InvestigationResult;
@@ -33,10 +46,17 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
   const contextTempUnit = useOptionalTemperatureUnit();
   const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const [aspect, setAspect] = useState<EvidenceCardAspect>("story");
+  const [citationFormat, setCitationFormat] = useState<AcademicCitationFormat>("summary");
   const [shareUrl, setShareUrl] = useState<string>(() => buildInvestigationDeepLink(result));
   const [copied, setCopied] = useState(false);
   const [copiedCitation, setCopiedCitation] = useState(false);
   const [savingLink, setSavingLink] = useState(false);
+
+  const formattedCitation = buildAcademicCitation(result, citationFormat, {
+    locale: resolvedLocale,
+    tempUnit: resolvedTempUnit,
+    shareUrl,
+  });
 
   async function handleCopyLink() {
     setSavingLink(true);
@@ -75,9 +95,8 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
   }
 
   async function handleCopyCitation() {
-    const text = buildCitationText(result, resolvedLocale, resolvedTempUnit);
     if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(formattedCitation);
       setCopiedCitation(true);
       setTimeout(() => setCopiedCitation(false), 2500);
     }
@@ -103,6 +122,16 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
     }
   }
 
+  const activeFormatLabel = t(`share.citationFormats.${citationFormat}`);
+  const copyCitationLabel =
+    citationFormat === "summary"
+      ? copiedCitation
+        ? t("actions.citationCopied")
+        : t("actions.copyCitation")
+      : copiedCitation
+        ? t("share.citationCopiedLabel", { format: activeFormatLabel })
+        : t("share.copyAcademicCitation", { format: activeFormatLabel });
+
   return (
     <section
       aria-label={t("share.sheetAriaLabel")}
@@ -127,25 +156,20 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex rounded border border-[#2E2E30] p-0.5 font-mono text-xs">
-          <button
-            type="button"
-            onClick={() => setAspect("story")}
-            className={`rounded px-3 py-1 ${
-              aspect === "story" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
-            }`}
-          >
-            {t("share.aspectStory")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setAspect("square")}
-            className={`rounded px-3 py-1 ${
-              aspect === "square" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
-            }`}
-          >
-            {t("share.aspectSquare")}
-          </button>
+        <div className="inline-flex flex-wrap rounded border border-[#2E2E30] p-0.5 font-mono text-xs">
+          {ASPECT_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setAspect(option.id)}
+              aria-pressed={aspect === option.id}
+              className={`rounded px-3 py-1 ${
+                aspect === option.id ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
+              }`}
+            >
+              {t(option.labelKey)}
+            </button>
+          ))}
         </div>
 
         <div className="flex flex-wrap gap-2 font-mono text-xs">
@@ -170,7 +194,7 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
             onClick={handleCopyCitation}
             className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
           >
-            {copiedCitation ? t("actions.citationCopied") : t("actions.copyCitation")}
+            {copyCitationLabel}
           </button>
           <button
             type="button"
@@ -204,6 +228,37 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
           locale={resolvedLocale}
           tempUnit={resolvedTempUnit}
         />
+      </div>
+
+      <div className="mt-4 rounded border border-[#2E2E30] bg-[#121212] p-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <span className="font-mono text-[11px] uppercase tracking-wider text-[#9B9B98]">
+            {t("share.citationFormatLabel")}
+          </span>
+          <div className="inline-flex rounded border border-[#2E2E30] p-0.5 font-mono text-xs">
+            {CITATION_FORMATS.map((fmt) => (
+              <button
+                key={fmt}
+                type="button"
+                onClick={() => {
+                  setCitationFormat(fmt);
+                  setCopiedCitation(false);
+                }}
+                aria-pressed={citationFormat === fmt}
+                className={`rounded px-2.5 py-1 ${
+                  citationFormat === fmt
+                    ? "bg-[#C1472E] font-bold text-[#EDEDEA]"
+                    : "text-[#9B9B98] hover:text-[#EDEDEA]"
+                }`}
+              >
+                {t(`share.citationFormats.${fmt}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-[#EDEDEA]/90">
+          {formattedCitation}
+        </pre>
       </div>
     </section>
   );

@@ -22,6 +22,7 @@ import {
   scanAllVariablesWithFdr,
 } from "../lib/nasa/smartInvestigation";
 import { DIRECTION_ARROW, DIRECTION_COLOR } from "../lib/resultDisplay";
+import type { SatelliteDeepLinkState } from "../lib/routing";
 import {
   convertDeltaValue,
   convertInvestigationResultForDisplay,
@@ -63,6 +64,7 @@ interface InvestigationProps {
   presetId: CasePresetId;
   presetNonce?: number;
   initialLiveQuery?: ValidatedInvestigateQuery | null;
+  initialSatellite?: SatelliteDeepLinkState;
   defaultAdvancedOpen?: boolean;
   onNavigateMethods: () => void;
   onOpenDossierPermalink?: (dossierId: string) => void;
@@ -142,6 +144,7 @@ export function Investigation({
   presetId,
   presetNonce = 0,
   initialLiveQuery = null,
+  initialSatellite,
   defaultAdvancedOpen = false,
   onNavigateMethods,
   onOpenDossierPermalink,
@@ -889,6 +892,12 @@ export function Investigation({
           startYear={stats.startYear}
           endYear={stats.endYear}
           defaultExpanded
+          initialMode={initialSatellite?.mode}
+          initialLayer={initialSatellite?.layer}
+          initialYear={initialSatellite?.year}
+          deepLinkContext={
+            !isDerived && basePresetId ? { presetId: basePresetId } : { investigation: query }
+          }
         />
       </div>
 

@@ -8,15 +8,17 @@ import { Hero } from "../src/components/Hero";
 import { Investigation } from "../src/components/Investigation";
 import { MethodsPage } from "../src/components/MethodsPage";
 import {
+  EvidenceCard,
   RecentDossiersDrawer,
   resolveGibsComparisonWindow,
   SatelliteTimelapse,
   SharedDossierView,
+  ShareSheet,
 } from "../src/components/share";
 import { TrendChart } from "../src/components/TrendChart";
 import { getCasePresetById } from "../src/data/presets";
 import { I18nProvider } from "../src/i18n/i18n";
-import { parseAppRoute } from "../src/lib/routing";
+import { buildSatelliteDeepLink, parseAppRoute } from "../src/lib/routing";
 
 function renderWithI18n(node: ReactElement): string {
   return renderToStaticMarkup(createElement(I18nProvider, null, node));
@@ -468,5 +470,110 @@ describe("R3 & R4 UI components", () => {
     expect(liveInvestigationHtml).toContain("Barreiras (MATOPIBA), BA, Brazil");
     expect(liveInvestigationHtml).toContain("Estação Seca (Abr–Set)");
     expect(liveInvestigationHtml).not.toContain("Derivado do Caso #01");
+  });
+
+  it("renders Slide 16:9 and Paper EvidenceCards, ShareSheet academic citations, and Satellite deep-link controls", () => {
+    const vilhena = getCasePresetById("01").result;
+
+    const slideHtml = renderWithI18n(
+      createElement(EvidenceCard, {
+        result: vilhena,
+        aspect: "slide",
+        shortUrl: "https://geotrend.earth/?case=01",
+      }),
+    );
+    expect(slideHtml).toContain('data-aspect="slide"');
+    expect(slideHtml).toContain("MK: S =");
+    expect(slideHtml).toContain("R² =");
+    expect(slideHtml).toContain("Correlação ≠ causalidade");
+
+    const paperHtml = renderWithI18n(
+      createElement(EvidenceCard, {
+        result: vilhena,
+        aspect: "paper",
+        shortUrl: "https://geotrend.earth/?case=01",
+      }),
+    );
+    expect(paperHtml).toContain('data-aspect="paper"');
+    expect(paperHtml).toContain("GEOTREND // FIGURA CIENTÍFICA");
+    expect(paperHtml).toContain("Fig. — Vilhena, RO, Brazil (1981–2025)");
+    expect(paperHtml).toContain("bg-white");
+
+    const sheetHtml = renderWithI18n(createElement(ShareSheet, { result: vilhena }));
+    expect(sheetHtml).toContain("Slide 16:9");
+    expect(sheetHtml).toContain("Artigo / Paper");
+    expect(sheetHtml).toContain("Copiar Citação Científica");
+    expect(sheetHtml).toContain("ABNT");
+    expect(sheetHtml).toContain("APA");
+    expect(sheetHtml).toContain("BibTeX");
+
+    // Satellite deep-link roundtrips across presets, dossiers, and live queries
+    const presetSatUrl = buildSatelliteDeepLink({
+      origin: "https://geotrend.earth",
+      presetId: "02",
+      satellite: {
+        mode: "timelapse",
+        layer: "MODIS_Terra_L3_NDVI_Monthly",
+        year: 2020,
+      },
+    });
+    const parsedPresetSat = new URL(presetSatUrl);
+    expect(parseAppRoute(parsedPresetSat.pathname, parsedPresetSat.search)).toEqual({
+      view: "home",
+      presetId: "02",
+      scrollToInvestigation: true,
+      initialSatellite: {
+        mode: "timelapse",
+        layer: "MODIS_Terra_L3_NDVI_Monthly",
+        year: 2020,
+      },
+    });
+
+    const dossierSatUrl = buildSatelliteDeepLink({
+      origin: "https://geotrend.earth",
+      dossierId: "et-998877",
+      satellite: {
+        mode: "compare",
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        year: 2008,
+      },
+    });
+    const parsedDossierSat = new URL(dossierSatUrl);
+    expect(parseAppRoute(parsedDossierSat.pathname, parsedDossierSat.search)).toEqual({
+      view: "dossier",
+      dossierId: "et-998877",
+      initialSatellite: {
+        mode: "compare",
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        year: 2008,
+      },
+    });
+
+    const clampedRoute = parseAppRoute("/", "?case=01&satMode=timelapse&satYear=1985");
+    expect(clampedRoute.view).toBe("home");
+    if (clampedRoute.view === "home") {
+      expect(clampedRoute.initialSatellite).toEqual({
+        mode: "timelapse",
+        year: 2000,
+      });
+    }
+
+    const timelapseHtml = renderWithI18n(
+      createElement(SatelliteTimelapse, {
+        location: vilhena.location,
+        startYear: 1981,
+        endYear: 2025,
+        defaultExpanded: true,
+        initialMode: "timelapse",
+        initialLayer: "MODIS_Terra_L3_NDVI_Monthly",
+        initialYear: 2019,
+        deepLinkContext: { presetId: "01" },
+      }),
+    );
+    expect(timelapseHtml).toContain("2019 / 2025");
+    expect(timelapseHtml).toContain("2019-08-01");
+    expect(timelapseHtml).toContain("Baixar Imagem PNG");
+    expect(timelapseHtml).toContain("Copiar Legenda / Citação");
+    expect(timelapseHtml).toContain("Copiar Link do Satélite");
   });
 });
