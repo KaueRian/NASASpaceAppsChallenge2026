@@ -106,7 +106,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
     >
       <header className="border-b border-[#14110F]/20 pb-3">
         <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#5C5346]">
-          <span>EARTHTREND DETECTIVE · CASE FILE</span>
+          <span>GEOTREND · CASE FILE</span>
           <span>
             {stats.startYear}–{stats.endYear}
           </span>
@@ -226,7 +226,7 @@ export function downloadEvidenceCardPng(
   // Header metadata
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 26px monospace";
-  ctx.fillText("EARTHTREND DETECTIVE // FORENSIC CASE FILE", 72, 100);
+  ctx.fillText("GEOTREND // FORENSIC CASE FILE", 72, 100);
   ctx.fillText(`${result.stats.startYear}-${result.stats.endYear}`, width - 220, 100);
 
   // Location title
@@ -341,7 +341,7 @@ export function downloadEvidenceCardPng(
 
   const link = document.createElement("a");
   const slug = result.location.label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  link.download = `earthtrend-${slug}-${result.variable.toLowerCase()}-${aspect}.png`;
+  link.download = `geotrend-${slug}-${result.variable.toLowerCase()}-${aspect}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 }

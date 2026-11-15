@@ -38,7 +38,7 @@ describe("Worker API routes", () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as { ok: boolean; service: string };
     expect(json.ok).toBe(true);
-    expect(json.service).toBe("earthtrend-detective");
+    expect(json.service).toBe("geotrend");
   });
 
   it("GET /api/investigate rejects invalid coordinates with 400", async () => {

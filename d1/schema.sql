@@ -1,4 +1,4 @@
--- EarthTrend Detective — Cloudflare D1 Schema
+-- GeoTrend — Cloudflare D1 Schema (database: earthtrend-db)
 -- Tables for caching raw NASA POWER monthly climatology and persisting shared dossiers.
 
 CREATE TABLE IF NOT EXISTS nasa_cache (

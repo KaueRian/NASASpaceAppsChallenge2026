@@ -20,7 +20,7 @@ export const app = new Hono<{ Bindings: WorkerBindings }>();
 app.get("/api/health", (c) => {
   return c.json({
     ok: true,
-    service: "earthtrend-detective",
+    service: "geotrend",
     runtime: "cloudflare-workers",
     version: "0.1.0",
     timestamp: new Date().toISOString(),

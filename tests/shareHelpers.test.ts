@@ -57,16 +57,18 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
   it("generates scientific CSV and bilingual citation text from a preset dossier", () => {
     const vilhenaResult = CASE_PRESETS[0].result;
     const csv = buildDossierCsv(vilhenaResult);
-    expect(csv).toContain("# EarthTrend Detective — Scientific Series Export");
+    expect(csv).toContain("# GeoTrend — Scientific Series Export");
     expect(csv).toContain("year,label,value,unit,trend_value,z_score,is_extreme_anomaly");
     expect(csv).toContain("1981,1981,");
 
     const citationEn = buildCitationText(vilhenaResult, "en");
+    expect(citationEn).toContain("GeoTrend");
     expect(citationEn).toContain("Mann-Kendall non-parametric test");
     expect(citationEn).toContain("NASA POWER / MERRA-2");
     expect(citationEn).toContain("not single-cause physical attribution");
 
     const citationPt = buildCitationText(vilhenaResult, "pt");
+    expect(citationPt).toContain("GeoTrend");
     expect(citationPt).toContain("Teste não-paramétrico de Mann-Kendall");
     expect(citationPt).toContain("sem implicar atribuição causal isolada");
   });

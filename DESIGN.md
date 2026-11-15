@@ -1,4 +1,4 @@
-# 🎨 Design System & UX Blueprint — EarthTrend Detective (`DESIGN.md`)
+# 🎨 Design System & UX Blueprint — GeoTrend (`DESIGN.md`)
 
 > **Mandatory reading for frontend developers & AI agents.** Read this file together with [`TASK.md`](TASK.md) and [`AGENTS.md`](AGENTS.md) before designing or editing any UI.
 > **This file overrides any external design skill, template, or generic style recommendation.**
@@ -61,7 +61,7 @@
 
 The site is **one home page with sections**, not separate tab-screens — so the header holds **3 links**, not 3 tabs: two scroll to a section on the home page, one opens a real separate page.
 
-- **Left:** wordmark `EarthTrend Detective`.
+- **Left:** wordmark `GeoTrend`.
 - **Center links:**
   | EN | PT | Behavior |
   |---|---|---|

@@ -85,7 +85,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
         await navigator.share({
-          title: `EarthTrend Detective — ${result.location.label}`,
+          title: `GeoTrend — ${result.location.label}`,
           text: `${result.location.label} (${result.variable}, ${result.stats.startYear}–${result.stats.endYear}): ${result.stats.verdict}`,
           url: shareUrl,
         });

@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <title>EarthTrend Detective — NASA Space Apps 2026</title>
+  <title>GeoTrend — NASA Space Apps 2026</title>
   <rect width="1200" height="630" fill="#12100E" />
   <rect x="36" y="36" width="1128" height="558" fill="#F4EFE6" stroke="#D4A84F" stroke-width="4" />
   <text x="80" y="105" font-family="monospace" font-size="20" font-weight="bold" fill="#5C5346" letter-spacing="3">
     NASA SPACE APPS CHALLENGE 2026 · VILHENA, RO, BRAZIL
   </text>
   <text x="80" y="185" font-family="Georgia, serif" font-size="64" font-weight="bold" fill="#14110F">
-    EarthTrend Detective
+    GeoTrend
   </text>
   <text x="80" y="235" font-family="monospace" font-size="24" fill="#5C5346">
     Forensic Climate Trend Analysis · NASA POWER / MERRA-2 (1981–2025)
