@@ -47,7 +47,11 @@ export function AppHeader({
           <button type="button" onClick={onNavigateMethods} className="hover:text-text">
             {t("nav.methods")}
           </button>
-          <button type="button" onClick={onNavigateExplore} className="hover:text-text">
+          <button
+            type="button"
+            onClick={onNavigateExplore}
+            className="rounded-full border border-accent px-3 py-1 font-mono text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-bg"
+          >
             {t("nav.explore")}
           </button>
         </nav>

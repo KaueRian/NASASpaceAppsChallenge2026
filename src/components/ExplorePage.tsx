@@ -19,9 +19,12 @@ export interface ExplorePageProps {
 }
 
 type HubView = "hub" | "timeline";
-type Step = "input" | "scanning" | "reveal" | "context" | "badge" | "share";
+/** "scanning" is intentionally NOT a step here — it's a transient `loading` flag overlaid on the
+ * "input" step instead (see below). Making it a real step previously let Back-navigation from
+ * "reveal" land on it, where there were no Back/Next controls and no re-fetch trigger: a dead end. */
+type Step = "input" | "reveal" | "context" | "badge" | "share";
 
-const ALL_STEPS: Step[] = ["input", "scanning", "reveal", "context", "badge", "share"];
+const ALL_STEPS: Step[] = ["input", "reveal", "context", "badge", "share"];
 const STORY_STEPS: Step[] = ["reveal", "context", "badge", "share"];
 /** Alternates bold direction-color ("impact" beats: the big stat, the badge stamp) with the
  * app's own dark surface ("reading"/chrome beats: long sentences, and the share step's chrome —
@@ -29,7 +32,7 @@ const STORY_STEPS: Step[] = ["reveal", "context", "badge", "share"];
  * blending into a same-color backdrop). Keeps the hue semantically tied to the one result
  * (unlike cycling through unrelated colors per slide, which would clash with how direction
  * color is used everywhere else in the app). */
-const DARK_STEPS: Step[] = ["input", "scanning", "context", "share"];
+const DARK_STEPS: Step[] = ["input", "context", "share"];
 /** Pure-display steps (no form fields or buttons of their own) where tapping left/right of
  * center navigates back/forward, Stories-style. Excludes "share" (real buttons live there —
  * a tap-anywhere handler would double-fire alongside a button's own click) and "input"/"scanning"
@@ -92,6 +95,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
   const [result, setResult] = useState<BirthdayResult | null>(null);
   const [detectiveOpen, setDetectiveOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   const formatPValue = (p: number) =>
@@ -120,6 +124,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
     setDetectiveOpen(false);
     setBirthDateDigits("");
     setBirthDate("");
+    setLoading(false);
   };
 
   const handleBirthDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +150,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
       return;
     }
 
-    setStep("scanning");
+    setLoading(true);
     setErrorCode(null);
     try {
       const next = await analyzeBirthday({
@@ -163,7 +168,8 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
     } catch (err) {
       const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
       setErrorCode(code);
-      setStep("input");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -375,7 +381,18 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
           }`}
           onClick={handleContentClick}
         >
-          {step === "input" && (
+          {step === "input" && loading && (
+            <div className="max-w-sm">
+              <p className="font-display text-2xl text-text">
+                {t("explore.timeline.scanningTitle")}
+              </p>
+              <p className="mt-3 font-sans text-sm text-text-muted">
+                {t("explore.timeline.scanningSubtitle")}
+              </p>
+            </div>
+          )}
+
+          {step === "input" && !loading && (
             <div className="w-full max-w-md text-left">
               <h2 className="font-display text-2xl text-text">{t("explore.timeline.navCard")}</h2>
               <p className="mt-2 font-sans text-sm text-text-muted">
@@ -440,17 +457,6 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
                   </div>
                 )}
               </form>
-            </div>
-          )}
-
-          {step === "scanning" && (
-            <div className="max-w-sm">
-              <p className="font-display text-2xl text-text">
-                {t("explore.timeline.scanningTitle")}
-              </p>
-              <p className="mt-3 font-sans text-sm text-text-muted">
-                {t("explore.timeline.scanningSubtitle")}
-              </p>
             </div>
           )}
 
