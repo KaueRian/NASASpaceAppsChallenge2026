@@ -159,4 +159,40 @@ describe("i18n dictionary key parity", () => {
     expect(enBundle).toContain("Evidence Card &amp; Data Export");
     expect(enBundle).toContain("Minimum Night-Time Temperature (2m) (T2M_MIN) · Annual (Jan–Dec)");
   });
+
+  it("keeps user-facing PT and EN copy free of internal engineering jargon", () => {
+    const collectLeafStrings = (dict: unknown): string[] => {
+      if (typeof dict !== "object" || dict === null) return [];
+      return Object.values(dict as Record<string, unknown>).flatMap((value) =>
+        typeof value === "object" && value !== null ? collectLeafStrings(value) : [String(value)],
+      );
+    };
+
+    const forbiddenUiJargon =
+      /\bD1\b|camada\s*1|layer\s*1|AM-Oc|NASA API|\bp bruto\b|\braw p\b(?!-value)/i;
+
+    for (const [localeName, dict] of [
+      ["pt", pt],
+      ["en", en],
+    ] as const) {
+      for (const value of collectLeafStrings(dict)) {
+        expect(value, `${localeName} copy leaked internal jargon: ${value}`).not.toMatch(
+          forbiddenUiJargon,
+        );
+      }
+    }
+
+    expect(pt.dossier.recentTitle).toBe("Dossiês compartilhados recentes");
+    expect(en.dossier.recentTitle).toBe("Recent shared dossiers");
+    expect(pt.dossier.recentEmpty).toBe("Nenhum dossiê compartilhado foi salvo ainda.");
+    expect(en.dossier.recentEmpty).toBe("No shared dossiers saved yet.");
+    expect(pt.dossier.recentError).toBe("Não foi possível carregar os dossiês recentes agora.");
+    expect(en.dossier.recentError).toBe("Could not load recent dossiers right now.");
+    expect(pt.form.scanColPValue).toBe("p-valor");
+    expect(en.form.scanColPValue).toBe("p-value");
+    expect(pt.cases.filters.offlineReady).toBe("Caso offline");
+    expect(en.cases.filters.offlineReady).toBe("Offline case");
+    expect(pt.cases.filters.liveQuery).toBe("Dados NASA");
+    expect(en.cases.filters.liveQuery).toBe("Live NASA");
+  });
 });

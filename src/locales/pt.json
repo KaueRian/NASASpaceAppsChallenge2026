@@ -18,7 +18,7 @@
   },
   "cases": {
     "sectionTitle": "Casos em Destaque & Investigações Sugeridas",
-    "sectionSubtitle": "20 investigações curadas (4 casos base disponíveis offline + 16 buscas frequentes via NASA POWER) com filtros por escala, variável climática e janela sazonal.",
+    "sectionSubtitle": "20 investigações curadas (4 casos base disponíveis sem internet + 16 buscas frequentes via NASA POWER) com filtros por escala, variável climática e janela sazonal.",
     "scaleBadge": {
       "local": "Caso #01 · Escala Local Sede (Vilhena, RO)",
       "state": "Caso #02 · Escala Estadual (Rondônia)",
@@ -27,7 +27,7 @@
     },
     "scaleShortBadge": {
       "local": "Cone Sul · RO",
-      "state": "Rondônia & AM-Oc",
+      "state": "Rondônia & Amazônia",
       "national": "Brasil & Biomas",
       "global": "Global"
     },
@@ -54,8 +54,8 @@
       "clearButton": "Limpar filtros",
       "countSummary": "{{shown}} de {{total}} investigações",
       "emptyTitle": "Nenhuma investigação encontrada para esses filtros.",
-      "offlineReady": "Offline",
-      "liveQuery": "NASA API"
+      "offlineReady": "Caso offline",
+      "liveQuery": "Dados NASA"
     },
     "openAction": "Carregar Investigação",
     "alreadyViewed": "Revisado",
@@ -268,11 +268,12 @@
     "scanTableTitle": "Varredura das 4 variáveis (FDR Benjamini-Hochberg α = 0,05)",
     "scanColVariable": "Variável (Recorte)",
     "scanColSlope": "Declive de Sen / Década",
-    "scanColPValue": "p bruto",
+    "scanColPValue": "p-valor",
     "scanColQValue": "q-valor FDR",
     "scanColAction": "Ação",
     "scanLoadAction": "Abrir",
-    "scanActiveBadge": "Ativo"
+    "scanActiveBadge": "Ativo",
+    "scanUnitPerDecade": "/década"
   },
   "chart": {
     "legendObserved": "Observado",
@@ -473,7 +474,7 @@
   "satellite": {
     "eyebrow": "ARQUIVO VISUAL ORBITAL · NASA GIBS / MODIS TERRA",
     "title": "Evidência Visual por Satélite ({{beforeYear}} vs. {{afterYear}})",
-    "subtitle": "Composição de agosto (estação seca / céu limpo no MODIS Terra: Cor Real 29/ago e NDVI Mensal de ago) — observe mudanças reais na paisagem ao lado dos dados estatísticos.",
+    "subtitle": "Composição de agosto (estação seca / céu limpo no MODIS Terra: Cor Real em 29 de agosto e NDVI mensal de agosto) — observe mudanças reais na paisagem ao lado dos dados estatísticos.",
     "showAction": "Mostrar imagens de satélite",
     "hideAction": "Ocultar imagens de satélite",
     "modeCompare": "Antes vs. Depois",
@@ -487,8 +488,8 @@
     "play": "Reproduzir Timelapse",
     "pause": "Pausar",
     "buffering": "Carregando quadros ({{ready}}/{{total}})…",
-    "preloadProgress": "Pré-carregando mosaicos NASA GIBS: {{ready}} / {{total}} anos",
-    "preloadReady": "{{total}} / {{total}} anos em cache · Pronto para timelapse contínuo",
+    "preloadProgress": "Carregando imagens de satélite (NASA GIBS): {{ready}} / {{total}} anos",
+    "preloadReady": "{{total}} / {{total}} anos carregados · Pronto para reprodução contínua",
     "frameUpdating": "Atualizando {{year}}…",
     "worldviewLink": "Abrir no NASA Worldview ↗",
     "tileAlt": "Mosaico de satélite NASA MODIS ({{layer}}) de {{year}}",
@@ -499,9 +500,10 @@
   "dossier": {
     "recentButton": "Dossiês recentes",
     "recentClose": "Fechar dossiês recentes",
-    "recentTitle": "Dossiês compartilhados recentes (D1)",
+    "recentTitle": "Dossiês compartilhados recentes",
     "recentLoading": "Carregando dossiês salvos…",
-    "recentEmpty": "Nenhum dossiê compartilhado foi salvo no D1 ainda.",
+    "recentEmpty": "Nenhum dossiê compartilhado foi salvo ainda.",
+    "recentError": "Não foi possível carregar os dossiês recentes agora.",
     "recentInspect": "Abrir no console",
     "recentOpenLink": "Link permanente",
     "sharedLoading": "Carregando dossiê arquivado {{id}}…",
@@ -564,9 +566,21 @@
     "findingsTitle": "Achados Estatísticos Observados",
     "hypothesesTitle": "Hipóteses Científicas Plausíveis (Não Provam Causalidade)",
     "followUpTitle": "Investigações sugeridas a seguir",
-    "layer1DetailsTitle": "Camada 1 · Parâmetros estruturados pela IA",
-    "layer1Hypothesis": "Hipótese inicial",
-    "layer1Reasoning": "Racional da tradução",
+    "layer1DetailsTitle": "Parâmetros estruturados da investigação",
+    "layer1Hypothesis": "Hipótese investigativa",
+    "layer1Reasoning": "Critério de seleção dos filtros",
+    "filterLabels": {
+      "location": "Localidade",
+      "variable": "Variável",
+      "season": "Janela sazonal",
+      "period": "Período",
+      "multiScan": "Varredura 4 variáveis"
+    },
+    "filterValues": {
+      "yes": "Ativada",
+      "no": "Individual",
+      "currentLocation": "Local atual selecionado"
+    },
     "staleNotice": "Os filtros foram ajustados manualmente; faça uma nova pergunta à IA para atualizar a síntese."
   }
 }

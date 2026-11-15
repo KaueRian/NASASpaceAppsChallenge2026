@@ -82,13 +82,18 @@ function toQuery(preset: CasePreset): InvestigationQuery {
   };
 }
 
-/** Renders Layer 1 AI filter translation rationale inside method disclosure without exposing model IDs. */
+/** Renders structured investigation filter details inside method disclosure without exposing model IDs. */
 export function AiLayer1TranslationDetails({ translation }: { translation: AiTranslateResult }) {
   const { t } = useI18n();
   if (!translation.inScope) return null;
 
+  const { filters } = translation;
+  const locationDisplay =
+    filters.locationQuery ||
+    (filters.reuseCurrentLocation ? t("ai.filterValues.currentLocation") : "—");
+
   return (
-    <div className="mt-3 space-y-1 border border-border bg-bg p-3">
+    <div className="mt-3 space-y-1.5 border border-border bg-bg p-3">
       <p className="font-mono text-[11px] uppercase tracking-wide text-text">
         {t("ai.layer1DetailsTitle")}
       </p>
@@ -103,9 +108,32 @@ export function AiLayer1TranslationDetails({ translation }: { translation: AiTra
           <strong className="text-text">{t("ai.layer1Reasoning")}:</strong> {translation.reasoning}
         </p>
       )}
-      <pre className="mt-2 overflow-x-auto border border-border bg-surface p-2 font-mono text-[11px] text-text-muted">
-        {JSON.stringify(translation.filters, null, 2)}
-      </pre>
+      <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 border border-border bg-surface p-2 font-mono text-[11px] sm:grid-cols-2">
+        <div>
+          <dt className="inline text-text-muted">{t("ai.filterLabels.location")}: </dt>
+          <dd className="inline text-text">{locationDisplay}</dd>
+        </div>
+        <div>
+          <dt className="inline text-text-muted">{t("ai.filterLabels.variable")}: </dt>
+          <dd className="inline text-text">{t(`variables.${filters.variable}.shortLabel`)}</dd>
+        </div>
+        <div>
+          <dt className="inline text-text-muted">{t("ai.filterLabels.season")}: </dt>
+          <dd className="inline text-text">{t(`seasons.${filters.season}`)}</dd>
+        </div>
+        <div>
+          <dt className="inline text-text-muted">{t("ai.filterLabels.period")}: </dt>
+          <dd className="inline text-text">
+            {filters.startYear}–{filters.endYear}
+          </dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="inline text-text-muted">{t("ai.filterLabels.multiScan")}: </dt>
+          <dd className="inline text-text">
+            {filters.runMultiVariableScan ? t("ai.filterValues.yes") : t("ai.filterValues.no")}
+          </dd>
+        </div>
+      </dl>
     </div>
   );
 }
@@ -785,7 +813,8 @@ export function Investigation({
                         {formatNumber(itemSlopeDecade, {
                           maximumFractionDigits: 2,
                         })}{" "}
-                        {itemUnit}/dec
+                        {itemUnit}
+                        {t("form.scanUnitPerDecade")}
                       </td>
                       <td className="py-1.5 pr-3 text-text-muted">
                         {formatPValue(item.result.stats.pValue)}

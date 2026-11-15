@@ -15,22 +15,30 @@ export function RecentDossiersDrawer({
   const [open, setOpen] = useState(false);
   const [dossiers, setDossiers] = useState<SavedDossier[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     let active = true;
     setLoading(true);
+    setHasError(false);
 
     fetch("/api/dossiers")
-      .then((res) => (res.ok ? res.json() : { dossiers: [] }))
-      .then((payload: { dossiers?: SavedDossier[] }) => {
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<{ dossiers?: SavedDossier[] }>;
+      })
+      .then((payload) => {
         if (active) {
           setDossiers(payload.dossiers ?? []);
           setLoading(false);
         }
       })
       .catch(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setHasError(true);
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -70,6 +78,10 @@ export function RecentDossiersDrawer({
 
           {loading ? (
             <p className="py-4 font-mono text-xs text-text-muted">{t("dossier.recentLoading")}</p>
+          ) : hasError ? (
+            <p role="alert" className="py-4 font-mono text-xs text-accent">
+              {t("dossier.recentError")}
+            </p>
           ) : dossiers.length === 0 ? (
             <p className="py-4 font-mono text-xs text-text-muted">{t("dossier.recentEmpty")}</p>
           ) : (

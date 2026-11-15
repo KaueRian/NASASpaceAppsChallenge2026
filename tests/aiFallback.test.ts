@@ -440,15 +440,21 @@ describe("AI outage resilient fallback mode (TDD)", () => {
       "pt",
       createElement(AiLayer1TranslationDetails, { translation: sampleAiTranslation }),
     );
-    expect(layer1DetailsPt).toContain("Camada 1 · Parâmetros estruturados pela IA");
-    expect(layer1DetailsPt).not.toMatch(/gemini|modelo|\bmodel\b/i);
+    expect(layer1DetailsPt).toContain("Parâmetros estruturados da investigação");
+    expect(layer1DetailsPt).toContain("Estação Seca (Abr–Set)");
+    expect(layer1DetailsPt).not.toMatch(
+      /camada\s*1|layer\s*1|reuseCurrentLocation|runMultiVariableScan|locationQuery|gemini|modelo|\bmodel\b/i,
+    );
 
     const layer1DetailsEn = renderWithLocale(
       "en",
       createElement(AiLayer1TranslationDetails, { translation: sampleAiTranslation }),
     );
-    expect(layer1DetailsEn).toContain("Layer 1 · AI Filter Translation (Structured Parameters)");
-    expect(layer1DetailsEn).not.toMatch(/gemini|modelo|\bmodel\b/i);
+    expect(layer1DetailsEn).toContain("Structured Investigation Parameters");
+    expect(layer1DetailsEn).toContain("Dry Season (Apr–Sep)");
+    expect(layer1DetailsEn).not.toMatch(
+      /camada\s*1|layer\s*1|reuseCurrentLocation|runMultiVariableScan|locationQuery|gemini|modelo|\bmodel\b/i,
+    );
 
     const enBarUnconfigured = renderWithLocale(
       "en",

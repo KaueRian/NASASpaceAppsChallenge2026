@@ -411,6 +411,11 @@ describe("R3 & R4 UI components", () => {
     expect(html).toContain("Belém, PA, Brasil");
     expect(html).toContain("Porto Alegre, RS, Brasil");
     expect(html).toContain("Sevilha, Espanha");
+    expect(html).toContain("Rondônia &amp; Amazônia");
+    expect(html).toContain("Caso offline");
+    expect(html).toContain("Dados NASA");
+    expect(html).not.toContain("AM-Oc");
+    expect(html).not.toContain("NASA API");
 
     const liveInvestigationHtml = renderWithI18n(
       createElement(Investigation, {

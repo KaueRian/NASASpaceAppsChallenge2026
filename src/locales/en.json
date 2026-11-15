@@ -54,8 +54,8 @@
       "clearButton": "Clear filters",
       "countSummary": "{{shown}} of {{total}} investigations",
       "emptyTitle": "No curated investigations match these filters.",
-      "offlineReady": "Offline",
-      "liveQuery": "NASA API"
+      "offlineReady": "Offline case",
+      "liveQuery": "Live NASA"
     },
     "openAction": "Load Investigation",
     "alreadyViewed": "Reviewed",
@@ -268,11 +268,12 @@
     "scanTableTitle": "Multi-variable scan (Benjamini-Hochberg FDR α = 0.05)",
     "scanColVariable": "Variable (Window)",
     "scanColSlope": "Sen's Slope / Decade",
-    "scanColPValue": "Raw p",
+    "scanColPValue": "p-value",
     "scanColQValue": "FDR q-value",
     "scanColAction": "Action",
     "scanLoadAction": "Load",
-    "scanActiveBadge": "Active"
+    "scanActiveBadge": "Active",
+    "scanUnitPerDecade": "/dec"
   },
   "chart": {
     "legendObserved": "Observed",
@@ -487,8 +488,8 @@
     "play": "Play Timelapse",
     "pause": "Pause",
     "buffering": "Buffering frames ({{ready}}/{{total}})…",
-    "preloadProgress": "Preloading NASA GIBS frames: {{ready}} / {{total}} years",
-    "preloadReady": "{{total}} / {{total}} years cached · Ready for smooth playback",
+    "preloadProgress": "Preloading NASA GIBS imagery: {{ready}} / {{total}} years",
+    "preloadReady": "{{total}} / {{total}} years ready · Smooth playback available",
     "frameUpdating": "Updating {{year}}…",
     "worldviewLink": "Open in NASA Worldview ↗",
     "tileAlt": "NASA MODIS {{layer}} satellite tile for {{year}}",
@@ -499,9 +500,10 @@
   "dossier": {
     "recentButton": "Recent dossiers",
     "recentClose": "Close recent dossiers",
-    "recentTitle": "Recent shared dossiers (D1)",
+    "recentTitle": "Recent shared dossiers",
     "recentLoading": "Loading archived dossiers…",
-    "recentEmpty": "No shared dossiers saved in D1 yet.",
+    "recentEmpty": "No shared dossiers saved yet.",
+    "recentError": "Could not load recent dossiers right now.",
     "recentInspect": "Load in console",
     "recentOpenLink": "Permalink",
     "sharedLoading": "Retrieving archived dossier {{id}}…",
@@ -564,9 +566,21 @@
     "findingsTitle": "Observed Statistical Findings",
     "hypothesesTitle": "Plausible Scientific Hypotheses (Not Proven Causes)",
     "followUpTitle": "Suggested follow-up investigations",
-    "layer1DetailsTitle": "Layer 1 · AI Filter Translation (Structured Parameters)",
+    "layer1DetailsTitle": "Structured Investigation Parameters",
     "layer1Hypothesis": "Initial hypothesis",
-    "layer1Reasoning": "Translation rationale",
+    "layer1Reasoning": "Filter selection rationale",
+    "filterLabels": {
+      "location": "Location",
+      "variable": "Variable",
+      "season": "Seasonal window",
+      "period": "Period",
+      "multiScan": "4-variable scan"
+    },
+    "filterValues": {
+      "yes": "Enabled",
+      "no": "Single variable",
+      "currentLocation": "Current selected location"
+    },
     "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
   }
 }

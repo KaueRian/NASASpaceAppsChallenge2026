@@ -619,7 +619,17 @@ export function SatelliteTimelapse({
                     </span>
                     <span>{preloadPercent}%</span>
                   </div>
-                  <div className="h-1 w-full overflow-hidden bg-bg">
+                  <div
+                    role="progressbar"
+                    aria-label={t("satellite.preloadProgress", {
+                      ready: readyCount,
+                      total: totalYears,
+                    })}
+                    aria-valuenow={preloadPercent}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    className="h-1 w-full overflow-hidden bg-bg"
+                  >
                     <div
                       className="h-full bg-accent transition-[width] duration-200"
                       style={{ width: `${preloadPercent}%` }}
