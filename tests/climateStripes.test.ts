@@ -63,7 +63,9 @@ describe("ClimateStripes interactive hover, legend, and explanation", () => {
       ),
     );
 
-    expect(html).toContain("ANOMALY STRIPES (Z-SCORE)");
+    expect(html).toContain("FAIXAS DE ANOMALIA (Z-SCORE)");
+    expect(html).toContain("Faixas de anomalia climática de 1981 a 2025");
+    expect(html).toContain("<title>2025: 161,2 mm (z = -1,58)</title>");
     expect(html).toContain("Mais seco (−z)");
     expect(html).toContain("Média (z ≈ 0)");
     expect(html).toContain("Mais úmido (+z)");
@@ -137,7 +139,7 @@ describe("ClimateStripes interactive hover, legend, and explanation", () => {
       ),
     );
 
-    expect(html).toContain("ANOMALY STRIPES (Z-SCORE)");
+    expect(html).toContain("FAIXAS DE ANOMALIA (Z-SCORE)");
     expect(html).not.toContain("Como ler:");
     expect(html).not.toContain("How to read:");
   });

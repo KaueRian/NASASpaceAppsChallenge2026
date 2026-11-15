@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOptionalI18n } from "../../i18n/i18n.tsx";
+import { type Locale, useResolvedI18n } from "../../i18n/i18n.tsx";
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import {
   convertAbsoluteValue,
@@ -17,6 +17,7 @@ export interface ClimateStripesProps {
   series: readonly SeriesPoint[];
   variable: VariableId;
   unit?: VariableUnit;
+  locale?: Locale;
   tempUnit?: TemperatureUnit;
   height?: number;
   className?: string;
@@ -49,20 +50,6 @@ const HYDRO_PALETTE = [
   "#01665E", // 1.0 <= z < 1.75
   "#003C30", // z >= 1.75 (abundant moisture teal)
 ] as const;
-
-const FALLBACK_EN: Record<string, string> = {
-  "stripes.zScoreLabel": "z = {{z}}",
-  "stripes.extremeAnomalyTag": "Extreme anomaly (|z| > 1.5)",
-  "stripes.scaleLowTemp": "Cooler (−z)",
-  "stripes.scaleHighTemp": "Warmer (+z)",
-  "stripes.scaleLowHydro": "Drier (−z)",
-  "stripes.scaleHighHydro": "Wetter (+z)",
-  "stripes.scaleMean": "Mean (z ≈ 0)",
-  "stripes.explainTemp":
-    "How to read: each vertical stripe represents one year in chronological order. Blue tones indicate years cooler than the period mean; neutral stripes sit near the mean; crimson tones mark warmer years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values.",
-  "stripes.explainHydro":
-    "How to read: each vertical stripe represents one year or seasonal window in chronological order. Ochre tones indicate years drier than the period mean; neutral stripes sit near the mean; teal tones mark wetter years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values.",
-};
 
 export function isTemperatureVariable(variable: VariableId): boolean {
   return variable === "T2M" || variable === "T2M_MIN";
@@ -111,17 +98,11 @@ export function formatSignedZScore(
   return rounded > 0 ? `+${formatted}` : formatted;
 }
 
-function interpolateFallback(template: string, params?: Record<string, string | number>): string {
-  if (!params) return template;
-  return template.replace(/\{\{(\w+)\}\}/g, (match, name) =>
-    name in params ? String(params[name]) : match,
-  );
-}
-
 export function ClimateStripes({
   series,
   variable,
   unit,
+  locale,
   tempUnit,
   height = 56,
   className = "",
@@ -130,7 +111,7 @@ export function ClimateStripes({
   showExplanation = tone === "dark",
   initialActiveIndex,
 }: ClimateStripesProps) {
-  const i18n = useOptionalI18n();
+  const { t: tr, formatNumber: formatNum } = useResolvedI18n(locale);
   const contextTempUnit = useOptionalTemperatureUnit();
   const [activeIndex, setActiveIndex] = useState<number | null>(() => initialActiveIndex ?? null);
 
@@ -139,16 +120,6 @@ export function ClimateStripes({
   const resolvedUnit = unit ?? VARIABLE_UNIT_MAP[variable];
   const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const unitSuffix = getDisplayUnitLabel(resolvedUnit, resolvedTempUnit);
-
-  const formatNum =
-    i18n?.formatNumber ??
-    ((value: number, options?: Intl.NumberFormatOptions) =>
-      new Intl.NumberFormat("en-US", options).format(value));
-
-  const tr = (key: string, params?: Record<string, string | number>) => {
-    if (i18n) return i18n.t(key, params);
-    return interpolateFallback(FALLBACK_EN[key] ?? key, params);
-  };
 
   const displayPointValue = (rawValue: number) =>
     convertAbsoluteValue(rawValue, resolvedUnit, resolvedTempUnit);
@@ -187,7 +158,7 @@ export function ClimateStripes({
           preserveAspectRatio="none"
           className={`h-full w-full overflow-hidden rounded-sm border ${borderClass}`}
           role="img"
-          aria-label={`Climate anomaly stripes from ${firstLabel} to ${lastLabel}`}
+          aria-label={tr("stripes.ariaLabel", { start: firstLabel, end: lastLabel })}
         >
           {series.map((point, index) => (
             <rect
@@ -199,7 +170,9 @@ export function ClimateStripes({
               fill={getStripeColor(point.zScore, variable)}
               opacity={clampedActiveIndex !== null && clampedActiveIndex !== index ? 0.45 : 1}
             >
-              <title>{`${point.label}: ${point.value} (z=${point.zScore})`}</title>
+              <title>
+                {`${point.label}: ${formatPointValue(point.value)} (${tr("stripes.zScoreLabel", { z: formatSignedZScore(point.zScore, formatNum) })})`}
+              </title>
             </rect>
           ))}
         </svg>
@@ -259,7 +232,7 @@ export function ClimateStripes({
 
       <div className={`mt-1 flex items-center justify-between font-mono text-[11px] ${labelClass}`}>
         <span>{firstLabel}</span>
-        <span>ANOMALY STRIPES (Z-SCORE)</span>
+        <span>{tr("stripes.captionLabel")}</span>
         <span>{lastLabel}</span>
       </div>
 

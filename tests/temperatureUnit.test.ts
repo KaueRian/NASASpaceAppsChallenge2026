@@ -161,7 +161,7 @@ describe("Temperature unit toggle (°C | °F) and conversions", () => {
         ),
       ),
     );
-    expect(chartHtml).toContain("in °F");
+    expect(chartHtml).toContain("em °F");
 
     const stripesHtml = renderToStaticMarkup(
       createElement(

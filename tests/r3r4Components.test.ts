@@ -27,7 +27,7 @@ describe("R3 & R4 UI components", () => {
     const html = renderWithI18n(createElement(Hero));
     expect(html).toContain("Vilhena, RO, Brazil");
     expect(html).toContain("1981–2025");
-    expect(html).toContain("ANOMALY STRIPES (Z-SCORE)");
+    expect(html).toContain("FAIXAS DE ANOMALIA (Z-SCORE)");
   });
 
   it("renders TrendChart with the 3 View As mode buttons", () => {

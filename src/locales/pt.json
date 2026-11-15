@@ -4,6 +4,7 @@
     "investigate": "Investigar",
     "cases": "Casos",
     "methods": "Método",
+    "languageLabel": "Idioma",
     "temperatureUnitLabel": "Unidade de temperatura"
   },
   "hero": {
@@ -276,9 +277,13 @@
     "legendObserved": "Observado",
     "legendTrend": "Tendência de Sen",
     "legendAnomaly": "Anomalia (|z| > 1,5)",
-    "anomalyTag": "Anomalia"
+    "anomalyTag": "Anomalia",
+    "unitClause": " em {{unit}}",
+    "ariaLabel": "Gráfico ({{mode}}): valores observados{{unitClause}} de {{start}} a {{end}}, com a linha de tendência de Sen e anomalias marcadas."
   },
   "stripes": {
+    "ariaLabel": "Faixas de anomalia climática de {{start}} a {{end}}",
+    "captionLabel": "FAIXAS DE ANOMALIA (Z-SCORE)",
     "zScoreLabel": "z = {{z}}",
     "extremeAnomalyTag": "Anomalia extrema (|z| > 1,5)",
     "scaleLowTemp": "Mais frio (−z)",
@@ -288,6 +293,39 @@
     "scaleMean": "Média (z ≈ 0)",
     "explainTemp": "Como ler: cada faixa vertical representa um ano da série em ordem cronológica. Tons azuis indicam anos mais frios que a média do período; faixas neutras ficam próximas à média; tons vermelhos indicam anos mais quentes (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos.",
     "explainHydro": "Como ler: cada faixa vertical representa um ano ou janela sazonal da série em ordem cronológica. Tons ocre indicam anos mais secos que a média do período; faixas neutras ficam próximas à média; tons verde-água indicam anos mais úmidos (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos."
+  },
+  "share": {
+    "sheetAriaLabel": "Exportar e Compartilhar Card de Evidência Científica",
+    "eyebrow": "EXPORTAÇÃO DE EVIDÊNCIA · COMPARTILHAR DOSSIÊ",
+    "title": "Card de Evidência & Exportação de Dados",
+    "closeButton": "ESC / FECHAR",
+    "aspectStory": "Story 9:16",
+    "aspectSquare": "Quadrado 1:1",
+    "savingLink": "Salvando…",
+    "nativeShare": "Compartilhar…",
+    "nativeShareSummary": "{{location}} ({{variable}}, {{startYear}}–{{endYear}}): {{verdict}}",
+    "card": {
+      "headerLabel": "GEOTREND · DOSSIÊ PERICIAL",
+      "pngHeaderLabel": "GEOTREND // DOSSIÊ PERICIAL",
+      "totalShiftDom": "VARIAÇÃO TOTAL ({{nYears}} ANOS)",
+      "totalShiftPng": "VARIAÇÃO TOTAL ({{nYears}} ANOS)",
+      "senSlopeDom": "DECLIVE DE SEN / DÉCADA",
+      "senSlopePng": "DECLIVE DE SEN POR DÉCADA",
+      "mannKendallPValue": "P-VALOR MANN-KENDALL",
+      "confidenceDom": "CONFIANÇA",
+      "confidencePng": "CONFIANÇA ESTATÍSTICA",
+      "inconclusive": "Inconclusiva",
+      "coordinates": "COORDENADAS",
+      "sourcePrefix": "FONTE:",
+      "retrievedPrefix": "CONSULTA:",
+      "pngDataLine": "DADOS: {{provider}} ({{retrievedAt}})",
+      "qrAriaLabel": "Código de verificação do dossiê",
+      "verdictShort": {
+        "STRONG_EVIDENCE": "EVIDÊNCIA FORTE",
+        "EVIDENCE_CONFIRMED": "EVIDÊNCIA CONFIRMADA",
+        "INSUFFICIENT_EVIDENCE": "EVIDÊNCIA INSUFICIENTE"
+      }
+    }
   },
   "investigation": {
     "yearsLabel": "Anos",

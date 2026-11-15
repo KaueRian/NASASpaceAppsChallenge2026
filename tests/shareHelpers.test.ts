@@ -64,12 +64,24 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
     const citationEn = buildCitationText(vilhenaResult, "en");
     expect(citationEn).toContain("GeoTrend");
     expect(citationEn).toContain("Mann-Kendall non-parametric test");
+    expect(citationEn).toContain("Bias-Corrected Total Precipitation (PRECTOTCORR)");
+    expect(citationEn).toContain("Dry Season (Apr–Sep)");
+    expect(citationEn).toContain("95% CI:");
+    expect(citationEn).toContain("mm/decade)");
+    expect(citationEn).toContain("STRONG EVIDENCE");
     expect(citationEn).toContain("NASA POWER / MERRA-2");
     expect(citationEn).toContain("not single-cause physical attribution");
 
     const citationPt = buildCitationText(vilhenaResult, "pt");
     expect(citationPt).toContain("GeoTrend");
     expect(citationPt).toContain("Teste não-paramétrico de Mann-Kendall");
+    expect(citationPt).toContain("Precipitação Total Corrigida (PRECTOTCORR)");
+    expect(citationPt).toContain("Estação Seca (Abr–Set)");
+    expect(citationPt).toContain("IC 95%:");
+    expect(citationPt).toContain("mm/década)");
+    expect(citationPt).toContain("EVIDÊNCIA FORTE");
+    expect(citationPt).not.toContain("95% CI:");
+    expect(citationPt).not.toContain("/decade)");
     expect(citationPt).toContain("sem implicar atribuição causal isolada");
   });
 
