@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "../../i18n/i18n.tsx";
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import type { SavedDossier } from "../../types/investigation.ts";
 import { EvidenceCard } from "./EvidenceCard.tsx";
 import { SatelliteTimelapse } from "./SatelliteTimelapse.tsx";
@@ -11,6 +12,7 @@ export interface SharedDossierViewProps {
 
 export function SharedDossierView({ dossierId, onStartNewInvestigation }: SharedDossierViewProps) {
   const { t } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [dossier, setDossier] = useState<SavedDossier | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -107,7 +109,12 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
       </div>
 
       <div className="flex justify-center overflow-x-auto">
-        <EvidenceCard result={dossier.result} aspect="story" shortUrl={permalink} />
+        <EvidenceCard
+          result={dossier.result}
+          aspect="story"
+          shortUrl={permalink}
+          tempUnit={tempUnit}
+        />
       </div>
 
       <SatelliteTimelapse

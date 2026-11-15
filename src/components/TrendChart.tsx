@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useI18n } from "../i18n/i18n";
-import { UNIT_SUFFIX } from "../lib/resultDisplay";
+import { useOptionalTemperatureUnit } from "../i18n/temperatureUnit";
+import { convertSeriesForDisplay, getDisplayUnitLabel } from "../lib/temperatureUnit";
 import type { SeriesPoint, VariableId, VariableUnit } from "../types/investigation";
 import { ClimateStripes } from "./share/ClimateStripes";
 
@@ -21,6 +22,7 @@ const PADDING_BOTTOM = 36;
 
 export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) {
   const { t, formatNumber } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ChartViewMode>("line");
 
@@ -28,7 +30,8 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
     return null;
   }
 
-  const allValues = series.flatMap((point) => [point.value, point.trendValue]);
+  const displaySeries = convertSeriesForDisplay(series, unit, tempUnit);
+  const allValues = displaySeries.flatMap((point) => [point.value, point.trendValue]);
   const min = Math.min(...allValues);
   const max = Math.max(...allValues);
   const range = max - min || 1;
@@ -36,24 +39,24 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
   const plotWidth = WIDTH - PADDING_LEFT - PADDING_RIGHT;
   const plotHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
-  const xStep = plotWidth / Math.max(series.length - 1, 1);
+  const xStep = plotWidth / Math.max(displaySeries.length - 1, 1);
   const xAt = (index: number) => PADDING_LEFT + index * xStep;
   const yAt = (value: number) => PADDING_TOP + plotHeight - ((value - min) / range) * plotHeight;
 
-  const observedPoints = series
+  const observedPoints = displaySeries
     .map((point, index) => `${xAt(index)},${yAt(point.value)}`)
     .join(" ");
-  const trendPoints = series
+  const trendPoints = displaySeries
     .map((point, index) => `${xAt(index)},${yAt(point.trendValue)}`)
     .join(" ");
 
-  const first = series[0];
-  const last = series[series.length - 1];
-  const unitSuffix = UNIT_SUFFIX[unit]?.trim() ?? "";
+  const first = displaySeries[0];
+  const last = displaySeries[displaySeries.length - 1];
+  const unitSuffix = getDisplayUnitLabel(unit, tempUnit);
   const formatValue = (value: number) =>
     `${formatNumber(value, { maximumFractionDigits: 1 })}${unitSuffix ? ` ${unitSuffix}` : ""}`;
 
-  const hovered = hoveredIndex !== null ? series[hoveredIndex] : undefined;
+  const hovered = hoveredIndex !== null ? displaySeries[hoveredIndex] : undefined;
   const tooltipLeftPct = hovered ? (xAt(hoveredIndex as number) / WIDTH) * 100 : 0;
   const tooltipTopPct = hovered ? (yAt(hovered.value) / HEIGHT) * 100 : 0;
   const barWidth = Math.max(4, Math.min(12, xStep * 0.68));
@@ -158,7 +161,7 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
                 strokeWidth={1.5}
               />
             ) : (
-              series.map((point, index) => {
+              displaySeries.map((point, index) => {
                 const topY = yAt(point.value);
                 const barHeight = Math.max(2, baselineY - topY);
                 return (
@@ -185,7 +188,7 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
               strokeDasharray="6 5"
             />
 
-            {series.map((point, index) => (
+            {displaySeries.map((point, index) => (
               <g key={point.year}>
                 {viewMode === "line" && point.isExtremeAnomaly && (
                   <circle

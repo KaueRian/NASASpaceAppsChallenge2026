@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { getCasePresetById } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
+import { useOptionalTemperatureUnit } from "../i18n/temperatureUnit";
 import { ClientInvestigationError, investigateClientSide } from "../lib/nasa/clientInvestigate";
 import {
   formatMerraGridCell,
@@ -8,7 +9,12 @@ import {
   type MultiVariableScanItem,
   scanAllVariablesWithFdr,
 } from "../lib/nasa/smartInvestigation";
-import { DIRECTION_ARROW, DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
+import { DIRECTION_ARROW, DIRECTION_COLOR } from "../lib/resultDisplay";
+import {
+  convertDeltaValue,
+  convertInvestigationResultForDisplay,
+  getDisplayUnitLabel,
+} from "../lib/temperatureUnit";
 import {
   buildSelectableYears,
   getMaxCompleteYear,
@@ -63,6 +69,7 @@ export function Investigation({
   onOpenDossierPermalink,
 }: InvestigationProps) {
   const { locale, t, formatNumber } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [methodOpen, setMethodOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -255,12 +262,14 @@ export function Investigation({
     }
   };
 
-  const { stats, series, location, variable, season, unit } = result;
+  const displayResult = convertInvestigationResultForDisplay(result, tempUnit);
+  const { stats, location, variable, season, unit } = displayResult;
+  const { series } = result;
 
   const formatPValue = (p: number) =>
     p < 0.001 ? "< 0.001" : formatNumber(p, { maximumFractionDigits: 3 });
 
-  const unitSuffix = UNIT_SUFFIX[unit]?.trim() ?? "";
+  const unitSuffix = getDisplayUnitLabel(unit, tempUnit);
   const variableLabel = t(`variables.${variable}.label`);
   const seasonLabel = t(`seasons.${season}`);
   const verdictText = t(`verdict.${stats.verdict}`);
@@ -477,7 +486,12 @@ export function Investigation({
                     </thead>
                     <tbody>
                       {scanItems.map((item) => {
-                        const itemUnit = UNIT_SUFFIX[item.result.unit]?.trim() ?? "";
+                        const itemUnit = getDisplayUnitLabel(item.result.unit, tempUnit);
+                        const itemSlopeDecade = convertDeltaValue(
+                          item.result.stats.senSlopePerDecade,
+                          item.result.unit,
+                          tempUnit,
+                        );
                         const isActive =
                           item.variable === result.variable && item.season === result.season;
                         return (
@@ -489,8 +503,8 @@ export function Investigation({
                             <td
                               className={`py-1.5 pr-3 ${DIRECTION_COLOR[item.result.stats.direction]}`}
                             >
-                              {item.result.stats.senSlopePerDecade > 0 ? "+" : ""}
-                              {formatNumber(item.result.stats.senSlopePerDecade, {
+                              {itemSlopeDecade > 0 ? "+" : ""}
+                              {formatNumber(itemSlopeDecade, {
                                 maximumFractionDigits: 2,
                               })}{" "}
                               {itemUnit}/dec
@@ -594,14 +608,15 @@ export function Investigation({
                 <p>
                   {t("investigation.ciPerYear")}: [
                   {formatNumber(stats.senSlopeCiLowerPerYear, { maximumFractionDigits: 2 })},{" "}
-                  {formatNumber(stats.senSlopeCiUpperPerYear, { maximumFractionDigits: 2 })}]
+                  {formatNumber(stats.senSlopeCiUpperPerYear, { maximumFractionDigits: 2 })}]{" "}
+                  {unitSuffix}
                 </p>
               )}
             {stats.warnings?.shortRecord && <p>{t("investigation.warnings.shortRecord")}</p>}
             {stats.warnings?.highAutocorrelation && (
               <p>{t("investigation.warnings.highAutocorrelation")}</p>
             )}
-            <p className="pt-2 text-text-muted">{buildCitationText(result, locale)}</p>
+            <p className="pt-2 text-text-muted">{buildCitationText(result, locale, tempUnit)}</p>
             <button
               type="button"
               onClick={onNavigateMethods}
@@ -629,7 +644,12 @@ export function Investigation({
 
       {shareOpen && (
         <div className="mt-6">
-          <ShareSheet result={result} locale={locale} onClose={() => setShareOpen(false)} />
+          <ShareSheet
+            result={result}
+            locale={locale}
+            tempUnit={tempUnit}
+            onClose={() => setShareOpen(false)}
+          />
         </div>
       )}
     </section>

@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import { buildCitationText, downloadDossierCsv } from "../../lib/export/dossierExport.ts";
+import type { TemperatureUnit } from "../../lib/temperatureUnit.ts";
 import type { InvestigationResult, SavedDossier } from "../../types/investigation.ts";
 import { downloadEvidenceCardPng, EvidenceCard, type EvidenceCardAspect } from "./EvidenceCard.tsx";
 
 export interface ShareSheetProps {
   result: InvestigationResult;
   locale?: "en" | "pt";
+  tempUnit?: TemperatureUnit;
   onClose?: () => void;
 }
 
@@ -24,7 +27,9 @@ export function buildInvestigationDeepLink(result: InvestigationResult, origin =
   return `${base}/investigate?${params.toString()}`;
 }
 
-export function ShareSheet({ result, locale = "en", onClose }: ShareSheetProps) {
+export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSheetProps) {
+  const contextTempUnit = useOptionalTemperatureUnit();
+  const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const [aspect, setAspect] = useState<EvidenceCardAspect>("story");
   const [shareUrl, setShareUrl] = useState<string>(() => buildInvestigationDeepLink(result));
   const [copied, setCopied] = useState(false);
@@ -68,7 +73,7 @@ export function ShareSheet({ result, locale = "en", onClose }: ShareSheetProps) 
   }
 
   async function handleCopyCitation() {
-    const text = buildCitationText(result, locale);
+    const text = buildCitationText(result, locale, resolvedTempUnit);
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
       setCopiedCitation(true);
@@ -138,14 +143,14 @@ export function ShareSheet({ result, locale = "en", onClose }: ShareSheetProps) 
         <div className="flex flex-wrap gap-2 font-mono text-xs">
           <button
             type="button"
-            onClick={() => downloadEvidenceCardPng(result, aspect, shareUrl)}
+            onClick={() => downloadEvidenceCardPng(result, aspect, shareUrl, resolvedTempUnit)}
             className="rounded bg-[#C1472E] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:opacity-90"
           >
             Download PNG
           </button>
           <button
             type="button"
-            onClick={() => downloadDossierCsv(result)}
+            onClick={() => downloadDossierCsv(result, resolvedTempUnit)}
             className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
           >
             Download CSV
@@ -178,7 +183,12 @@ export function ShareSheet({ result, locale = "en", onClose }: ShareSheetProps) 
       </div>
 
       <div className="flex justify-center overflow-x-auto py-2">
-        <EvidenceCard result={result} aspect={aspect} shortUrl={shareUrl} />
+        <EvidenceCard
+          result={result}
+          aspect={aspect}
+          shortUrl={shareUrl}
+          tempUnit={resolvedTempUnit}
+        />
       </div>
     </section>
   );

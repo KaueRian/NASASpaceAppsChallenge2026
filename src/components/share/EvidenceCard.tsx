@@ -1,3 +1,9 @@
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
+import {
+  convertDeltaValue,
+  getEvidenceUnitSuffix,
+  type TemperatureUnit,
+} from "../../lib/temperatureUnit.ts";
 import type { InvestigationResult, VerdictLevel } from "../../types/investigation.ts";
 import { ClimateStripes, getStripeColor } from "./ClimateStripes.tsx";
 
@@ -7,6 +13,7 @@ export interface EvidenceCardProps {
   result: InvestigationResult;
   aspect?: EvidenceCardAspect;
   shortUrl?: string;
+  tempUnit?: TemperatureUnit;
 }
 
 const VERDICT_LABEL: Record<VerdictLevel, string> = {
@@ -22,10 +29,15 @@ const VARIABLE_NAME: Record<InvestigationResult["variable"], string> = {
   GWETROOT: "Root-Zone Soil Wetness",
 };
 
-function formatSigned(value: number, unit: InvestigationResult["unit"]): string {
-  const sign = value > 0 ? "+" : "";
-  const suffix = unit === "C" ? "°C" : unit === "mm" ? " mm" : " pts (%)";
-  return `${sign}${value.toFixed(2)}${suffix}`;
+function formatSigned(
+  value: number,
+  unit: InvestigationResult["unit"],
+  tempUnit: TemperatureUnit = "C",
+): string {
+  const converted = convertDeltaValue(value, unit, tempUnit);
+  const sign = converted > 0 ? "+" : "";
+  const suffix = getEvidenceUnitSuffix(unit, tempUnit);
+  return `${sign}${converted.toFixed(2)}${suffix}`;
 }
 
 function buildQrMatrix(seedText: string, size = 11): boolean[][] {
@@ -74,7 +86,9 @@ function buildQrCells(seedText: string): Array<{ id: string; x: number; y: numbe
   return cells;
 }
 
-export function EvidenceCard({ result, aspect = "story", shortUrl }: EvidenceCardProps) {
+export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: EvidenceCardProps) {
+  const contextTempUnit = useOptionalTemperatureUnit();
+  const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const { location, variable, unit, season, stats, series, source } = result;
   const isStory = aspect === "story";
   const stampColor =
@@ -110,7 +124,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl }: EvidenceCar
               TOTAL SHIFT ({stats.nYears} YRS)
             </span>
             <span className="font-mono text-3xl font-extrabold tracking-tight">
-              {formatSigned(stats.totalChangeOverPeriod, unit)}
+              {formatSigned(stats.totalChangeOverPeriod, unit, resolvedTempUnit)}
             </span>
           </div>
           <span
@@ -121,13 +135,21 @@ export function EvidenceCard({ result, aspect = "story", shortUrl }: EvidenceCar
           </span>
         </div>
 
-        <ClimateStripes series={series} variable={variable} height={isStory ? 72 : 48} />
+        <ClimateStripes
+          series={series}
+          variable={variable}
+          unit={unit}
+          tempUnit={resolvedTempUnit}
+          height={isStory ? 72 : 48}
+        />
 
         {isStory && (
           <dl className="grid grid-cols-2 gap-2 border-t border-[#14110F]/15 pt-3 font-mono text-xs">
             <div className="rounded bg-[#E8DFD1] p-2">
               <dt className="text-[10px] uppercase text-[#5C5346]">SEN&apos;S SLOPE / DECADE</dt>
-              <dd className="mt-0.5 font-bold">{formatSigned(stats.senSlopePerDecade, unit)}</dd>
+              <dd className="mt-0.5 font-bold">
+                {formatSigned(stats.senSlopePerDecade, unit, resolvedTempUnit)}
+              </dd>
             </div>
             <div className="rounded bg-[#E8DFD1] p-2">
               <dt className="text-[10px] uppercase text-[#5C5346]">MANN-KENDALL P-VALUE</dt>
@@ -184,6 +206,7 @@ export function downloadEvidenceCardPng(
   result: InvestigationResult,
   aspect: EvidenceCardAspect = "story",
   shortUrl?: string,
+  tempUnit: TemperatureUnit = "C",
 ): void {
   const width = 1080;
   const height = aspect === "story" ? 1920 : 1080;
@@ -226,7 +249,7 @@ export function downloadEvidenceCardPng(
 
   ctx.fillStyle = "#14110F";
   ctx.font = "bold 92px monospace";
-  ctx.fillText(formatSigned(result.stats.totalChangeOverPeriod, result.unit), 72, 425);
+  ctx.fillText(formatSigned(result.stats.totalChangeOverPeriod, result.unit, tempUnit), 72, 425);
 
   const stampColor =
     result.stats.verdict === "STRONG_EVIDENCE"
@@ -262,7 +285,10 @@ export function downloadEvidenceCardPng(
   if (aspect === "story") {
     const metricsTop = stripeTop + stripeHeight + 80;
     const rows: Array<[string, string]> = [
-      ["SEN'S SLOPE PER DECADE", formatSigned(result.stats.senSlopePerDecade, result.unit)],
+      [
+        "SEN'S SLOPE PER DECADE",
+        formatSigned(result.stats.senSlopePerDecade, result.unit, tempUnit),
+      ],
       [
         "MANN-KENDALL P-VALUE",
         `p = ${result.stats.pValue < 0.0001 ? "< 0.0001" : result.stats.pValue.toFixed(5)}`,

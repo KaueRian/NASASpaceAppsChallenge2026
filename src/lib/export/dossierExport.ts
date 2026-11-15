@@ -1,4 +1,9 @@
 import type { InvestigationResult } from "../../types/investigation.ts";
+import {
+  convertInvestigationResultForDisplay,
+  getDisplayUnitLabel,
+  type TemperatureUnit,
+} from "../temperatureUnit.ts";
 
 function escapeCsvCell(value: string | number | boolean): string {
   const str = String(value);
@@ -12,12 +17,17 @@ function escapeCsvCell(value: string | number | boolean): string {
  * Generates a scientific CSV export of an InvestigationResult including
  * metadata comment lines and the annual/seasonal time series.
  */
-export function buildDossierCsv(result: InvestigationResult): string {
-  const { location, variable, unit, season, stats, series, source } = result;
+export function buildDossierCsv(
+  result: InvestigationResult,
+  tempUnit: TemperatureUnit = "C",
+): string {
+  const displayResult = convertInvestigationResultForDisplay(result, tempUnit);
+  const { location, variable, unit, season, stats, series, source } = displayResult;
+  const csvUnit = unit === "C" && tempUnit === "F" ? "F" : unit;
   const lines: string[] = [
     `# EarthTrend Detective — Scientific Series Export`,
     `# Location: ${location.label} (${location.lat.toFixed(4)}, ${location.lon.toFixed(4)})`,
-    `# Variable: ${variable} (${unit}) | Season: ${season}`,
+    `# Variable: ${variable} (${csvUnit}) | Season: ${season}`,
     `# Period: ${stats.startYear}-${stats.endYear} (n=${stats.nYears})`,
     `# Mann-Kendall S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(4)}, p=${stats.pValue.toFixed(6)}, Verdict=${stats.verdict}`,
     `# Sen's Slope: ${stats.senSlopePerYear.toFixed(5)}/yr (${stats.senSlopePerDecade.toFixed(4)}/decade) | Total Change: ${stats.totalChangeOverPeriod.toFixed(3)}`,
@@ -31,7 +41,7 @@ export function buildDossierCsv(result: InvestigationResult): string {
         escapeCsvCell(pt.year),
         escapeCsvCell(pt.label),
         escapeCsvCell(pt.value),
-        escapeCsvCell(unit),
+        escapeCsvCell(csvUnit),
         escapeCsvCell(pt.trendValue),
         escapeCsvCell(pt.zScore),
         escapeCsvCell(pt.isExtremeAnomaly),
@@ -49,10 +59,13 @@ interface AnchorDocumentLike {
 /**
  * Triggers a browser download of the CSV file for the given investigation result.
  */
-export function downloadDossierCsv(result: InvestigationResult): void {
+export function downloadDossierCsv(
+  result: InvestigationResult,
+  tempUnit: TemperatureUnit = "C",
+): void {
   const doc = (globalThis as { document?: AnchorDocumentLike }).document;
   if (!doc) return;
-  const csv = buildDossierCsv(result);
+  const csv = buildDossierCsv(result, tempUnit);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const safeName = result.location.label
@@ -71,9 +84,14 @@ export function downloadDossierCsv(result: InvestigationResult): void {
  * in English (`en`) or Portuguese (`pt`), including Mann-Kendall, Sen's Slope with 95% CI,
  * NASA POWER / MERRA-2 attribution, and the correlation-vs-causation caveat.
  */
-export function buildCitationText(result: InvestigationResult, locale: "en" | "pt" = "en"): string {
-  const { location, variable, unit, season, stats, source } = result;
-  const unitDisplay = unit === "C" ? "°C" : unit === "mm" ? "mm" : "%";
+export function buildCitationText(
+  result: InvestigationResult,
+  locale: "en" | "pt" = "en",
+  tempUnit: TemperatureUnit = "C",
+): string {
+  const displayResult = convertInvestigationResultForDisplay(result, tempUnit);
+  const { location, variable, unit, season, stats, source } = displayResult;
+  const unitDisplay = getDisplayUnitLabel(unit, tempUnit);
   const sign = stats.totalChangeOverPeriod > 0 ? "+" : "";
   const decSign = stats.senSlopePerDecade > 0 ? "+" : "";
   const ciPart =
