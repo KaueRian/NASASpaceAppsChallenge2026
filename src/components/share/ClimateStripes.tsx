@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useOptionalI18n } from "../../i18n/i18n.tsx";
-import { UNIT_SUFFIX } from "../../lib/resultDisplay.ts";
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
+import {
+  convertAbsoluteValue,
+  getDisplayUnitLabel,
+  type TemperatureUnit,
+} from "../../lib/temperatureUnit.ts";
 import {
   type SeriesPoint,
   VARIABLE_UNIT_MAP,
@@ -12,6 +17,7 @@ export interface ClimateStripesProps {
   series: readonly SeriesPoint[];
   variable: VariableId;
   unit?: VariableUnit;
+  tempUnit?: TemperatureUnit;
   height?: number;
   className?: string;
   tone?: "light" | "dark";
@@ -116,6 +122,7 @@ export function ClimateStripes({
   series,
   variable,
   unit,
+  tempUnit,
   height = 56,
   className = "",
   tone = "light",
@@ -124,12 +131,14 @@ export function ClimateStripes({
   initialActiveIndex,
 }: ClimateStripesProps) {
   const i18n = useOptionalI18n();
+  const contextTempUnit = useOptionalTemperatureUnit();
   const [activeIndex, setActiveIndex] = useState<number | null>(() => initialActiveIndex ?? null);
 
   if (series.length === 0) return null;
 
   const resolvedUnit = unit ?? VARIABLE_UNIT_MAP[variable];
-  const unitSuffix = UNIT_SUFFIX[resolvedUnit]?.trim() ?? "";
+  const resolvedTempUnit = tempUnit ?? contextTempUnit;
+  const unitSuffix = getDisplayUnitLabel(resolvedUnit, resolvedTempUnit);
 
   const formatNum =
     i18n?.formatNumber ??
@@ -141,8 +150,11 @@ export function ClimateStripes({
     return interpolateFallback(FALLBACK_EN[key] ?? key, params);
   };
 
-  const formatPointValue = (value: number) =>
-    `${formatNum(value, { maximumFractionDigits: 1 })}${unitSuffix ? ` ${unitSuffix}` : ""}`;
+  const displayPointValue = (rawValue: number) =>
+    convertAbsoluteValue(rawValue, resolvedUnit, resolvedTempUnit);
+
+  const formatPointValue = (rawValue: number) =>
+    `${formatNum(displayPointValue(rawValue), { maximumFractionDigits: 1 })}${unitSuffix ? ` ${unitSuffix}` : ""}`;
 
   const firstLabel = series[0]?.label ?? "";
   const lastLabel = series[series.length - 1]?.label ?? "";

@@ -1,5 +1,6 @@
 import { useI18n } from "../i18n/i18n";
 import { LanguageToggle } from "./LanguageToggle";
+import { TemperatureUnitToggle } from "./TemperatureUnitToggle";
 
 export type SectionId = "investigation" | "cases";
 
@@ -47,7 +48,13 @@ export function AppHeader({
           </button>
         </nav>
 
-        <LanguageToggle />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <TemperatureUnitToggle />
+          <span aria-hidden="true" className="text-border">
+            |
+          </span>
+          <LanguageToggle />
+        </div>
       </div>
     </header>
   );

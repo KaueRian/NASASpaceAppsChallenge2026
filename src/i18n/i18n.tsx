@@ -9,6 +9,7 @@ import {
 } from "react";
 import en from "../locales/en.json";
 import pt from "../locales/pt.json";
+import { TemperatureUnitProvider } from "./temperatureUnit";
 
 export type Locale = "en" | "pt";
 
@@ -104,7 +105,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale, setLocale, t, formatNumber],
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return (
+    <I18nContext.Provider value={value}>
+      <TemperatureUnitProvider>{children}</TemperatureUnitProvider>
+    </I18nContext.Provider>
+  );
 }
 
 export function useOptionalI18n(): I18nContextValue | null {

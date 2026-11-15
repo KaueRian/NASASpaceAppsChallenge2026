@@ -3,7 +3,8 @@
     "wordmark": "EarthTrend Detective",
     "investigate": "Investigar",
     "cases": "Casos",
-    "methods": "Método"
+    "methods": "Método",
+    "temperatureUnitLabel": "Unidade de temperatura"
   },
   "hero": {
     "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · MOTOR DE EVIDÊNCIA ESTATÍSTICA",
