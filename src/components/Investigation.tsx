@@ -862,6 +862,27 @@ export function Investigation({
         <TrendChart series={series} unit={unit} variable={variable} />
       </div>
 
+      <div className="mt-4 flex flex-wrap items-start gap-3">
+        <button
+          type="button"
+          onClick={() => setShareOpen(true)}
+          className="border border-border px-4 py-2 font-mono text-xs uppercase tracking-wide text-text hover:border-accent"
+        >
+          {t("actions.share")}
+        </button>
+      </div>
+
+      {shareOpen && (
+        <div className="mt-4">
+          <ShareSheet
+            result={result}
+            locale={locale}
+            tempUnit={tempUnit}
+            onClose={() => setShareOpen(false)}
+          />
+        </div>
+      )}
+
       <div className="mt-6">
         <SatelliteTimelapse
           location={location}
@@ -926,27 +947,6 @@ export function Investigation({
           </div>
         )}
       </div>
-
-      <div className="mt-6 flex flex-wrap items-start gap-3">
-        <button
-          type="button"
-          onClick={() => setShareOpen(true)}
-          className="border border-border px-4 py-2 font-mono text-xs uppercase tracking-wide text-text hover:border-accent"
-        >
-          {t("actions.share")}
-        </button>
-      </div>
-
-      {shareOpen && (
-        <div className="mt-6">
-          <ShareSheet
-            result={result}
-            locale={locale}
-            tempUnit={tempUnit}
-            onClose={() => setShareOpen(false)}
-          />
-        </div>
-      )}
     </section>
   );
 }
