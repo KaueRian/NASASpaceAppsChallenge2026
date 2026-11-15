@@ -430,6 +430,8 @@
     "tryValidQuestion": "Try a supported investigation:",
     "errorTitle": "AI assistant unavailable right now",
     "openManualRecovery": "Open manual filters (Advanced)",
+    "fallbackTitle": "Offline / Resilient Local Mode Active",
+    "fallbackBody": "Gemini API is currently unreachable or unconfigured. Your question was mapped deterministically and the summary below uses verified NASA POWER statistics.",
     "errors": {
       "AI_INVALID_REQUEST": "Enter a concise climate question (up to 500 characters).",
       "AI_NOT_CONFIGURED": "Gemini API key is not configured on this server yet. You can still investigate using manual filters in Advanced.",
