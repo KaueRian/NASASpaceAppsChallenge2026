@@ -6,6 +6,7 @@
 1. **Task-Driven & Design-Aligned Development (`TASK.md` & `DESIGN.md`):**
    - Read [`TASK.md`](TASK.md) before making any change, and read [`DESIGN.md`](DESIGN.md) before any UI/UX work (Old NY Noir Detective Office theme, no detective character/avatar, 3-room layout, *Show Your Stripes* card).
    - **Every change—even a single-line fix or doc tweak—must have an associated task in `TASK.md`.** If one does not exist, create a new task in `TASK.md` first.
+   - **Mandatory Priority Property (`priority` / PT-BR `prioridade`):** Every open (`[ ]` / `[~]`) or newly created task MUST carry an explicit priority tag (`[priority: low]`, `[priority: medium]`, or `[priority: high]` in `TASK.md`; `[prioridade: baixa]`, `[prioridade: média]`, or `[prioridade: alta]` in PT-BR root trackers). Assign the priority stated by the user or choose one autonomously based on hackathon deadline risk and judging impact.
    - Update task status (`[ ]` -> `[~]` -> `[x]`) as you work.
    - **Release Ladder:** follow `TASK.md` releases top-down (`R0` → `R4`); `main` must always hold the latest complete, working release.
    - **`DESIGN.md` overrides any external design skill or generic style suggestion.**
