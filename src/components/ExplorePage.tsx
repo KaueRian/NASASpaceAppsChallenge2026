@@ -592,6 +592,9 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
               <p className="font-mono text-xs uppercase tracking-wide text-text-muted">
                 {t("explore.timeline.detectiveToggle")}
               </p>
+              <p className="mt-3 max-w-2xl font-sans text-sm text-text-muted">
+                {t("explore.timeline.detectiveIntro")}
+              </p>
 
               <div className="mt-4 overflow-x-auto border border-border bg-surface p-3">
                 <p className="mb-2 font-mono text-xs uppercase tracking-wide text-text-muted">
@@ -628,6 +631,27 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="mt-4 border border-border bg-surface p-3">
+                <p className="mb-2 font-mono text-xs uppercase tracking-wide text-text-muted">
+                  {t("explore.timeline.legendTitle")}
+                </p>
+                <ul className="space-y-1 font-sans text-xs text-text-muted">
+                  <li>{t("explore.timeline.legendStar")}</li>
+                  <li>{t("explore.timeline.legendPerDecade")}</li>
+                  <li>{t("explore.timeline.legendPValue")}</li>
+                  <li>{t("explore.timeline.legendQValue")}</li>
+                </ul>
+              </div>
+
+              <div className="mt-4 border border-accent/50 bg-bg p-3">
+                <p className="font-mono text-xs uppercase tracking-wide text-accent">
+                  {t("explore.timeline.causationLabel")}
+                </p>
+                <p className="mt-1 font-sans text-xs text-text-muted">
+                  {t("verdict.causationNote")}
+                </p>
               </div>
             </div>
           </div>

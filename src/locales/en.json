@@ -244,11 +244,18 @@
       },
       "rarityFraming": "This is one of the strongest birth-month climate shifts we measure — most results we see are weaker than this.",
       "detectiveToggle": "Modo Detetive — full statistical case file",
+      "detectiveIntro": "This is the full evidence behind the result: we checked all 4 climate variables NASA measures for your birth month — temperature, overnight minimum temperature, rainfall, and soil moisture — to see which one changed the most since you were born.",
       "scanTableTitle": "All 4 variables scanned (Benjamini-Hochberg FDR adjusted)",
       "scanColVariable": "Variable",
       "scanColSlope": "Per decade",
       "scanColPValue": "p-value",
       "scanColQValue": "FDR q-value",
+      "legendTitle": "How to read this table",
+      "legendStar": "★ — the variable with the strongest change, the one used for the main result",
+      "legendPerDecade": "Per decade — how much it changed every 10 years",
+      "legendPValue": "p-value — the lower, the less likely this is just random coincidence",
+      "legendQValue": "FDR q-value — the p-value adjusted for checking 4 variables at once; ✓ means it still holds up",
+      "causationLabel": "Important caveat",
       "variableLabel": "Variable",
       "periodLabel": "Period"
     }
