@@ -1,46 +1,12 @@
-export type BrandLogoVariant = "mark" | "wordmark";
-export type BrandTone = "dark" | "paper";
+import {
+  BRAND_MARK_GEOMETRY,
+  BRAND_PALETTE,
+  BRAND_TREND_PATH_D,
+  type BrandLogoVariant,
+  type BrandTone,
+} from "../lib/brand/logoGeometry.ts";
 
-export const BRAND_PALETTE: Record<
-  BrandTone,
-  { ring: string; graticule: string; trend: string; text: string }
-> = {
-  dark: {
-    ring: "#EDEDEA",
-    graticule: "#9B9B98",
-    trend: "#C1472E",
-    text: "#EDEDEA",
-  },
-  paper: {
-    ring: "#14110F",
-    graticule: "#5C5346",
-    trend: "#C1472E",
-    text: "#14110F",
-  },
-};
-
-/**
- * Canonical 32x32 coordinate geometry for the "Geo + Trend" emblem.
- * Shared verbatim between the React SVG component and Canvas 2D exporters.
- */
-export const BRAND_MARK_GEOMETRY = {
-  viewBoxSize: 32,
-  globe: { cx: 15.2, cy: 16.8, r: 10.2, strokeWidth: 1.85 },
-  equator: { x1: 5.2, y1: 16.8, x2: 25.2, y2: 16.8, strokeWidth: 1.2 },
-  meridian: { cx: 15.2, cy: 16.8, rx: 4.7, ry: 10.2, strokeWidth: 1.2 },
-  trendPoints: [
-    [5.5, 22.5],
-    [11.8, 17.2],
-    [15.8, 18.8],
-    [26.2, 6.2],
-  ] as const,
-  trendStrokeWidth: 2.5,
-  terminalDot: { cx: 26.2, cy: 6.2, r: 2.6 },
-} as const;
-
-const TREND_PATH_D = BRAND_MARK_GEOMETRY.trendPoints
-  .map(([px, py], idx) => `${idx === 0 ? "M" : "L"}${px} ${py}`)
-  .join(" ");
+export { BRAND_MARK_GEOMETRY, BRAND_PALETTE, type BrandLogoVariant, type BrandTone };
 
 export interface DrawBrandMarkCanvasOptions {
   x: number;
@@ -183,7 +149,7 @@ function BrandMarkSvg({
         strokeWidth={globe.strokeWidth}
       />
       <path
-        d={TREND_PATH_D}
+        d={BRAND_TREND_PATH_D}
         stroke={palette.trend}
         strokeWidth={trendStrokeWidth}
         strokeLinecap="round"
