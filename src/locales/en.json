@@ -459,6 +459,15 @@
       "compute": "2. NASA + Mann-Kendall",
       "interpret": "3. AI Synthesis"
     },
+    "stepStatuses": {
+      "pending": "Waiting",
+      "running": "Running…",
+      "doneAi": "Done · AI",
+      "doneData": "Done · Real data",
+      "doneLocal": "Local mode · no AI",
+      "skipped": "Not executed",
+      "failed": "Failed"
+    },
     "activeSummaryLabel": "Active filters",
     "openAdvancedFilters": "Advanced / Edit filters manually",
     "hideAdvancedFilters": "Hide manual filters",
@@ -468,8 +477,8 @@
     "tryValidQuestion": "Try a supported investigation:",
     "errorTitle": "AI assistant unavailable right now",
     "openManualRecovery": "Open manual filters (Advanced)",
-    "fallbackTitle": "Offline / Resilient Local Mode Active",
-    "fallbackBody": "Gemini API is currently unreachable or unconfigured. Your question was mapped deterministically and the summary below uses verified NASA POWER statistics.",
+    "fallbackTitle": "Local mode active (no AI)",
+    "fallbackBody": "The AI service did not respond right now. Local steps used deterministic rules and verified NASA POWER calculations.",
     "errors": {
       "AI_INVALID_REQUEST": "Enter a concise climate question (up to 500 characters).",
       "AI_NOT_CONFIGURED": "Gemini API key is not configured on this server yet. You can still investigate using manual filters in Advanced.",
@@ -479,6 +488,8 @@
       "AI_BAD_RESPONSE": "The AI returned an unexpected structure. Please rephrase or adjust filters in Advanced."
     },
     "synthesisTitle": "AI Scientific Synthesis",
+    "synthesisSourceAi": "AI",
+    "synthesisSourceLocal": "Local Statistical Summary (no AI)",
     "synthesisCached": "Cached",
     "findingsTitle": "Observed Statistical Findings",
     "hypothesesTitle": "Plausible Scientific Hypotheses (Not Proven Causes)",

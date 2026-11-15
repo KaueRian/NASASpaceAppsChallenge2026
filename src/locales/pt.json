@@ -459,6 +459,15 @@
       "compute": "2. NASA + Mann-Kendall",
       "interpret": "3. Síntese IA"
     },
+    "stepStatuses": {
+      "pending": "Aguardando",
+      "running": "Executando…",
+      "doneAi": "Concluído · IA",
+      "doneData": "Concluído · Dados reais",
+      "doneLocal": "Modo local · sem IA",
+      "skipped": "Não executada",
+      "failed": "Falhou"
+    },
     "activeSummaryLabel": "Filtros ativos",
     "openAdvancedFilters": "Avançado / Editar filtros manualmente",
     "hideAdvancedFilters": "Ocultar filtros manuais",
@@ -468,8 +477,8 @@
     "tryValidQuestion": "Sugestões válidas em 1 clique:",
     "errorTitle": "Assistente de IA indisponível no momento",
     "openManualRecovery": "Abrir filtros manuais (Avançado)",
-    "fallbackTitle": "Modo Resiliente Local Ativo",
-    "fallbackBody": "O serviço Gemini está temporariamente indisponível ou sem chave configurada. A pergunta foi convertida localmente e a síntese abaixo usa os cálculos verificados da NASA POWER.",
+    "fallbackTitle": "Modo local ativo (sem IA)",
+    "fallbackBody": "O serviço de IA não respondeu no momento. As etapas locais usaram regras determinísticas e os cálculos verificados da NASA POWER.",
     "errors": {
       "AI_INVALID_REQUEST": "Digite uma pergunta climática concisa (até 500 caracteres).",
       "AI_NOT_CONFIGURED": "A chave Gemini ainda não está configurada neste servidor. Você pode investigar normalmente pelos filtros manuais em Avançado.",
@@ -479,6 +488,8 @@
       "AI_BAD_RESPONSE": "A IA retornou um formato inesperado. Reformule a pergunta ou ajuste os filtros em Avançado."
     },
     "synthesisTitle": "Síntese Científica da IA",
+    "synthesisSourceAi": "IA",
+    "synthesisSourceLocal": "Síntese Estatística Local (sem IA)",
     "synthesisCached": "Em cache",
     "findingsTitle": "Achados Estatísticos Observados",
     "hypothesesTitle": "Hipóteses Científicas Plausíveis (Não Provam Causalidade)",

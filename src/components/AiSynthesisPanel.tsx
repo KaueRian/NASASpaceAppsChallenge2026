@@ -1,4 +1,5 @@
 import { useI18n } from "../i18n/i18n";
+import { LOCAL_INTERPRET_MODEL } from "../lib/ai/fallback";
 import type { AiInterpretResult } from "../types/ai";
 
 interface AiSynthesisPanelProps {
@@ -29,6 +30,9 @@ export function AiSynthesisPanel({
     return null;
   }
 
+  const isLocalSynthesis = interpretation.model === LOCAL_INTERPRET_MODEL;
+  const sourceLabel = isLocalSynthesis ? t("ai.synthesisSourceLocal") : t("ai.synthesisSourceAi");
+
   return (
     <div className="mt-5 border border-border bg-surface p-4 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
@@ -36,7 +40,7 @@ export function AiSynthesisPanel({
           {t("ai.synthesisTitle")}
         </p>
         <span className="font-mono text-[11px] text-text-muted">
-          {interpretation.model}
+          {sourceLabel}
           {interpretation.cached ? ` · ${t("ai.synthesisCached")}` : ""}
         </span>
       </div>
