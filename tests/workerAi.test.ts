@@ -118,10 +118,13 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(body1.filters.variable).toBe("PRECTOTCORR");
     expect(body1.filters.season).toBe("apr_sep");
     expect(body1.cached).toBe(false);
+    expect(body1.model).toBe("gemini-4-hydrogen");
+    expect(body1.thinkingLevel).toBe("low");
+    expect(body1.fallbackUsed).toBe(false);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const [calledUrl, calledInit] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(calledUrl).toContain("/v1beta/models/gemini-3.5-flash-lite:generateContent");
+    expect(calledUrl).toContain("/v1beta/models/gemini-4-hydrogen:generateContent");
     expect((calledInit.headers as Record<string, string>)["x-goog-api-key"]).toBe(
       "test-gemini-key",
     );
@@ -221,9 +224,19 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as AiInterpretResult;
     expect(body.ok).toBe(true);
+    expect(body.model).toBe("gemini-4-hydrogen");
+    expect(body.thinkingLevel).toBe("xhigh");
+    expect(body.fallbackUsed).toBe(false);
     expect(body.hypotheses).toHaveLength(2);
     expect(body.followUpQuestions.length).toBeGreaterThanOrEqual(1);
     expect(body.causalityWarning).toContain("Correlação");
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const sentBody = JSON.parse(String(init.body)) as {
+      generationConfig: { maxOutputTokens: number; thinkingConfig: { thinkingLevel: string } };
+    };
+    expect(sentBody.generationConfig.maxOutputTokens).toBe(8192);
+    expect(sentBody.generationConfig.thinkingConfig.thinkingLevel).toBe("xhigh");
   });
 
   it("handles inScope=false gracefully and rejects malformed Gemini JSON with 502 AI_BAD_RESPONSE", async () => {
@@ -445,14 +458,17 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(res503Failover.status).toBe(200);
     const body503 = (await res503Failover.json()) as AiTranslateResult;
     expect(body503.ok).toBe(true);
-    expect(body503.model).toBe("gemini-flash-lite-latest");
+    expect(body503.model).toBe("gemini-3.8-flash");
+    expect(body503.fallbackUsed).toBe(true);
     expect(spikeThenOkFetch).toHaveBeenCalledTimes(2);
     expect(String((spikeThenOkFetch.mock.calls[0] as [string])[0])).toContain(
-      "/models/gemini-3.5-flash-lite:generateContent",
+      "/models/gemini-4-hydrogen:generateContent",
     );
     expect(String((spikeThenOkFetch.mock.calls[1] as [string])[0])).toContain(
-      "/models/gemini-flash-lite-latest:generateContent",
+      "/models/gemini-3.8-flash:generateContent",
     );
+
+    resetAiRateLimitsForTests();
 
     const abortErr = new Error("The operation was aborted.");
     abortErr.name = "AbortError";
@@ -479,8 +495,11 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(resTimeoutFailover.status).toBe(200);
     const bodyTimeout = (await resTimeoutFailover.json()) as AiTranslateResult;
     expect(bodyTimeout.ok).toBe(true);
-    expect(bodyTimeout.model).toBe("gemini-flash-lite-latest");
+    expect(bodyTimeout.model).toBe("gemini-3.8-flash");
+    expect(bodyTimeout.fallbackUsed).toBe(true);
     expect(timeoutThenOkFetch).toHaveBeenCalledTimes(2);
+
+    resetAiRateLimitsForTests();
 
     const unauthorizedFetch = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ error: { message: "API key not valid." } }), {
@@ -501,5 +520,350 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     );
     expect(resUnauthorized.status).toBe(502);
     expect(unauthorizedFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("runs Wave 2 effort step-down on Layer 3 timeout/MAX_TOKENS and respects D1 circuit-breaker cooldowns & auto-recovery", async () => {
+    const validInterpretResponse = (note: string) =>
+      new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              finishReason: "STOP",
+              content: {
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      directAnswer: note,
+                      keyFindings: ["Declínio confirmado na série."],
+                      hypotheses: [
+                        { title: "H1", description: "Explicação física 1." },
+                        { title: "H2", description: "Explicação física 2." },
+                      ],
+                      causalityWarning: "Correlação estatística não prova causalidade isolada.",
+                      followUpQuestions: ["Comparar com outra estação?"],
+                    }),
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+
+    const interpretBody = {
+      question: "Como mudou a seca em Vilhena?",
+      lang: "pt",
+      location: { label: "Vilhena, RO, Brazil", lat: -12.74, lon: -60.14 },
+      variable: "PRECTOTCORR",
+      unit: "mm",
+      season: "apr_sep",
+      stats: {
+        mannKendallS: -392,
+        mannKendallVariance: 10516.67,
+        startYear: 1981,
+        endYear: 2025,
+        nYears: 45,
+        fullPeriodMean: 380,
+        fullPeriodStdDev: 60,
+        zScore: -3.82,
+        pValue: 0.000131,
+        confidenceLevel: 99,
+        senSlopePerYear: -5.33,
+        senSlopePerDecade: -53.29,
+        totalChangeOverPeriod: -234.46,
+        verdict: "STRONG_EVIDENCE",
+        direction: "drier",
+      },
+      extremeYears: [{ label: "2016", value: 210.5, zScore: -2.1 }],
+    };
+
+    const wave2Fetch = vi.fn().mockImplementation(async (_url: string, init?: RequestInit) => {
+      const sent = JSON.parse(String(init?.body)) as {
+        generationConfig: { thinkingConfig: { thinkingLevel: string } };
+      };
+      const level = sent.generationConfig.thinkingConfig.thinkingLevel;
+      if (level === "xhigh" || level === "high") {
+        return new Response(
+          JSON.stringify({
+            candidates: [
+              { finishReason: "MAX_TOKENS", content: { parts: [{ thought: true, text: "..." }] } },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return validInterpretResponse(`Recovered at ${level}`);
+    });
+    vi.stubGlobal("fetch", wave2Fetch);
+
+    const wave2Res = await app.request(
+      "/api/ai/interpret",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(interpretBody),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(wave2Res.status).toBe(200);
+    const wave2Data = (await wave2Res.json()) as AiInterpretResult;
+    expect(wave2Data.model).toBe("gemini-4-hydrogen");
+    expect(wave2Data.thinkingLevel).toBe("medium");
+    expect(wave2Data.fallbackUsed).toBe(true);
+    expect(wave2Fetch).toHaveBeenCalledTimes(9);
+
+    resetAiRateLimitsForTests();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-15T14:00:00.000Z"));
+
+    const cacheStore = new Map<
+      string,
+      { stage: string; response_json: string; created_at: string }
+    >();
+    const cooldownStore = new Map<
+      string,
+      { model: string; cooldown_until: number; reason: string; failure_count: number }
+    >();
+
+    const statefulDb = {
+      prepare: vi.fn((sql: string) => ({
+        bind: vi.fn((...params: unknown[]) => ({
+          first: vi.fn(async () => {
+            if (sql.includes("FROM ai_cache")) {
+              return cacheStore.get(String(params[0])) ?? null;
+            }
+            return null;
+          }),
+          all: vi.fn(async () => {
+            if (sql.includes("FROM ai_model_cooldowns")) {
+              const nowMs = Number(params[0] ?? 0);
+              return {
+                results: Array.from(cooldownStore.values()).filter((r) => r.cooldown_until > nowMs),
+              };
+            }
+            return { results: [] };
+          }),
+          run: vi.fn(async () => {
+            if (sql.includes("INSERT OR REPLACE INTO ai_cache")) {
+              cacheStore.set(String(params[0]), {
+                stage: String(params[1]),
+                response_json: String(params[2]),
+                created_at: new Date().toISOString().replace("T", " ").slice(0, 19),
+              });
+            } else if (sql.includes("INTO ai_model_cooldowns")) {
+              const model = String(params[0]);
+              const existing = cooldownStore.get(model);
+              cooldownStore.set(model, {
+                model,
+                cooldown_until: Number(params[1]),
+                reason: String(params[2]),
+                failure_count: (existing?.failure_count ?? 0) + 1,
+              });
+            } else if (sql.includes("DELETE FROM ai_model_cooldowns")) {
+              cooldownStore.delete(String(params[0]));
+            }
+            return { success: true };
+          }),
+        })),
+        run: vi.fn(async () => ({ success: true })),
+      })),
+    } as unknown as D1Database;
+
+    const degradedFirstFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: { message: "Model overloaded" } }), { status: 503 }),
+      )
+      .mockResolvedValueOnce(validInterpretResponse("Secondary answer"));
+    vi.stubGlobal("fetch", degradedFirstFetch);
+
+    const fallbackRes = await app.request(
+      "/api/ai/interpret",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(interpretBody),
+      },
+      buildEnv({ db: statefulDb, geminiApiKey: "test-gemini-key" }),
+    );
+    expect(fallbackRes.status).toBe(200);
+    const fallbackData = (await fallbackRes.json()) as AiInterpretResult;
+    expect(fallbackData.model).toBe("gemini-3.8-flash");
+    expect(fallbackData.thinkingLevel).toBe("high");
+    expect(fallbackData.fallbackUsed).toBe(true);
+    expect(cooldownStore.has("gemini-4-hydrogen")).toBe(true);
+
+    const nextQueryFetch = vi
+      .fn()
+      .mockResolvedValueOnce(validInterpretResponse("Skipped cooled tier"));
+    vi.stubGlobal("fetch", nextQueryFetch);
+    const skippedRes = await app.request(
+      "/api/ai/interpret",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...interpretBody, question: "Outra pergunta em Vilhena?" }),
+      },
+      buildEnv({ db: statefulDb, geminiApiKey: "test-gemini-key" }),
+    );
+    expect(skippedRes.status).toBe(200);
+    expect(nextQueryFetch).toHaveBeenCalledTimes(1);
+    expect(String((nextQueryFetch.mock.calls[0] as [string])[0])).toContain(
+      "/models/gemini-3.8-flash:generateContent",
+    );
+
+    vi.advanceTimersByTime(16 * 60 * 1000);
+    const recoveredFetch = vi
+      .fn()
+      .mockResolvedValueOnce(validInterpretResponse("Upgraded back to primary"));
+    vi.stubGlobal("fetch", recoveredFetch);
+
+    const upgradedRes = await app.request(
+      "/api/ai/interpret",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(interpretBody),
+      },
+      buildEnv({ db: statefulDb, geminiApiKey: "test-gemini-key" }),
+    );
+    expect(upgradedRes.status).toBe(200);
+    const upgradedData = (await upgradedRes.json()) as AiInterpretResult;
+    expect(upgradedData.cached).toBe(false);
+    expect(upgradedData.model).toBe("gemini-4-hydrogen");
+    expect(upgradedData.thinkingLevel).toBe("xhigh");
+    expect(upgradedData.fallbackUsed).toBe(false);
+    expect(cooldownStore.has("gemini-4-hydrogen")).toBe(false);
+
+    // Primary high-effort cache persists beyond 20 minutes without re-calling Gemini.
+    vi.advanceTimersByTime(20 * 60 * 1000);
+    const cacheOnlyFetch = vi.fn();
+    vi.stubGlobal("fetch", cacheOnlyFetch);
+    const longCacheRes = await app.request(
+      "/api/ai/interpret",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(interpretBody),
+      },
+      buildEnv({ db: statefulDb, geminiApiKey: "test-gemini-key" }),
+    );
+    expect(longCacheRes.status).toBe(200);
+    const longCacheData = (await longCacheRes.json()) as AiInterpretResult;
+    expect(longCacheData.cached).toBe(true);
+    expect(longCacheData.model).toBe("gemini-4-hydrogen");
+    expect(longCacheData.thinkingLevel).toBe("xhigh");
+    expect(cacheOnlyFetch).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
+
+  it("fast-fails without calling Gemini when all models are cooling down after 429 limits, and skips duplicate hydrogen minimal calls on translate Wave 2", async () => {
+    const translateStepDownFetch = vi
+      .fn()
+      .mockImplementation(async (_url: string, init?: RequestInit) => {
+        const sent = JSON.parse(String(init?.body)) as {
+          generationConfig: { thinkingConfig: { thinkingLevel: string } };
+        };
+        if (sent.generationConfig.thinkingConfig.thinkingLevel === "minimal") {
+          return new Response(
+            JSON.stringify({
+              candidates: [
+                {
+                  finishReason: "STOP",
+                  content: {
+                    parts: [
+                      {
+                        text: JSON.stringify({
+                          inScope: true,
+                          outOfScopeMessage: "",
+                          limitationNotice: "",
+                          suggestedValidQuestions: [],
+                          reasoning: "Minimal latency path.",
+                          initialHypothesis: "Testing precipitation.",
+                          filters: {
+                            reuseCurrentLocation: false,
+                            locationQuery: "Vilhena, RO, Brazil",
+                            lat: -12.74,
+                            lon: -60.14,
+                            variable: "PRECTOTCORR",
+                            season: "annual",
+                            startYear: 1981,
+                            endYear: 2025,
+                            runMultiVariableScan: false,
+                          },
+                        }),
+                      },
+                    ],
+                  },
+                },
+              ],
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+        return new Response(
+          JSON.stringify({
+            candidates: [
+              { finishReason: "MAX_TOKENS", content: { parts: [{ thought: true, text: "..." }] } },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      });
+    vi.stubGlobal("fetch", translateStepDownFetch);
+
+    const translateRes = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Chuva em Vilhena?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(translateRes.status).toBe(200);
+    const translateData = (await translateRes.json()) as AiTranslateResult;
+    expect(translateData.model).toBe("gemini-3.8-flash");
+    expect(translateData.thinkingLevel).toBe("minimal");
+    expect(translateData.fallbackUsed).toBe(true);
+    // 8 Wave-1 calls ("low") + 1 Wave-2 call ("minimal" skipping hydrogen because hydrogen already ran "low").
+    expect(translateStepDownFetch).toHaveBeenCalledTimes(9);
+
+    resetAiRateLimitsForTests();
+
+    const rateLimitFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ error: { message: "Quota exhausted" } }), { status: 429 }),
+      );
+    vi.stubGlobal("fetch", rateLimitFetch);
+
+    const first429Res = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Seca em Manaus?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(first429Res.status).toBe(429);
+    expect(rateLimitFetch).toHaveBeenCalledTimes(8);
+
+    const blockedFastFailFetch = vi.fn();
+    vi.stubGlobal("fetch", blockedFastFailFetch);
+    const secondRes = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Seca em Cuiabá?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(secondRes.status).toBe(429);
+    expect(blockedFastFailFetch).not.toHaveBeenCalled();
   });
 });

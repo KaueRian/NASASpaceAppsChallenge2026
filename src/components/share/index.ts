@@ -1,7 +1,11 @@
 export {
+  type AcademicCitationFormat,
+  buildAcademicCitation,
   buildCitationText,
   buildDossierCsv,
+  buildSatelliteCitationText,
   downloadDossierCsv,
+  type SatelliteCitationInput,
 } from "../../lib/export/dossierExport.ts";
 export {
   BirthdayCard,
@@ -38,6 +42,7 @@ export {
   type GibsLayerId,
   latLonToTileXY,
   resolveGibsComparisonWindow,
+  type SatelliteDeepLinkContext,
   SatelliteTimelapse,
   type SatelliteTimelapseProps,
   type SatelliteViewMode,
@@ -47,3 +52,10 @@ export {
   type SharedDossierViewProps,
 } from "./SharedDossierView.tsx";
 export { buildInvestigationDeepLink, ShareSheet, type ShareSheetProps } from "./ShareSheet.tsx";
+export {
+  buildSatellitePngFilename,
+  downloadSatelliteFigurePng,
+  loadCorsSafeTileCanvas,
+  type SatellitePngExportOptions,
+  type SatellitePngExportResult,
+} from "./satelliteExport.ts";

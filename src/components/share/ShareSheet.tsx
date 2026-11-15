@@ -147,6 +147,15 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
         <div className="inline-flex rounded border border-[#2E2E30] p-0.5 font-mono text-xs">
           <button
             type="button"
+            onClick={() => setAspect("figure")}
+            className={`rounded px-3 py-1 ${
+              aspect === "figure" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
+            }`}
+          >
+            {t("share.aspectFigure")}
+          </button>
+          <button
+            type="button"
             onClick={() => setAspect("story")}
             className={`rounded px-3 py-1 ${
               aspect === "story" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
@@ -162,15 +171,6 @@ export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProp
             }`}
           >
             {t("share.aspectSquare")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setAspect("figure")}
-            className={`rounded px-3 py-1 ${
-              aspect === "figure" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
-            }`}
-          >
-            {t("share.aspectFigure")}
           </button>
         </div>
 

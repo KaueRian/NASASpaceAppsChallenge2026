@@ -5,9 +5,14 @@ import {
   resolveAiLocation,
 } from "../src/lib/ai/clientAi.ts";
 import {
+  BEST_FIRST_GEMINI_MODELS,
   buildGeminiRequestBody,
+  callGeminiStructured,
+  DEFAULT_GEMINI_MODEL,
   extractGeminiJsonPayload,
   GeminiClientError,
+  resolveCandidateModels,
+  resolveThinkingLevelForModel,
 } from "../src/lib/ai/geminiClient.ts";
 import {
   FILTER_TRANSLATION_JSON_SCHEMA,
@@ -259,5 +264,188 @@ describe("AI domain schemas, validation & Gemini payload rules (TDD)", () => {
     expect(extremes[0]?.label).toBe("2023");
     expect(extremes[1]?.label).toBe("2016");
     expect(extremes).toHaveLength(2);
+  });
+
+  it("orders best-first accessible Gemini models, clamps unsupported thinkingLevel, and sets 8192 maxOutputTokens for high/xhigh", () => {
+    expect(DEFAULT_GEMINI_MODEL).toBe("auto");
+    expect(BEST_FIRST_GEMINI_MODELS).toEqual([
+      "gemini-4-hydrogen",
+      "gemini-3.8-flash",
+      "gemini-3.7-flash",
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-3-flash-preview",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+    ]);
+
+    for (const blocked of [
+      "gemini-4-carbon",
+      "gemini-4-argon",
+      "gemini-3.1-pro-preview",
+      "gemini-pro-latest",
+    ]) {
+      expect(BEST_FIRST_GEMINI_MODELS).not.toContain(blocked);
+    }
+
+    expect(resolveCandidateModels("auto")).toEqual([...BEST_FIRST_GEMINI_MODELS]);
+    expect(resolveCandidateModels("")).toEqual([...BEST_FIRST_GEMINI_MODELS]);
+    expect(resolveCandidateModels("models/gemini-3.6-flash")[0]).toBe("gemini-3.6-flash");
+    expect(resolveCandidateModels("models/gemini-3.6-flash")).toHaveLength(
+      BEST_FIRST_GEMINI_MODELS.length,
+    );
+
+    expect(resolveThinkingLevelForModel("gemini-4-hydrogen", "xhigh")).toBe("xhigh");
+    expect(resolveThinkingLevelForModel("gemini-4-hydrogen", "minimal")).toBe("low");
+    expect(resolveThinkingLevelForModel("gemini-3.8-flash", "xhigh")).toBe("high");
+    expect(resolveThinkingLevelForModel("gemini-3.5-flash-lite", "minimal")).toBe("minimal");
+
+    const xhighBody = buildGeminiRequestBody({
+      model: "gemini-4-hydrogen",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: INTERPRETATION_JSON_SCHEMA,
+      thinkingLevel: "xhigh",
+    });
+    const xhighConfig = xhighBody.generationConfig as {
+      maxOutputTokens: number;
+      thinkingConfig: { thinkingLevel: string };
+    };
+    expect(xhighConfig.maxOutputTokens).toBe(8192);
+    expect(xhighConfig.thinkingConfig.thinkingLevel).toBe("xhigh");
+
+    const clampedBody = buildGeminiRequestBody({
+      model: "gemini-3.8-flash",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: INTERPRETATION_JSON_SCHEMA,
+      thinkingLevel: "xhigh",
+    });
+    const clampedConfig = clampedBody.generationConfig as {
+      maxOutputTokens: number;
+      thinkingConfig: { thinkingLevel: string };
+    };
+    expect(clampedConfig.maxOutputTokens).toBe(8192);
+    expect(clampedConfig.thinkingConfig.thinkingLevel).toBe("high");
+
+    const minimalHydrogenBody = buildGeminiRequestBody({
+      model: "gemini-4-hydrogen",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: FILTER_TRANSLATION_JSON_SCHEMA,
+      thinkingLevel: "minimal",
+    });
+    const minimalHydrogenConfig = minimalHydrogenBody.generationConfig as {
+      maxOutputTokens: number;
+      thinkingConfig: { thinkingLevel: string };
+    };
+    expect(minimalHydrogenConfig.maxOutputTokens).toBe(4096);
+    expect(minimalHydrogenConfig.thinkingConfig.thinkingLevel).toBe("low");
+  });
+
+  it("enforces route latency budgets cleanly and retries HTTP 400 unsupported thinkingLevel without cooldown", async () => {
+    const unsupportedThenOk = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: { message: "Thinking level xhigh is not supported for this request." },
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                finishReason: "STOP",
+                content: { parts: [{ text: JSON.stringify({ ok: true }) }] },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    vi.stubGlobal("fetch", unsupportedThenOk);
+
+    const cooldownSpy = vi.fn();
+    const recovered = await callGeminiStructured<{ ok: boolean }>({
+      apiKey: "test-key",
+      model: "auto",
+      stage: "interpret",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: INTERPRETATION_JSON_SCHEMA,
+      onModelFailure: cooldownSpy,
+    });
+    expect(recovered.parsed).toEqual({ ok: true });
+    expect(recovered.model).toBe("gemini-3.8-flash");
+    expect(recovered.fallbackUsed).toBe(true);
+    expect(cooldownSpy).not.toHaveBeenCalled();
+
+    let nowMs = 1_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => nowMs);
+    const slowFetch = vi.fn().mockImplementation(async () => {
+      nowMs += 6_000;
+      return new Response(JSON.stringify({ error: { message: "Overloaded" } }), { status: 503 });
+    });
+    vi.stubGlobal("fetch", slowFetch);
+
+    await expect(
+      callGeminiStructured<{ ok: boolean }>({
+        apiKey: "test-key",
+        model: "auto",
+        stage: "translate",
+        systemInstruction: "Sys",
+        promptText: "Prompt",
+        jsonSchema: FILTER_TRANSLATION_JSON_SCHEMA,
+        routeBudgetMs: 11_500,
+      }),
+    ).rejects.toThrow(GeminiClientError);
+    // Two attempts x 6,000ms = 12,000ms exceeds 11,500ms budget -> stops after 2 calls instead of burning all 8 candidates.
+    expect(slowFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("steps down Layer 3 thinking effort immediately on high/medium timeout without poisoning model cooldowns", async () => {
+    const abortErr = new Error("The operation was aborted.");
+    abortErr.name = "AbortError";
+
+    const stepDownFetch = vi
+      .fn()
+      .mockRejectedValueOnce(abortErr)
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                finishReason: "STOP",
+                content: { parts: [{ text: JSON.stringify({ ok: true }) }] },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    vi.stubGlobal("fetch", stepDownFetch);
+
+    const cooldownSpy = vi.fn();
+    const res = await callGeminiStructured<{ ok: boolean }>({
+      apiKey: "test-key",
+      model: "auto",
+      stage: "interpret",
+      systemInstruction: "Sys",
+      promptText: "Prompt",
+      jsonSchema: INTERPRETATION_JSON_SCHEMA,
+      onModelFailure: cooldownSpy,
+    });
+
+    expect(res.parsed).toEqual({ ok: true });
+    expect(res.model).toBe("gemini-4-hydrogen");
+    expect(res.thinkingLevel).toBe("low");
+    expect(res.fallbackUsed).toBe(true);
+    expect(stepDownFetch).toHaveBeenCalledTimes(3);
+    expect(cooldownSpy).not.toHaveBeenCalled();
   });
 });

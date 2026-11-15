@@ -1,5 +1,6 @@
 import { type Locale, translateForLocale } from "../../i18n/translate.ts";
-import type { InvestigationResult } from "../../types/investigation.ts";
+import type { InvestigationResult, LocationInfo } from "../../types/investigation.ts";
+import type { GibsLayerId } from "../gibs.ts";
 import {
   convertInvestigationResultForDisplay,
   getDisplayUnitLabel,
@@ -204,4 +205,69 @@ export function buildAcademicCitation(
         ? `Recuperado em ${accessDate}`
         : `Retrieved ${accessDate}`;
   return `GeoTrend. (${stats.endYear}). ${title}. ${retrievedPart}`;
+}
+
+export interface SatelliteCitationInput {
+  location: LocationInfo;
+  layer: GibsLayerId;
+  mode: "compare" | "timelapse";
+  beforeYear: number;
+  afterYear: number;
+  selectedYear: number;
+  locale?: Locale;
+  shareUrl?: string;
+  worldviewUrl?: string;
+}
+
+/**
+ * Generates a formatted NASA GIBS / MODIS Terra satellite imagery caption & citation
+ * including product name, observation date, geographic coordinates, and verification URL.
+ */
+export function buildSatelliteCitationText({
+  location,
+  layer,
+  mode,
+  beforeYear,
+  afterYear,
+  selectedYear,
+  locale = "en",
+  shareUrl,
+  worldviewUrl,
+}: SatelliteCitationInput): string {
+  const isNdvi = layer === "MODIS_Terra_L3_NDVI_Monthly";
+  const layerName = isNdvi
+    ? locale === "pt"
+      ? "MODIS/Terra Índices de Vegetação Mensal (NDVI)"
+      : "MODIS/Terra Vegetation Indices Monthly (NDVI)"
+    : locale === "pt"
+      ? "MODIS/Terra Reflectância Corrigida (Cor Real)"
+      : "MODIS/Terra Corrected Reflectance (True Color)";
+  const dateSuffix = isNdvi ? "08-01" : "08-29";
+  const dateRange =
+    mode === "compare"
+      ? `${beforeYear}-${dateSuffix} vs. ${afterYear}-${dateSuffix}`
+      : `${selectedYear}-${dateSuffix}`;
+  const coords = `${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°`;
+  const links = [
+    shareUrl ? `GeoTrend: ${shareUrl}` : null,
+    worldviewUrl ? `NASA Worldview: ${worldviewUrl}` : null,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
+  if (locale === "pt") {
+    return (
+      `Evidência orbital por satélite para ${location.label} (${coords}): ${layerName}, ` +
+      `composição de estação seca de agosto (${dateRange}). ` +
+      `Fonte: NASA Global Imagery Browse Services (GIBS) / EOSDIS Earthdata.` +
+      (links ? ` ${links}` : "")
+    );
+  }
+
+  return (
+    `Satellite orbital visual evidence for ${location.label} (${coords}): ${layerName}, ` +
+    `August dry-season composite (${dateRange}). ` +
+    `Source: NASA Global Imagery Browse Services (GIBS) / EOSDIS Earthdata.` +
+    (links ? ` ${links}` : "")
+  );
 }

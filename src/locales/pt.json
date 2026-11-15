@@ -503,7 +503,19 @@
     "tileAlt": "Mosaico de satélite NASA MODIS ({{layer}}) de {{year}}",
     "zoomOut": "Reduzir zoom",
     "zoomIn": "Ampliar zoom",
-    "zoomLabel": "Zoom {{zoom}}x"
+    "zoomLabel": "Zoom {{zoom}}x",
+    "shareTitle": "Compartilhar & Exportar Evidência Orbital",
+    "downloadPng": "Baixar Imagem PNG",
+    "downloadingPng": "Gerando PNG…",
+    "copyCitation": "Copiar Legenda / Citação",
+    "citationCopied": "Legenda Copiada!",
+    "copyLink": "Copiar Link do Satélite",
+    "linkCopied": "Link do Satélite Copiado!",
+    "nativeShare": "Compartilhar…",
+    "nativeShareSummary": "{{location}} — NASA MODIS Terra ({{layer}}, {{period}}) via GeoTrend",
+    "pngFallbackNotice": "Prévia vetorial de grade (CORS) — abra no NASA Worldview para ladrilhos completos",
+    "figureHeader": "GEOTREND // EVIDÊNCIA ORBITAL",
+    "figureAttribution": "Imagens: NASA GIBS / MODIS Terra · Dossiê GeoTrend"
   },
   "dossier": {
     "recentButton": "Dossiês recentes",
@@ -590,5 +602,13 @@
       "currentLocation": "Local atual selecionado"
     },
     "staleNotice": "Os filtros foram ajustados manualmente; faça uma nova pergunta à IA para atualizar a síntese."
+  },
+  "pagination": {
+    "summary": "Mostrando {{start}}–{{end}} de {{total}}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "pageLabel": "Página {{page}}",
+    "casesNavLabel": "Paginação de investigações",
+    "dossiersNavLabel": "Paginação de dossiês recentes"
   }
 }

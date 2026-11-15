@@ -503,7 +503,19 @@
     "tileAlt": "NASA MODIS {{layer}} satellite tile for {{year}}",
     "zoomOut": "Zoom out",
     "zoomIn": "Zoom in",
-    "zoomLabel": "Zoom {{zoom}}x"
+    "zoomLabel": "Zoom {{zoom}}x",
+    "shareTitle": "Share & Export Satellite Evidence",
+    "downloadPng": "Download Satellite PNG",
+    "downloadingPng": "Rendering PNG…",
+    "copyCitation": "Copy Satellite Citation",
+    "citationCopied": "Citation Copied!",
+    "copyLink": "Copy Satellite Link",
+    "linkCopied": "Satellite Link Copied!",
+    "nativeShare": "Share…",
+    "nativeShareSummary": "{{location}} — NASA MODIS Terra ({{layer}}, {{period}}) via GeoTrend",
+    "pngFallbackNotice": "CORS mosaic preview fallback — open NASA Worldview for full-resolution tiles",
+    "figureHeader": "GEOTREND // ORBITAL EVIDENCE",
+    "figureAttribution": "Imagery: NASA GIBS / MODIS Terra · GeoTrend Dossier"
   },
   "dossier": {
     "recentButton": "Recent dossiers",
@@ -590,5 +602,13 @@
       "currentLocation": "Current selected location"
     },
     "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
+  },
+  "pagination": {
+    "summary": "Showing {{start}}–{{end}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "pageLabel": "Page {{page}}",
+    "casesNavLabel": "Investigations pagination",
+    "dossiersNavLabel": "Recent dossiers pagination"
   }
 }

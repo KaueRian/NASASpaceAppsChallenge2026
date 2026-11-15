@@ -357,5 +357,223 @@ describe("Worker API routes", () => {
     const badSeason = await app.request("/api/investigations?season=winter", {}, buildMockEnv());
     expect(badSeason.status).toBe(400);
     expect(((await badSeason.json()) as ApiErrorResponse).code).toBe("INVALID_SEASON");
+
+    const catalogPage2 = await app.request(
+      "/api/investigations?page=2&limit=8",
+      {},
+      buildMockEnv(),
+    );
+    expect(catalogPage2.status).toBe(200);
+    const catalogPage2Json = (await catalogPage2.json()) as typeof allJson & {
+      pagination: {
+        page: number;
+        pageSize: number;
+        totalItems: number;
+        totalPages: number;
+        hasPrev: boolean;
+        hasNext: boolean;
+      };
+    };
+    expect(catalogPage2Json.total).toBe(20);
+    expect(catalogPage2Json.investigations).toHaveLength(8);
+    expect(catalogPage2Json.investigations[0]?.id).toBe("pa-belem");
+    expect(catalogPage2Json.pagination).toEqual({
+      page: 2,
+      pageSize: 8,
+      totalItems: 20,
+      totalPages: 3,
+      hasPrev: true,
+      hasNext: true,
+    });
+
+    const catalogDefaultPageSize = await app.request(
+      "/api/investigations?page=3",
+      {},
+      buildMockEnv(),
+    );
+    expect(catalogDefaultPageSize.status).toBe(200);
+    const catalogPage3Json = (await catalogDefaultPageSize.json()) as typeof catalogPage2Json;
+    expect(catalogPage3Json.investigations.map((i) => i.id)).toEqual([
+      "04",
+      "es-sevilla",
+      "jp-tokyo",
+      "ne-niamey",
+    ]);
+    expect(catalogPage3Json.pagination).toEqual({
+      page: 3,
+      pageSize: 8,
+      totalItems: 20,
+      totalPages: 3,
+      hasPrev: true,
+      hasNext: false,
+    });
+
+    const badCatalogPage = await app.request("/api/investigations?page=0", {}, buildMockEnv());
+    expect(badCatalogPage.status).toBe(400);
+    expect(((await badCatalogPage.json()) as ApiErrorResponse).code).toBe("INVALID_FILTER");
+  });
+
+  it("GET /api/dossiers paginates >10 items in D1 SQL and in-memory fallback and validates page params", async () => {
+    const monthly = buildMonthlyPayload(1981, 2025, 22);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(
+        async () =>
+          new Response(JSON.stringify({ properties: { parameter: { T2M_MIN: monthly } } }), {
+            status: 200,
+          }),
+      ),
+    );
+
+    const createdIds: string[] = [];
+    for (let i = 0; i < 11; i++) {
+      const res = await app.request(
+        "/api/dossiers",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lat: -10 - i * 0.25,
+            lon: -62.0 + i * 0.25,
+            locationLabel: `Archive Station ${i + 1}`,
+            variable: "T2M_MIN",
+            season: "annual",
+            startYear: 1981,
+            endYear: 2025,
+          }),
+        },
+        buildMockEnv(),
+      );
+      expect(res.status).toBe(201);
+      const body = (await res.json()) as { id: string };
+      createdIds.push(body.id);
+    }
+
+    const memPage1 = await app.request(
+      "/api/dossiers?variable=T2M_MIN&page=1&limit=5",
+      {},
+      buildMockEnv(),
+    );
+    expect(memPage1.status).toBe(200);
+    const memPage1Json = (await memPage1.json()) as {
+      ok: boolean;
+      total: number;
+      dossiers: Array<{ id: string }>;
+      pagination: {
+        page: number;
+        pageSize: number;
+        totalItems: number;
+        totalPages: number;
+        hasPrev: boolean;
+        hasNext: boolean;
+      };
+    };
+    expect(memPage1Json.total).toBe(11);
+    expect(memPage1Json.dossiers).toHaveLength(5);
+    expect(memPage1Json.pagination).toEqual({
+      page: 1,
+      pageSize: 5,
+      totalItems: 11,
+      totalPages: 3,
+      hasPrev: false,
+      hasNext: true,
+    });
+
+    const memPage3 = await app.request(
+      "/api/dossiers?variable=T2M_MIN&page=3&limit=5",
+      {},
+      buildMockEnv(),
+    );
+    expect(memPage3.status).toBe(200);
+    const memPage3Json = (await memPage3.json()) as typeof memPage1Json;
+    expect(memPage3Json.dossiers).toHaveLength(1);
+    expect(memPage3Json.dossiers[0]?.id).toBe(createdIds[0]);
+    expect(memPage3Json.pagination).toEqual({
+      page: 3,
+      pageSize: 5,
+      totalItems: 11,
+      totalPages: 3,
+      hasPrev: true,
+      hasNext: false,
+    });
+
+    const badDossierPage = await app.request("/api/dossiers?page=abc", {}, buildMockEnv());
+    expect(badDossierPage.status).toBe(400);
+    expect(((await badDossierPage.json()) as ApiErrorResponse).code).toBe("INVALID_FILTER");
+
+    // Verify D1 SQL COUNT(*) and LIMIT ? OFFSET ? binding when page > 1
+    const sampleResult: InvestigationResult = {
+      location: { label: "Vilhena, RO, Brazil", lat: -12.74, lon: -60.15 },
+      variable: "PRECTOTCORR",
+      unit: "mm",
+      season: "apr_sep",
+      stats: {
+        mannKendallS: -400,
+        mannKendallVariance: 10000,
+        zScore: -3.8,
+        pValue: 0.000131,
+        confidenceLevel: 99,
+        senSlopePerYear: -5.3,
+        senSlopePerDecade: -53,
+        totalChangeOverPeriod: -234.5,
+        fullPeriodMean: 420,
+        fullPeriodStdDev: 90,
+        startYear: 1981,
+        endYear: 2025,
+        nYears: 45,
+        verdict: "STRONG_EVIDENCE",
+        direction: "drier",
+      },
+      series: [],
+      source: {
+        provider: "NASA POWER / MERRA-2",
+        resolution: "temporal/monthly/point",
+        retrievedAt: "2026-11-15",
+      },
+      cached: true,
+    };
+
+    const pageBindArgs: unknown[][] = [];
+    const prepareMock = vi.fn().mockImplementation((sql: string) => {
+      if (sql.includes("COUNT(*)")) {
+        return {
+          all: vi.fn().mockResolvedValue({ results: [{ total: 12 }] }),
+          bind: vi.fn().mockReturnValue({
+            all: vi.fn().mockResolvedValue({ results: [{ total: 12 }] }),
+          }),
+        };
+      }
+      return {
+        bind: vi.fn().mockImplementation((...args: unknown[]) => {
+          pageBindArgs.push(args);
+          return {
+            all: vi.fn().mockResolvedValue({
+              results: Array.from({ length: 5 }, (_, idx) => ({
+                id: `et-00000000${idx}`,
+                created_at: `2026-11-15T10:0${idx}:00.000Z`,
+                result_json: JSON.stringify(sampleResult),
+              })),
+            }),
+          };
+        }),
+      };
+    });
+    const fakeDb = { prepare: prepareMock } as unknown as D1Database;
+
+    const dbPage2 = await app.request("/api/dossiers?page=2&limit=5", {}, buildMockEnv(fakeDb));
+    expect(dbPage2.status).toBe(200);
+    const dbPage2Json = (await dbPage2.json()) as typeof memPage1Json;
+    expect(dbPage2Json.dossiers).toHaveLength(5);
+    expect(dbPage2Json.pagination).toEqual({
+      page: 2,
+      pageSize: 5,
+      totalItems: 12,
+      totalPages: 3,
+      hasPrev: true,
+      hasNext: true,
+    });
+    expect(prepareMock).toHaveBeenCalledWith(expect.stringContaining("COUNT(*)"));
+    expect(prepareMock).toHaveBeenCalledWith(expect.stringContaining("LIMIT ? OFFSET ?"));
+    expect(pageBindArgs[0]).toEqual([5, 5]);
   });
 });

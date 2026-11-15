@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getStripeColor } from "../src/components/share/ClimateStripes.tsx";
+import { downloadEvidenceCardPng } from "../src/components/share/EvidenceCard.tsx";
 import {
   buildFrameTileUrls,
   buildPriorityYears,
@@ -13,8 +14,16 @@ import {
   buildNasaWorldviewUrl,
   latLonToTileXY,
 } from "../src/components/share/SatelliteTimelapse.tsx";
+import {
+  buildSatellitePngFilename,
+  downloadSatelliteFigurePng,
+} from "../src/components/share/satelliteExport.ts";
 import { CASE_PRESETS } from "../src/data/presets/index.ts";
-import { buildCitationText, buildDossierCsv } from "../src/lib/export/dossierExport.ts";
+import {
+  buildCitationText,
+  buildDossierCsv,
+  buildSatelliteCitationText,
+} from "../src/lib/export/dossierExport.ts";
 
 describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
   it("maps temperature and hydrological z-scores to distinct stripe colors", () => {
@@ -170,6 +179,164 @@ describe("ClimateStripes & NASA GIBS SatelliteTimelapse helpers", () => {
     } finally {
       Object.defineProperty(globalThis, "Image", { value: originalImage, configurable: true });
       clearGibsTileCacheForTests();
+    }
+  });
+
+  it("builds NASA GIBS satellite imagery captions", () => {
+    const vilhena = CASE_PRESETS[0].result;
+    const shareUrl = "https://geotrend.earth/?case=01";
+
+    const satComparePt = buildSatelliteCitationText({
+      location: vilhena.location,
+      layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+      mode: "compare",
+      beforeYear: 2000,
+      afterYear: 2025,
+      selectedYear: 2025,
+      locale: "pt",
+      shareUrl,
+      worldviewUrl: "https://worldview.earthdata.nasa.gov/?v=-61,-13,-58,-11",
+    });
+    expect(satComparePt).toContain("MODIS/Terra Reflectância Corrigida (Cor Real)");
+    expect(satComparePt).toContain("2000-08-29 vs. 2025-08-29");
+    expect(satComparePt).toContain("NASA Global Imagery Browse Services (GIBS)");
+
+    const satNdviEn = buildSatelliteCitationText({
+      location: vilhena.location,
+      layer: "MODIS_Terra_L3_NDVI_Monthly",
+      mode: "timelapse",
+      beforeYear: 2000,
+      afterYear: 2025,
+      selectedYear: 2019,
+      locale: "en",
+    });
+    expect(satNdviEn).toContain("MODIS/Terra Vegetation Indices Monthly (NDVI)");
+    expect(satNdviEn).toContain("2019-08-01");
+  });
+
+  it("renders CORS-safe Satellite PNG figures and the Figure EvidenceCard export", async () => {
+    const vilhena = CASE_PRESETS[0].result;
+    expect(
+      buildSatellitePngFilename(
+        vilhena.location.label,
+        "MODIS_Terra_L3_NDVI_Monthly",
+        "timelapse",
+        2000,
+        2025,
+        2020,
+      ),
+    ).toBe("geotrend-satellite-vilhena-ro-brazil-ndvi-2020.png");
+
+    const downloadedLinks: Array<{ href: string; download: string }> = [];
+    const originalDocument = (globalThis as { document?: unknown }).document;
+
+    const noop = () => {};
+    const mockCtx = {
+      fillStyle: "",
+      strokeStyle: "",
+      lineWidth: 1,
+      font: "",
+      save: noop,
+      restore: noop,
+      beginPath: noop,
+      closePath: noop,
+      clip: noop,
+      rect: noop,
+      moveTo: noop,
+      lineTo: noop,
+      arc: noop,
+      ellipse: noop,
+      fillRect: noop,
+      strokeRect: noop,
+      fillText: noop,
+      stroke: noop,
+      fill: noop,
+      translate: noop,
+      scale: noop,
+      rotate: noop,
+      measureText: () => ({ width: 120 }),
+      drawImage: noop,
+      setLineDash: noop,
+    };
+
+    const mockDocument = {
+      createElement: (tag: string) => {
+        if (tag === "canvas") {
+          return {
+            width: 0,
+            height: 0,
+            getContext: () => mockCtx,
+            toDataURL: () => "data:image/png;base64,MOCK",
+          };
+        }
+        const anchor = {
+          href: "",
+          download: "",
+          click: () => {
+            downloadedLinks.push({ href: anchor.href, download: anchor.download });
+          },
+        };
+        return anchor;
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", { value: mockDocument, configurable: true });
+    try {
+      // Blocked CORS / missing tiles fall back cleanly to vector graticule + crosshair without throwing
+      const fallbackResult = await downloadSatelliteFigurePng({
+        location: vilhena.location,
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        mode: "compare",
+        beforeYear: 2000,
+        afterYear: 2025,
+        selectedYear: 2025,
+        zoom: 7,
+        locale: "en",
+        shareUrl: "https://geotrend.earth/?case=01&satMode=compare",
+        loadTileFn: async () => null,
+      });
+
+      expect(fallbackResult.usedFallback).toBe(true);
+      expect(fallbackResult.width).toBe(1600);
+      expect(fallbackResult.height).toBe(900);
+      expect(fallbackResult.loadedTiles).toBe(0);
+      expect(fallbackResult.totalTiles).toBe(18);
+      expect(downloadedLinks[0]?.download).toBe(
+        "geotrend-satellite-vilhena-ro-brazil-truecolor-2000-vs-2025.png",
+      );
+
+      // Valid tiles render full mosaic without fallback warning
+      const mockTile = {} as CanvasImageSource;
+      const cleanResult = await downloadSatelliteFigurePng({
+        location: vilhena.location,
+        layer: "MODIS_Terra_L3_NDVI_Monthly",
+        mode: "timelapse",
+        beforeYear: 2000,
+        afterYear: 2025,
+        selectedYear: 2020,
+        zoom: 7,
+        locale: "pt",
+        loadTileFn: async () => mockTile,
+      });
+
+      expect(cleanResult.usedFallback).toBe(false);
+      expect(cleanResult.width).toBe(1280);
+      expect(cleanResult.height).toBe(860);
+      expect(cleanResult.loadedTiles).toBe(9);
+      expect(cleanResult.totalTiles).toBe(9);
+      expect(downloadedLinks[1]?.download).toBe(
+        "geotrend-satellite-vilhena-ro-brazil-ndvi-2020.png",
+      );
+
+      downloadEvidenceCardPng(vilhena, "figure", "https://geotrend.earth/?case=01", "C", "en");
+      expect(downloadedLinks[2]?.download).toBe(
+        "geotrend-vilhena-ro-brazil-prectotcorr-figure.png",
+      );
+    } finally {
+      Object.defineProperty(globalThis, "document", {
+        value: originalDocument,
+        configurable: true,
+      });
     }
   });
 });

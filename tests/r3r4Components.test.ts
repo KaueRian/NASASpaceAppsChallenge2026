@@ -8,15 +8,17 @@ import { Hero } from "../src/components/Hero";
 import { Investigation } from "../src/components/Investigation";
 import { MethodsPage } from "../src/components/MethodsPage";
 import {
+  EvidenceCard,
   RecentDossiersDrawer,
   resolveGibsComparisonWindow,
   SatelliteTimelapse,
   SharedDossierView,
+  ShareSheet,
 } from "../src/components/share";
 import { TrendChart } from "../src/components/TrendChart";
 import { getCasePresetById } from "../src/data/presets";
 import { I18nProvider } from "../src/i18n/i18n";
-import { parseAppRoute } from "../src/lib/routing";
+import { buildSatelliteDeepLink, parseAppRoute } from "../src/lib/routing";
 
 function renderWithI18n(node: ReactElement): string {
   return renderToStaticMarkup(createElement(I18nProvider, null, node));
@@ -120,7 +122,7 @@ describe("R3 & R4 UI components", () => {
     expect(html).toContain('decoding="async"');
   });
 
-  it("wires SatelliteTimelapse and RecentDossiersDrawer directly inside Investigation", () => {
+  it("wires SatelliteTimelapse directly inside Investigation", () => {
     const html = renderWithI18n(
       createElement(Investigation, {
         presetId: "01",
@@ -129,7 +131,7 @@ describe("R3 & R4 UI components", () => {
     );
     expect(html).toContain("ANTES · 2000");
     expect(html).toContain("DEPOIS · 2025");
-    expect(html).toContain("Dossiês recentes");
+    expect(html).not.toContain("Dossiês recentes");
   });
 
   it("parses deep links for presets, live queries, methods, and shared dossiers", () => {
@@ -403,19 +405,52 @@ describe("R3 & R4 UI components", () => {
       }),
     );
     expect(html).toContain("20 de 20 investigações");
+    expect(html).toContain("Mostrando 1–8 de 20");
     expect(html).toContain('aria-label="Escala"');
     expect(html).toContain('aria-label="Variável"');
     expect(html).toContain('aria-label="Janela"');
     expect(html).toContain('aria-label="Buscar investigação"');
-    expect(html).toContain("Barreiras (MATOPIBA), BA, Brasil");
-    expect(html).toContain("Belém, PA, Brasil");
-    expect(html).toContain("Porto Alegre, RS, Brasil");
-    expect(html).toContain("Sevilha, Espanha");
+    expect(html).toContain("Vilhena, RO, Brasil");
+    expect(html).toContain("Manaus, AM, Brasil");
     expect(html).toContain("Rondônia &amp; Amazônia");
     expect(html).toContain("Caso offline");
     expect(html).toContain("Dados NASA");
+    expect(html).not.toContain("Barreiras (MATOPIBA), BA, Brasil");
     expect(html).not.toContain("AM-Oc");
     expect(html).not.toContain("NASA API");
+
+    const page2Html = renderWithI18n(
+      createElement(CasesGrid, {
+        activePresetId: "01",
+        initialPage: 2,
+        activeLiveQuery: {
+          lat: -12.09,
+          lon: -45.79,
+          variable: "GWETROOT",
+          season: "apr_sep",
+          startYear: 1981,
+          endYear: 2025,
+          label: "Barreiras (MATOPIBA), BA, Brazil",
+        },
+        onSelectPreset: () => {},
+        onSelectInvestigation: () => {},
+      }),
+    );
+    expect(page2Html).toContain("Mostrando 9–16 de 20");
+    expect(page2Html).toContain("Barreiras (MATOPIBA), BA, Brasil");
+    expect(page2Html).toContain("Belém, PA, Brasil");
+    expect(page2Html).toContain("Porto Alegre, RS, Brasil");
+
+    const page3Html = renderWithI18n(
+      createElement(CasesGrid, {
+        activePresetId: "01",
+        initialPage: 3,
+        onSelectPreset: () => {},
+        onSelectInvestigation: () => {},
+      }),
+    );
+    expect(page3Html).toContain("Mostrando 17–20 de 20");
+    expect(page3Html).toContain("Sevilha, Espanha");
 
     const liveInvestigationHtml = renderWithI18n(
       createElement(Investigation, {
@@ -435,5 +470,98 @@ describe("R3 & R4 UI components", () => {
     expect(liveInvestigationHtml).toContain("Barreiras (MATOPIBA), BA, Brazil");
     expect(liveInvestigationHtml).toContain("Estação Seca (Abr–Set)");
     expect(liveInvestigationHtml).not.toContain("Derivado do Caso #01");
+  });
+
+  it("renders the Figure EvidenceCard, ShareSheet academic citations, and Satellite deep-link controls", () => {
+    const vilhena = getCasePresetById("01").result;
+
+    const figureHtml = renderWithI18n(
+      createElement(EvidenceCard, {
+        result: vilhena,
+        aspect: "figure",
+        shortUrl: "https://geotrend.earth/?case=01",
+      }),
+    );
+    expect(figureHtml).toContain("bg-white");
+    expect(figureHtml).toContain("Vilhena, RO, Brazil");
+    expect(figureHtml).toContain("diminuiu");
+
+    const sheetHtml = renderWithI18n(createElement(ShareSheet, { result: vilhena }));
+    expect(sheetHtml).toContain("Figura");
+    expect(sheetHtml).toContain("Story 9:16");
+    expect(sheetHtml).toContain("Quadrado 1:1");
+    expect(sheetHtml).toContain("Copiar Citação Científica");
+    expect(sheetHtml).toContain("ABNT");
+    expect(sheetHtml).toContain("APA");
+    expect(sheetHtml).toContain("BibTeX");
+
+    // Satellite deep-link roundtrips across presets, dossiers, and live queries
+    const presetSatUrl = buildSatelliteDeepLink({
+      origin: "https://geotrend.earth",
+      presetId: "02",
+      satellite: {
+        mode: "timelapse",
+        layer: "MODIS_Terra_L3_NDVI_Monthly",
+        year: 2020,
+      },
+    });
+    const parsedPresetSat = new URL(presetSatUrl);
+    expect(parseAppRoute(parsedPresetSat.pathname, parsedPresetSat.search)).toEqual({
+      view: "home",
+      presetId: "02",
+      scrollToInvestigation: true,
+      initialSatellite: {
+        mode: "timelapse",
+        layer: "MODIS_Terra_L3_NDVI_Monthly",
+        year: 2020,
+      },
+    });
+
+    const dossierSatUrl = buildSatelliteDeepLink({
+      origin: "https://geotrend.earth",
+      dossierId: "et-998877",
+      satellite: {
+        mode: "compare",
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        year: 2008,
+      },
+    });
+    const parsedDossierSat = new URL(dossierSatUrl);
+    expect(parseAppRoute(parsedDossierSat.pathname, parsedDossierSat.search)).toEqual({
+      view: "dossier",
+      dossierId: "et-998877",
+      initialSatellite: {
+        mode: "compare",
+        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+        year: 2008,
+      },
+    });
+
+    const clampedRoute = parseAppRoute("/", "?case=01&satMode=timelapse&satYear=1985");
+    expect(clampedRoute.view).toBe("home");
+    if (clampedRoute.view === "home") {
+      expect(clampedRoute.initialSatellite).toEqual({
+        mode: "timelapse",
+        year: 2000,
+      });
+    }
+
+    const timelapseHtml = renderWithI18n(
+      createElement(SatelliteTimelapse, {
+        location: vilhena.location,
+        startYear: 1981,
+        endYear: 2025,
+        defaultExpanded: true,
+        initialMode: "timelapse",
+        initialLayer: "MODIS_Terra_L3_NDVI_Monthly",
+        initialYear: 2019,
+        deepLinkContext: { presetId: "01" },
+      }),
+    );
+    expect(timelapseHtml).toContain("2019 / 2025");
+    expect(timelapseHtml).toContain("2019-08-01");
+    expect(timelapseHtml).toContain("Baixar Imagem PNG");
+    expect(timelapseHtml).toContain("Copiar Legenda / Citação");
+    expect(timelapseHtml).toContain("Copiar Link do Satélite");
   });
 });

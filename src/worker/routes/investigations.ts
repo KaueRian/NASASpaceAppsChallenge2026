@@ -4,6 +4,7 @@ import {
   toInvestigateQuery,
   validateCatalogFilterParams,
 } from "../../data/investigations.ts";
+import { paginateSlice } from "../../lib/pagination.ts";
 import { buildInvestigateApiPath, buildInvestigatePath } from "../../lib/routing.ts";
 import type { ApiErrorResponse } from "../../types/investigation.ts";
 import type { WorkerBindings } from "../index.ts";
@@ -17,6 +18,7 @@ export function handleListInvestigations(c: Context<{ Bindings: WorkerBindings }
     q: c.req.query("q"),
     presetOnly: c.req.query("presetOnly"),
     limit: c.req.query("limit"),
+    page: c.req.query("page"),
   });
 
   if (!validation.ok) {
@@ -28,8 +30,16 @@ export function handleListInvestigations(c: Context<{ Bindings: WorkerBindings }
     return c.json(payload, 400);
   }
 
-  const matches = filterInvestigationCatalog(validation.data);
-  const investigations = matches.map((item) => {
+  const { page, limit, ...matchingFilters } = validation.data;
+  const allMatches = filterInvestigationCatalog(matchingFilters);
+  const effectivePage = page ?? 1;
+  const effectivePageSize = limit ?? (page !== undefined ? 8 : Math.max(8, allMatches.length));
+  const { items: pageMatches, pagination } = paginateSlice(
+    allMatches,
+    effectivePage,
+    effectivePageSize,
+  );
+  const investigations = pageMatches.map((item) => {
     const query = toInvestigateQuery(item);
     return {
       id: item.id,
@@ -51,7 +61,8 @@ export function handleListInvestigations(c: Context<{ Bindings: WorkerBindings }
   return c.json(
     {
       ok: true,
-      total: investigations.length,
+      total: pagination.totalItems,
+      pagination,
       filters: validation.data,
       investigations,
     },

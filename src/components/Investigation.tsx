@@ -22,6 +22,7 @@ import {
   scanAllVariablesWithFdr,
 } from "../lib/nasa/smartInvestigation";
 import { DIRECTION_ARROW, DIRECTION_COLOR } from "../lib/resultDisplay";
+import type { SatelliteDeepLinkState } from "../lib/routing";
 import {
   convertDeltaValue,
   convertInvestigationResultForDisplay,
@@ -44,7 +45,6 @@ import type {
   CasePresetId,
   InvestigationErrorCode,
   InvestigationResult,
-  SavedDossier,
   SeasonId,
   VariableId,
 } from "../types/investigation";
@@ -52,7 +52,7 @@ import { MIN_ANALYSIS_YEARS, SEASON_IDS, VARIABLE_IDS } from "../types/investiga
 import { AiAssistantBar, type AiFailedStage, type AiPipelineStage } from "./AiAssistantBar";
 import { AiSynthesisPanel } from "./AiSynthesisPanel";
 import { CitySearchInput } from "./CitySearchInput";
-import { buildCitationText, RecentDossiersDrawer, SatelliteTimelapse, ShareSheet } from "./share";
+import { buildCitationText, SatelliteTimelapse, ShareSheet } from "./share";
 import { TrendChart } from "./TrendChart";
 
 const LocationPicker = lazy(() =>
@@ -63,6 +63,7 @@ interface InvestigationProps {
   presetId: CasePresetId;
   presetNonce?: number;
   initialLiveQuery?: ValidatedInvestigateQuery | null;
+  initialSatellite?: SatelliteDeepLinkState;
   defaultAdvancedOpen?: boolean;
   onNavigateMethods: () => void;
   onOpenDossierPermalink?: (dossierId: string) => void;
@@ -142,9 +143,9 @@ export function Investigation({
   presetId,
   presetNonce = 0,
   initialLiveQuery = null,
+  initialSatellite,
   defaultAdvancedOpen = false,
   onNavigateMethods,
-  onOpenDossierPermalink,
 }: InvestigationProps) {
   const { locale, t, formatNumber } = useI18n();
   const tempUnit = useOptionalTemperatureUnit();
@@ -278,28 +279,6 @@ export function Investigation({
 
   const handleRestore = () => {
     resetToPreset(basePresetId ?? presetId);
-  };
-
-  const handleSelectSavedDossier = (dossier: SavedDossier) => {
-    requestIdRef.current += 1;
-    clearAiState();
-    const next = dossier.result;
-    setQuery({
-      lat: next.location.lat,
-      lon: next.location.lon,
-      label: next.location.label,
-      variable: next.variable,
-      season: next.season,
-      startYear: next.stats.startYear,
-      endYear: next.stats.endYear,
-    });
-    setResult(next);
-    setLoading(false);
-    setErrorCode(null);
-    setCustomSeasonPinned(true);
-    setBasePresetId(null);
-    setIsDerived(false);
-    setScanItems(null);
   };
 
   const executeInvestigation = async (targetQuery: InvestigationQuery) => {
@@ -889,6 +868,12 @@ export function Investigation({
           startYear={stats.startYear}
           endYear={stats.endYear}
           defaultExpanded
+          initialMode={initialSatellite?.mode}
+          initialLayer={initialSatellite?.layer}
+          initialYear={initialSatellite?.year}
+          deepLinkContext={
+            !isDerived && basePresetId ? { presetId: basePresetId } : { investigation: query }
+          }
         />
       </div>
 
@@ -950,10 +935,6 @@ export function Investigation({
         >
           {t("actions.share")}
         </button>
-        <RecentDossiersDrawer
-          onSelectDossier={handleSelectSavedDossier}
-          onOpenPermalink={onOpenDossierPermalink}
-        />
       </div>
 
       {shareOpen && (
