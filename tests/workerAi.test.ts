@@ -121,7 +121,7 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const [calledUrl, calledInit] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(calledUrl).toContain("/v1beta/models/gemini-4-hydrogen:generateContent");
+    expect(calledUrl).toContain("/v1beta/models/gemini-3.5-flash-lite:generateContent");
     expect((calledInit.headers as Record<string, string>)["x-goog-api-key"]).toBe(
       "test-gemini-key",
     );
@@ -376,5 +376,130 @@ describe("Worker AI routes (/api/ai/translate and /api/ai/interpret)", () => {
     expect(blocked.status).toBe(429);
     const blockedBody = (await blocked.json()) as AiApiErrorResponse;
     expect(blockedBody.code).toBe("AI_RATE_LIMITED");
+  });
+
+  it("fails over to fallback Gemini model on 503 high-demand spike or AbortError timeout", async () => {
+    const validTranslatePayload = JSON.stringify({
+      candidates: [
+        {
+          finishReason: "STOP",
+          content: {
+            parts: [
+              {
+                text: JSON.stringify({
+                  inScope: true,
+                  outOfScopeMessage: "",
+                  limitationNotice: "",
+                  suggestedValidQuestions: [],
+                  reasoning: "Chuva na estação seca em Vilhena.",
+                  initialHypothesis: "Estiagem mais intensa.",
+                  filters: {
+                    reuseCurrentLocation: false,
+                    locationQuery: "Vilhena",
+                    lat: -12.74,
+                    lon: -60.14,
+                    variable: "PRECTOTCORR",
+                    season: "apr_sep",
+                    startYear: 1981,
+                    endYear: 2025,
+                    runMultiVariableScan: false,
+                  },
+                }),
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    const spikeThenOkFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              message: "This model is currently experiencing high demand.",
+              status: "UNAVAILABLE",
+            },
+          }),
+          { status: 503, headers: { "Content-Type": "application/json" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(validTranslatePayload, {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", spikeThenOkFetch);
+
+    const res503Failover = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Seca em Vilhena piorou?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(res503Failover.status).toBe(200);
+    const body503 = (await res503Failover.json()) as AiTranslateResult;
+    expect(body503.ok).toBe(true);
+    expect(body503.model).toBe("gemini-flash-lite-latest");
+    expect(spikeThenOkFetch).toHaveBeenCalledTimes(2);
+    expect(String((spikeThenOkFetch.mock.calls[0] as [string])[0])).toContain(
+      "/models/gemini-3.5-flash-lite:generateContent",
+    );
+    expect(String((spikeThenOkFetch.mock.calls[1] as [string])[0])).toContain(
+      "/models/gemini-flash-lite-latest:generateContent",
+    );
+
+    const abortErr = new Error("The operation was aborted.");
+    abortErr.name = "AbortError";
+    const timeoutThenOkFetch = vi
+      .fn()
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce(
+        new Response(validTranslatePayload, {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", timeoutThenOkFetch);
+
+    const resTimeoutFailover = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Chuva em Vilhena na seca?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "test-gemini-key" }),
+    );
+    expect(resTimeoutFailover.status).toBe(200);
+    const bodyTimeout = (await resTimeoutFailover.json()) as AiTranslateResult;
+    expect(bodyTimeout.ok).toBe(true);
+    expect(bodyTimeout.model).toBe("gemini-flash-lite-latest");
+    expect(timeoutThenOkFetch).toHaveBeenCalledTimes(2);
+
+    const unauthorizedFetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: "API key not valid." } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", unauthorizedFetch);
+
+    const resUnauthorized = await app.request(
+      "/api/ai/translate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Temperatura em Vilhena?", lang: "pt" }),
+      },
+      buildEnv({ geminiApiKey: "bad-gemini-key" }),
+    );
+    expect(resUnauthorized.status).toBe(502);
+    expect(unauthorizedFetch).toHaveBeenCalledTimes(1);
   });
 });

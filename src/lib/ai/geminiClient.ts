@@ -1,7 +1,13 @@
 import type { AiErrorCode } from "../../types/ai.ts";
 
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
-export const DEFAULT_GEMINI_MODEL = "gemini-4-hydrogen";
+export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
+export const FALLBACK_GEMINI_MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-flash-lite-latest",
+  "gemini-3.6-flash",
+  "gemini-4-hydrogen",
+] as const;
 
 export class GeminiClientError extends Error {
   readonly code: AiErrorCode;
@@ -109,19 +115,32 @@ export function extractGeminiJsonPayload<T>(payload: unknown): T {
   }
 }
 
-export async function callGeminiStructured<T>(opts: {
+type GeminiAttemptOutcome<T> =
+  | { ok: true; parsed: T; model: string }
+  | { ok: false; error: GeminiClientError; retryable: boolean };
+
+function isTransientHttpStatus(status: number): boolean {
+  return status === 404 || status === 429 || status >= 500;
+}
+
+function resolveCandidateModels(preferredModel: string): string[] {
+  const cleanModel = preferredModel.replace(/^models\//, "").trim() || DEFAULT_GEMINI_MODEL;
+  const candidates = [cleanModel, ...FALLBACK_GEMINI_MODELS.filter((m) => m !== cleanModel)];
+  return candidates.slice(0, 3);
+}
+
+async function callSingleGeminiModel<T>(opts: {
   apiKey: string;
   model: string;
   systemInstruction: string;
   promptText: string;
   jsonSchema: Record<string, unknown>;
   thinkingLevel: "low" | "medium";
-  timeoutMs?: number;
-}): Promise<{ parsed: T; model: string }> {
-  const cleanModel = opts.model.replace(/^models\//, "").trim() || DEFAULT_GEMINI_MODEL;
-  const url = `${GEMINI_API_BASE}/models/${encodeURIComponent(cleanModel)}:generateContent`;
+  timeoutMs: number;
+}): Promise<GeminiAttemptOutcome<T>> {
+  const url = `${GEMINI_API_BASE}/models/${encodeURIComponent(opts.model)}:generateContent`;
   const requestBody = buildGeminiRequestBody({
-    model: cleanModel,
+    model: opts.model,
     systemInstruction: opts.systemInstruction,
     promptText: opts.promptText,
     jsonSchema: opts.jsonSchema,
@@ -129,7 +148,7 @@ export async function callGeminiStructured<T>(opts: {
   });
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 22_000);
+  const timer = setTimeout(() => controller.abort(), opts.timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -146,24 +165,80 @@ export async function callGeminiStructured<T>(opts: {
     const parsedJson = (await response.json().catch(() => null)) as GeminiResponsePayload | null;
     if (!response.ok) {
       const upstreamMsg = parsedJson?.error?.message ?? `Gemini HTTP ${response.status}`;
-      if (response.status === 429) {
-        throw new GeminiClientError("AI_RATE_LIMITED", upstreamMsg, 429);
-      }
-      throw new GeminiClientError("AI_UPSTREAM_ERROR", upstreamMsg, 502);
+      const error =
+        response.status === 429
+          ? new GeminiClientError("AI_RATE_LIMITED", upstreamMsg, 429)
+          : new GeminiClientError("AI_UPSTREAM_ERROR", upstreamMsg, 502);
+      return {
+        ok: false,
+        error,
+        retryable: isTransientHttpStatus(response.status),
+      };
     }
 
     return {
+      ok: true,
       parsed: extractGeminiJsonPayload<T>(parsedJson),
-      model: cleanModel,
+      model: opts.model,
     };
   } catch (error) {
     clearTimeout(timer);
     if (error instanceof GeminiClientError) {
-      throw error;
+      // Do not fail over across models on malformed structured JSON (AI_BAD_RESPONSE).
+      return { ok: false, error, retryable: false };
     }
     if (error instanceof Error && error.name === "AbortError") {
-      throw new GeminiClientError("AI_TIMEOUT", "Gemini request timed out.", 504);
+      return {
+        ok: false,
+        error: new GeminiClientError("AI_TIMEOUT", "Gemini request timed out.", 504),
+        retryable: true,
+      };
     }
-    throw new GeminiClientError("AI_UPSTREAM_ERROR", "Failed to reach Gemini API.", 502);
+    return {
+      ok: false,
+      error: new GeminiClientError("AI_UPSTREAM_ERROR", "Failed to reach Gemini API.", 502),
+      retryable: true,
+    };
   }
+}
+
+/** Calls Gemini structured JSON generation with bounded failover on transient outages or timeouts. */
+export async function callGeminiStructured<T>(opts: {
+  apiKey: string;
+  model: string;
+  systemInstruction: string;
+  promptText: string;
+  jsonSchema: Record<string, unknown>;
+  thinkingLevel: "low" | "medium";
+  timeoutMs?: number;
+}): Promise<{ parsed: T; model: string }> {
+  const candidates = resolveCandidateModels(opts.model);
+  const timeoutMs = opts.timeoutMs ?? 14_000;
+  let lastError: GeminiClientError | null = null;
+
+  for (const candidateModel of candidates) {
+    const attempt = await callSingleGeminiModel<T>({
+      apiKey: opts.apiKey,
+      model: candidateModel,
+      systemInstruction: opts.systemInstruction,
+      promptText: opts.promptText,
+      jsonSchema: opts.jsonSchema,
+      thinkingLevel: opts.thinkingLevel,
+      timeoutMs,
+    });
+
+    if (attempt.ok) {
+      return {
+        parsed: attempt.parsed,
+        model: attempt.model,
+      };
+    }
+
+    lastError = attempt.error;
+    if (!attempt.retryable) {
+      throw attempt.error;
+    }
+  }
+
+  throw lastError ?? new GeminiClientError("AI_UPSTREAM_ERROR", "Failed to reach Gemini API.", 502);
 }
