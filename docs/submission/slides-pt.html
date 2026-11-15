@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoTrend — Apresentação Oficial (NASA Space Apps 2026 · Polo Vilhena)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #121212;
+      --surface: #1C1C1E;
+      --surface-soft: #171719;
+      --text: #EDEDEA;
+      --muted: #9B9B98;
+      --accent: #C1472E;
+      --border: #2E2E30;
+      --slide-w: 1280px;
+      --slide-h: 720px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #0B0B0C;
+      color: var(--text);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      height: 100%;
+    }
+
+    .mono {
+      font-family: "Courier Prime", "Courier New", ui-monospace, SFMono-Regular, monospace;
+    }
+
+    code {
+      font-family: "Courier Prime", "Courier New", monospace;
+      font-size: 0.92em;
+      color: var(--text);
+      background: #121212;
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* Stage container on screen */
+    .deck-viewport {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 20px 68px;
+      gap: 24px;
+    }
+
+    body.overview-mode .deck-viewport {
+      justify-content: flex-start;
+      padding-top: 28px;
+    }
+
+    .slide {
+      width: min(1280px, calc(100vw - 40px));
+      aspect-ratio: 16 / 9;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      position: relative;
+      display: none;
+      flex-direction: column;
+      padding: 28px 44px 22px;
+      overflow: hidden;
+    }
+
+    .slide.is-active,
+    body.overview-mode .slide {
+      display: flex;
+    }
+
+    .slide-accent-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: var(--accent);
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .brand-chip-name {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .slide-counter {
+      font-size: 12px;
+      color: var(--muted);
+      border-left: 1px solid var(--border);
+      padding-left: 9px;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .slide-title {
+      font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+      font-size: clamp(23px, 2.3vw, 31px);
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.015em;
+    }
+
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 9px;
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    /* Slide 1 Cover */
+    .cover-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 0 4px;
+    }
+
+    .cover-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 14px;
+    }
+
+    .cover-eyebrow {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .cover-title {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(54px, 6vw, 76px);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+    }
+
+    .cover-subtitle {
+      font-size: clamp(18px, 1.8vw, 23px);
+      line-height: 1.42;
+      color: #D2D2CE;
+      max-width: 980px;
+    }
+
+    .cover-stripes-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cover-stripes-meta,
+    .cover-stripes-years {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .cover-stripes-meta span:first-child { color: var(--text); font-weight: 700; }
+
+    .cover-pills {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .cover-pills span {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 3px;
+    }
+
+    /* Common editorial grids & cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      flex: 1;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card h3 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 19px;
+      line-height: 1.24;
+      color: var(--text);
+    }
+
+    .card p {
+      font-size: 14.5px;
+      line-height: 1.46;
+      color: #D2D2CE;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .diagram-frame {
+      width: 100%;
+    }
+
+    .method-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* Slide 4 Cases */
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+      flex: 1;
+    }
+
+    .case-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 13px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .case-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-strong {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: #121212;
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    .case-card h3 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .case-meta {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .case-metrics {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 2px 0;
+    }
+
+    .case-delta {
+      font-family: "Courier Prime", monospace;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .case-stats {
+      text-align: right;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .case-viz {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: #141416;
+      border: 1px solid #242426;
+      padding: 5px 6px;
+      border-radius: 3px;
+    }
+
+    .case-takeaway {
+      font-size: 13px;
+      line-height: 1.34;
+      color: #D7D7D2;
+    }
+
+    /* Slide 5 Demo */
+    .demo-split {
+      display: grid;
+      grid-template-columns: 1.18fr 1fr;
+      gap: 18px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .demo-left {
+      justify-content: space-between;
+    }
+
+    .demo-chart-box {
+      background: #121212;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px;
+    }
+
+    .demo-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .demo-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .feature-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .feature-item p {
+      font-size: 13.5px;
+      line-height: 1.42;
+      color: #D2D2CE;
+    }
+
+    /* Slide 6 Guardrails & SDGs */
+    .card-tall {
+      justify-content: flex-start;
+      padding: 20px 22px;
+      gap: 14px;
+    }
+
+    .editorial-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .editorial-list li {
+      font-size: 15px;
+      line-height: 1.5;
+      color: #D7D7D2;
+      border-left: 2px solid var(--accent);
+      padding-left: 14px;
+    }
+
+    .editorial-list strong {
+      color: var(--text);
+    }
+
+    .sdg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sdg-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .sdg-code {
+      min-width: 72px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 6px;
+      border: 1px solid;
+      border-radius: 3px;
+      background: #121212;
+      flex-shrink: 0;
+    }
+
+    .sdg-row strong {
+      display: inline-block;
+      font-size: 15.5px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .sdg-row span {
+      font-size: 14px;
+      line-height: 1.42;
+      color: #CFCFCB;
+    }
+
+    /* Slide 7 Closing */
+    .closing-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .closing-left {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .closing-quote {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(28px, 2.9vw, 37px);
+      line-height: 1.24;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .closing-stack {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stack-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stack-pill span {
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .stack-pill strong {
+      font-size: 12.5px;
+      color: var(--text);
+    }
+
+    .team-box {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .team-names {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .closing-qr-card {
+      background: #F4EFE6;
+      color: #14110F;
+      border-radius: 4px;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      border: 1px solid #D8CFC0;
+    }
+
+    .qr-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #C1472E;
+    }
+
+    .qr-svg-wrap {
+      padding: 8px;
+      background: #FFFFFF;
+      border: 1px solid #D8CFC0;
+      border-radius: 2px;
+      line-height: 0;
+    }
+
+    .qr-url {
+      font-size: 19px;
+      font-weight: 700;
+      color: #14110F;
+    }
+
+    .qr-caption {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #463F37;
+    }
+
+    /* Screen Presenter Bar (hidden on print) */
+    .presenter-bar {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(24, 24, 26, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      z-index: 40;
+      backdrop-filter: blur(8px);
+    }
+
+    .presenter-bar button {
+      background: #242428;
+      color: var(--text);
+      border: 1px solid #3A3A3E;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .presenter-bar button:hover {
+      border-color: var(--accent);
+    }
+
+    .presenter-bar .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .speaker-note-drawer {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      max-width: 440px;
+      background: rgba(28, 28, 30, 0.96);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 12px 15px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text);
+      display: none;
+      z-index: 45;
+    }
+
+    .speaker-note-drawer.is-open { display: block; }
+    .speaker-note-drawer strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    /* Print / PDF 16:9 Exact Page Export */
+    @page {
+      size: 13.333in 7.5in;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        background: var(--bg);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin: 0;
+        padding: 0;
+      }
+
+      .presenter-bar,
+      .speaker-note-drawer,
+      .speaker-note-drawer.is-open {
+        display: none;
+      }
+
+      .deck-viewport,
+      body.overview-mode .deck-viewport {
+        display: block;
+        padding: 0;
+        margin: 0;
+      }
+
+      .slide,
+      .slide.is-active,
+      body.overview-mode .slide {
+        display: flex;
+        width: 13.333in;
+        height: 7.5in;
+        max-width: none;
+        border: none;
+        border-radius: 0;
+        break-after: page;
+        page-break-after: always;
+      }
+
+      .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="speaker-note" class="speaker-note-drawer no-print" role="status" aria-live="polite">
+    <strong class="mono">ROTEIRO DO ORADOR (180 SEGUNDOS)</strong>
+    <span id="speaker-note-text"></span>
+  </div>
+
+  <main class="deck-viewport" id="deck">
+    <section class="slide is-active" data-slide="1" data-note="[0:00–0:20] Gancho Local: Boa tarde, jurados! Todo produtor rural de Vilhena já se perguntou se a estação seca está ficando mais severa ou se foi só um ano atípico de El Niño. Para responder com matemática e dados espaciais abertos, criamos o GeoTrend.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">NASA SPACE APPS CHALLENGE 2026 · POLO VILHENA — RONDÔNIA, BRASIL</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">01/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <div class="cover-layout">
+      <div class="cover-top">
+        <div class="cover-brand-row">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="92" height="92" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+          <div>
+            <div class="cover-eyebrow mono">BE AN EARTH SYSTEM TREND DETECTIVE!</div>
+            <h1 class="cover-title">GeoTrend</h1>
+          </div>
+        </div>
+        <p class="cover-subtitle">Anomalia passageira ou tendência climática comprovada? Investigando <strong>45 anos</strong> de dados reais da NASA em Rondônia, no Brasil e no mundo.</p>
+      </div>
+      <div class="cover-stripes-box">
+        <div class="cover-stripes-meta mono">
+          <span>CASO #01 · VILHENA, RO (-12,74°, -60,14°)</span>
+          <span style="color:#B8862E">ESTAÇÃO SECA ABR–SET · -234,46 mm (p = 0,000131 · CONFIANÇA 99%)</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 78" width="100%" height="78" preserveAspectRatio="none" role="img" aria-label="Faixas climáticas NASA POWER 1981 a 2025">
+  <defs><clipPath id="clip-PRECTOTCORR-1120-78"><rect x="0" y="0" width="1120" height="78" rx="4" /></clipPath></defs>
+  <g clip-path="url(#clip-PRECTOTCORR-1120-78)"><rect x="0.00" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="24.89" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="49.78" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="74.67" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="99.56" y="0" width="25.24" height="78" fill="#003C30" /><rect x="124.44" y="0" width="25.24" height="78" fill="#01665E" /><rect x="149.33" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="174.22" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="199.11" y="0" width="25.24" height="78" fill="#01665E" /><rect x="224.00" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="248.89" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="273.78" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="298.67" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="323.56" y="0" width="25.24" height="78" fill="#003C30" /><rect x="348.44" y="0" width="25.24" height="78" fill="#01665E" /><rect x="373.33" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="398.22" y="0" width="25.24" height="78" fill="#01665E" /><rect x="423.11" y="0" width="25.24" height="78" fill="#F4EFE6" /><rect x="448.00" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="472.89" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="497.78" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="522.67" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="547.56" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="572.44" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="597.33" y="0" width="25.24" height="78" fill="#F4EFE6" /><rect x="622.22" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="647.11" y="0" width="25.24" height="78" fill="#D94801" /><rect x="672.00" y="0" width="25.24" height="78" fill="#F4EFE6" /><rect x="696.89" y="0" width="25.24" height="78" fill="#FDD0A2" /><rect x="721.78" y="0" width="25.24" height="78" fill="#D94801" /><rect x="746.67" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="771.56" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="796.44" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="821.33" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="846.22" y="0" width="25.24" height="78" fill="#FD8D3C" /><rect x="871.11" y="0" width="25.24" height="78" fill="#7F2704" /><rect x="896.00" y="0" width="25.24" height="78" fill="#5AB4AC" /><rect x="920.89" y="0" width="25.24" height="78" fill="#C7EAE5" /><rect x="945.78" y="0" width="25.24" height="78" fill="#D94801" /><rect x="970.67" y="0" width="25.24" height="78" fill="#D94801" /><rect x="995.56" y="0" width="25.24" height="78" fill="#D94801" /><rect x="1020.44" y="0" width="25.24" height="78" fill="#D94801" /><rect x="1045.33" y="0" width="25.24" height="78" fill="#D94801" /><rect x="1070.22" y="0" width="25.24" height="78" fill="#D94801" /><rect x="1095.11" y="0" width="25.24" height="78" fill="#D94801" /></g>
+  <rect x="0.5" y="0.5" width="1119" height="77" rx="4" fill="none" stroke="#2E2E30" stroke-width="1" />
+</svg>
+        <div class="cover-stripes-years mono">
+          <span>1981</span>
+          <span>Cada faixa vertical = 1 ano de precipitação na seca (ocre = déficit extremo · verde-água = umidade)</span>
+          <span>2025</span>
+        </div>
+      </div>
+      <div class="cover-pills mono">
+        <span>AO VIVO EM HTTPS://GEOTREND.EARTH</span>
+        <span>EQUIPE: HIGOR · KAUÊ · LUIS · MYLENA</span>
+      </div>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="2" data-note="[0:20–0:40] O Problema: Um gráfico comum confunde oscilação normal ou um evento extremo com mudança real. E baixar dados brutos da NASA exige limpeza e estatística que não chegam ao produtor nem à sala de aula.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">01 · O PROBLEMA · DO RUÍDO BRUTO À DECISÃO REAL</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">02/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <h2 class="slide-title">Gráficos comuns enganam. Dados espaciais brutos ficam isolados fora do campo e da escola.</h2>
+    <div class="diagram-frame">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="100%" height="280" role="img" aria-label="Fluxo de Dados Brutos da NASA para Informação Verificada no GeoTrend">
+  <rect x="1" y="1" width="638" height="278" rx="4" fill="#171719" stroke="#2E2E30" stroke-width="1" />
+  <text x="24" y="30" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="11" font-weight="700" letter-spacing="1.6">DADOS BRUTOS DA NASA</text>
+  <text x="616" y="30" text-anchor="end" fill="#C1472E" font-family="'Courier Prime', monospace" font-size="11" font-weight="700" letter-spacing="1.6">INFORMAÇÃO ACIONÁVEL</text>
+
+  <!-- Noisy telemetry & grid tags on left -->
+  <g font-family="'Courier Prime', monospace" font-size="11">
+    <rect x="20" y="54" width="166" height="44" rx="3" fill="#121212" stroke="#2E2E30" />
+    <text x="30" y="72" fill="#9B9B98">-999 · T2M · 18.42</text>
+    <text x="30" y="88" fill="#5E5E5C">lon -60.14 · lat -12.74</text>
+
+    <rect x="20" y="114" width="166" height="52" rx="3" fill="#121212" stroke="#2E2E30" />
+    <path d="M30 144 L42 128 L52 154 L64 132 L76 156 L88 124 L100 150 L114 134 L126 155 L140 130 L154 148 L174 136" fill="none" stroke="#6BAED6" stroke-width="1.5" />
+    <path d="M30 148 L44 138 L58 158 L72 136 L86 154 L102 129 L118 156 L136 135 L154 152 L174 141" fill="none" stroke="#C1472E" stroke-width="1.3" opacity="0.85" />
+
+    <rect x="20" y="182" width="166" height="44" rx="3" fill="#121212" stroke="#2E2E30" />
+    <text x="30" y="200" fill="#9B9B98">1981..2025 · mm/dia</text>
+    <text x="30" y="216" fill="#5E5E5C">ciclo seco vs. chuvoso</text>
+  </g>
+
+  <!-- Convergence paths -->
+  <path d="M186 76 C225 76, 225 136, 256 136" fill="none" stroke="#5E5E5C" stroke-width="1.6" />
+  <path d="M186 140 L256 140" fill="none" stroke="#9B9B98" stroke-width="1.8" />
+  <path d="M186 204 C225 204, 225 144, 256 144" fill="none" stroke="#5E5E5C" stroke-width="1.6" />
+
+  <!-- Center GeoTrend Engine Ring -->
+  <circle cx="312" cy="140" r="54" fill="#121212" stroke="#C1472E" stroke-width="2" />
+  <circle cx="312" cy="140" r="46" fill="none" stroke="#2E2E30" stroke-width="1.2" stroke-dasharray="3 3" />
+  <g transform="translate(284, 110) scale(1.75)">
+    <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+  </g>
+  <text x="312" y="218" text-anchor="middle" fill="#EDEDEA" font-family="'Courier Prime', monospace" font-size="10" font-weight="700" letter-spacing="1.2">GEOTREND MOTOR</text>
+  <text x="312" y="233" text-anchor="middle" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="9.5">Sazonal + Sen + MK</text>
+
+  <!-- Output branching curves -->
+  <path d="M366 132 C398 132, 398 76, 424 76" fill="none" stroke="#C1472E" stroke-width="1.8" />
+  <path d="M366 140 L424 146" fill="none" stroke="#EDEDEA" stroke-width="1.6" />
+  <path d="M366 148 C398 148, 398 214, 424 214" fill="none" stroke="#2E8B86" stroke-width="1.8" />
+
+  <!-- Output cards on right -->
+  <rect x="424" y="48" width="196" height="54" rx="3" fill="#1C1C1E" stroke="#2E2E30" />
+  <polyline points="436,88 456,82 474,85 494,70 512,73 534,58" fill="none" stroke="#EDEDEA" stroke-width="1.5" />
+  <line x1="436" y1="88" x2="534" y2="59" stroke="#C1472E" stroke-width="2" />
+  <text x="546" y="71" fill="#EDEDEA" font-family="'Inter', sans-serif" font-size="11" font-weight="600">Declive</text>
+  <text x="546" y="86" fill="#9B9B98" font-family="'Inter', sans-serif" font-size="10">de Sen</text>
+
+  <rect x="424" y="116" width="196" height="60" rx="3" fill="#1C1C1E" stroke="#2E2E30" />
+  <rect x="435" y="130" width="8.5" height="32" fill="#FD8D3C" /><rect x="443.2" y="130" width="8.5" height="32" fill="#C7EAE5" /><rect x="451.4" y="130" width="8.5" height="32" fill="#C7EAE5" /><rect x="459.6" y="130" width="8.5" height="32" fill="#5AB4AC" /><rect x="467.8" y="130" width="8.5" height="32" fill="#003C30" /><rect x="476" y="130" width="8.5" height="32" fill="#01665E" /><rect x="484.2" y="130" width="8.5" height="32" fill="#FD8D3C" /><rect x="492.4" y="130" width="8.5" height="32" fill="#FD8D3C" /><rect x="500.6" y="130" width="8.5" height="32" fill="#01665E" /><rect x="508.8" y="130" width="8.5" height="32" fill="#5AB4AC" /><rect x="517" y="130" width="8.5" height="32" fill="#C7EAE5" /><rect x="525.2" y="130" width="8.5" height="32" fill="#5AB4AC" /><rect x="533.4" y="130" width="8.5" height="32" fill="#C7EAE5" /><rect x="541.6" y="130" width="8.5" height="32" fill="#003C30" /><rect x="549.8" y="130" width="8.5" height="32" fill="#01665E" /><rect x="558" y="130" width="8.5" height="32" fill="#5AB4AC" /><rect x="566.2" y="130" width="8.5" height="32" fill="#01665E" /><rect x="574.4" y="130" width="8.5" height="32" fill="#F4EFE6" />
+  <text x="590" y="143" fill="#EDEDEA" font-family="'Courier Prime', monospace" font-size="10" font-weight="700">Z</text>
+  <text x="435" y="171" fill="#9B9B98" font-family="'Inter', sans-serif" font-size="10">Faixas de Anomalia (1981–2025)</text>
+
+  <rect x="424" y="188" width="196" height="54" rx="3" fill="#1C1C1E" stroke="#2E2E30" />
+  <text x="438" y="218" fill="#C1472E" font-family="'Courier Prime', monospace" font-size="22" font-weight="700">99%</text>
+  <text x="494" y="211" fill="#EDEDEA" font-family="'Inter', sans-serif" font-size="11" font-weight="600">Veredito Auditado</text>
+  <text x="494" y="227" fill="#9B9B98" font-family="'Inter', sans-serif" font-size="10">Dossiê &amp; Cartão PNG</text>
+</svg>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <span class="mono tag" style="color:#C1472E">01 · ARMADILHA SAZONAL</span>
+        <h3>Oscilação anual mascara tendências</h3>
+        <p>Analisar meses seguidos sem separar chuva e seca cria ruído artificial e esconde mudanças graduais de décadas.</p>
+      </div>
+      <div class="card">
+        <span class="mono tag" style="color:#C1472E">02 · OUTLIERS &amp; BARREIRA TÉCNICA</span>
+        <h3>Dados NASA exigem programação</h3>
+        <p>Séries NASA POWER / MERRA-2 trazem valores sentinela (-999), grades de ~50 km e fórmulas inacessíveis a produtores e escolas.</p>
+      </div>
+      <div class="card">
+        <span class="mono tag" style="color:#C1472E">03 · IMPACTO NO CONE SUL DE RO</span>
+        <h3>Decisões sem prova estatística</h3>
+        <p>Sem quantificar magnitude e significância, planejamento da 2ª safra, bacias hídricas e educação ambiental ficam no achismo.</p>
+      </div>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="3" data-note="[0:40–1:15] Como Funciona: O GeoTrend responde exatamente às 4 perguntas do desafio. Isolamos a estação seca da chuvosa, aplicamos o Estimador de Sen para saber o quanto mudou sem distorção de anos atípicos, e rodamos Mann-Kendall para provar se há 95% ou 99% de confiança.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">02 · AS 4 PERGUNTAS DA NASA &amp; O MOTOR CIENTÍFICO</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">03/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <h2 class="slide-title">Uma bancada pericial em 4 passos: limpar o ciclo sazonal, medir o declive e testar a significância.</h2>
+    <div class="grid-2x2">
+      <div class="card">
+        <span class="mono tag" style="color:#4C7EA8">PERGUNTA 01 · O QUE MUDOU?</span>
+        <h3>4 Variáveis Essenciais da NASA POWER / MERRA-2</h3>
+        <p>Ingestão direta de <strong>1981 a 2025 (45 anos completos)</strong>: Temperatura Média (<code>T2M</code>), Mínima Noturna (<code>T2M_MIN</code>), Precipitação Corrigida (<code>PRECTOTCORR</code> em mm reais) e Umidade Radicular do Solo (<code>GWETROOT</code> em 0–100%).</p>
+      </div>
+      <div class="card">
+        <span class="mono tag" style="color:#2E8B86">PERGUNTA 02 · ONDE E EM QUAL JANELA?</span>
+        <h3>Estratificação de Janelas Sazonais</h3>
+        <p>Antes de rodar qualquer teste, filtramos <code>-999</code> e agrupamos anos hidrológicos homólogos: <strong>Anual (Jan–Dez)</strong>, <strong>Chuvosa (Out–Mar)</strong> e <strong>Seca (Abr–Set)</strong>, exigindo mínimo de <strong>15 anos completos</strong>.</p>
+      </div>
+      <div class="card">
+        <span class="mono tag" style="color:#C1472E">PERGUNTA 03 · QUANTO MUDOU?</span>
+        <h3>Estimador de Inclinação de Sen (Sen's Slope)</h3>
+        <p>Mediana de todas as inclinações entre pares de anos, com <strong>Intervalo de Confiança de 95%</strong>. Mede mudança por década e variação total em 45 anos sem ser distorcido por um único El Niño extremo.</p>
+      </div>
+      <div class="card">
+        <span class="mono tag" style="color:#B8862E">PERGUNTA 04 · É ESTATISTICAMENTE REAL?</span>
+        <h3>Teste Não-Paramétrico de Mann-Kendall</h3>
+        <p>Calcula estatística <code>S</code>, variância corrigida para empates, escore <code>Z</code> e <code>valor-p</code> bicaudal para emitir veredito objetivo: <strong>Evidência Forte (99%)</strong>, <strong>Confirmada (95%)</strong> ou <strong>Insuficiente</strong>.</p>
+      </div>
+    </div>
+    <div class="method-strip mono">
+      <span>127 TESTES AUTOMATIZADOS (19 SUÍTES)</span>
+      <span>VARREDURA FDR BENJAMINI-HOCHBERG NAS 4 VARIÁVEIS</span>
+      <span>ALERTA AUTOMÁTICO DE AUTOCORRELAÇÃO LAG-1</span>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="4" data-note="[1:15–1:55] Resultados Reais: Partindo daqui de Vilhena: a estação seca perdeu 234,46 milímetros de chuva desde 1981 (-53,29 mm/década, 99% de confiança). Em Ariquemes, as noites subiram +1,82 °C. No Pantanal, a umidade do solo caiu -5,60 pontos. E em Svalbard no Ártico, +3,50 °C provam a amplificação polar comparada ao Brasil.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">03 · DESCOBERTAS REAIS NAS 4 ESCALAS (1981–2025 · n = 45 ANOS)</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">04/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <h2 class="slide-title">De Vilhena ao Ártico: quatro biomas reais comprovando velocidades regionais distintas.</h2>
+    <div class="cases-grid">
+      <article class="case-card">
+    <div class="case-card-top">
+      <span class="mono tag" style="color:#B8862E">01 · LOCAL · CIDADE-SEDE</span>
+      <span class="mono badge-strong">FORTE · 99%</span>
+    </div>
+    <h3>Vilhena, RO — Brasil</h3>
+    <p class="case-meta">Precipitação Total (PRECTOTCORR) · Estação Seca · Abr–Set</p>
+    <div class="case-metrics">
+      <div class="case-delta" style="color:#B8862E">-234,46 mm</div>
+      <div class="case-stats mono">
+        <div>-53,29 mm/década</div>
+        <div>p = 0,000131 · Z = -3,82 · R² = 0,37</div>
+      </div>
+    </div>
+    <div class="case-viz">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 74" width="100%" height="74" role="img" aria-label="Série observada e linha de tendência de Sen">
+  
+  <polyline fill="none" stroke="#EDEDEA" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="10.0,45.5 15.4,35.9 20.7,33.7 26.1,27.9 31.5,12.0 36.8,17.3 42.2,45.2 47.5,44.2 52.9,22.0 58.3,27.3 63.6,32.8 69.0,24.7 74.4,34.0 79.7,12.2 85.1,24.4 90.5,29.7 95.8,21.4 101.2,37.9 106.5,31.7 111.9,32.7 117.3,29.4 122.6,32.4 128.0,31.0 133.4,35.4 138.7,36.5 144.1,32.5 149.5,58.5 154.8,36.7 160.2,40.9 165.5,54.2 170.9,43.8 176.3,29.8 181.6,50.0 187.0,26.3 192.4,42.5 197.7,62.0 203.1,27.3 208.5,33.1 213.8,54.2 219.2,53.6 224.5,55.8 229.9,57.1 235.3,51.9 240.6,53.3 246.0,57.5" opacity="0.92" />
+  <line x1="10.0" y1="21.1" x2="246.0" y2="51.4" stroke="#B8862E" stroke-width="2.2" stroke-dasharray="none" stroke-linecap="round" />
+  <circle cx="31.5" cy="12.0" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="36.8" cy="17.3" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="79.7" cy="12.2" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="149.5" cy="58.5" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="197.7" cy="62.0" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="229.9" cy="57.1" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="246.0" cy="57.5" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" />
+  <circle cx="10.0" cy="21.1" r="3.5" fill="#B8862E" />
+<circle cx="246.0" cy="51.4" r="4" fill="#B8862E" />
+  
+</svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" width="100%" height="14" preserveAspectRatio="none" role="img" aria-label="Faixas climáticas NASA POWER 1981 a 2025">
+  <defs><clipPath id="clip-PRECTOTCORR-260-14"><rect x="0" y="0" width="260" height="14" rx="2" /></clipPath></defs>
+  <g clip-path="url(#clip-PRECTOTCORR-260-14)"><rect x="0.00" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="5.78" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="11.56" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="17.33" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="23.11" y="0" width="6.13" height="14" fill="#003C30" /><rect x="28.89" y="0" width="6.13" height="14" fill="#01665E" /><rect x="34.67" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="40.44" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="46.22" y="0" width="6.13" height="14" fill="#01665E" /><rect x="52.00" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="57.78" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="63.56" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="69.33" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="75.11" y="0" width="6.13" height="14" fill="#003C30" /><rect x="80.89" y="0" width="6.13" height="14" fill="#01665E" /><rect x="86.67" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="92.44" y="0" width="6.13" height="14" fill="#01665E" /><rect x="98.22" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="104.00" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="109.78" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="115.56" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="121.33" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="127.11" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="132.89" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="138.67" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="144.44" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="150.22" y="0" width="6.13" height="14" fill="#D94801" /><rect x="156.00" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="161.78" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="167.56" y="0" width="6.13" height="14" fill="#D94801" /><rect x="173.33" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="179.11" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="184.89" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="190.67" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="196.44" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="202.22" y="0" width="6.13" height="14" fill="#7F2704" /><rect x="208.00" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="213.78" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="219.56" y="0" width="6.13" height="14" fill="#D94801" /><rect x="225.33" y="0" width="6.13" height="14" fill="#D94801" /><rect x="231.11" y="0" width="6.13" height="14" fill="#D94801" /><rect x="236.89" y="0" width="6.13" height="14" fill="#D94801" /><rect x="242.67" y="0" width="6.13" height="14" fill="#D94801" /><rect x="248.44" y="0" width="6.13" height="14" fill="#D94801" /><rect x="254.22" y="0" width="6.13" height="14" fill="#D94801" /></g>
+  <rect x="0.5" y="0.5" width="259" height="13" rx="2" fill="none" stroke="#2E2E30" stroke-width="1" />
+</svg>
+    </div>
+    <p class="case-takeaway">Encurta diretamente a janela hídrica da 2ª safra no Cone Sul de Rondônia.</p>
+  </article><article class="case-card">
+    <div class="case-card-top">
+      <span class="mono tag" style="color:#C1472E">02 · ESTADUAL · RONDÔNIA</span>
+      <span class="mono badge-strong">FORTE · 99%</span>
+    </div>
+    <h3>Ariquemes, RO — Brasil</h3>
+    <p class="case-meta">Temperatura Mínima Noturna (T2M_MIN) · Série Anual · Jan–Dez</p>
+    <div class="case-metrics">
+      <div class="case-delta" style="color:#C1472E">+1,82 °C</div>
+      <div class="case-stats mono">
+        <div>+0,41 °C/década</div>
+        <div>p = 0,000001 · Z = +4,90 · R² = 0,45</div>
+      </div>
+    </div>
+    <div class="case-viz">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 74" width="100%" height="74" role="img" aria-label="Série observada e linha de tendência de Sen">
+  
+  <polyline fill="none" stroke="#EDEDEA" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="10.0,51.3 15.4,33.6 20.7,38.5 26.1,50.2 31.5,53.5 36.8,54.1 42.2,47.2 47.5,42.0 52.9,61.3 58.3,55.5 63.6,43.3 69.0,42.3 74.4,46.6 79.7,54.7 85.1,50.8 90.5,54.4 95.8,36.6 101.2,33.2 106.5,62.0 111.9,47.0 117.3,44.9 122.6,33.0 128.0,45.7 133.4,38.8 138.7,36.2 144.1,46.9 149.5,42.3 154.8,31.0 160.2,30.3 165.5,40.7 170.9,32.3 176.3,38.5 181.6,29.1 187.0,32.3 192.4,14.3 197.7,36.5 203.1,30.3 208.5,35.8 213.8,31.9 219.2,27.6 224.5,37.6 229.9,46.4 235.3,23.8 240.6,12.0 246.0,22.1" opacity="0.92" />
+  <line x1="10.0" y1="52.0" x2="246.0" y2="25.8" stroke="#C1472E" stroke-width="2.2" stroke-dasharray="none" stroke-linecap="round" />
+  <circle cx="52.9" cy="61.3" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="106.5" cy="62.0" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="192.4" cy="14.3" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="240.6" cy="12.0" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="246.0" cy="22.1" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" />
+  <circle cx="10.0" cy="52.0" r="3.5" fill="#C1472E" />
+<circle cx="246.0" cy="25.8" r="4" fill="#C1472E" />
+  
+</svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" width="100%" height="14" preserveAspectRatio="none" role="img" aria-label="Faixas climáticas NASA POWER 1981 a 2025">
+  <defs><clipPath id="clip-T2M_MIN-260-14"><rect x="0" y="0" width="260" height="14" rx="2" /></clipPath></defs>
+  <g clip-path="url(#clip-T2M_MIN-260-14)"><rect x="0.00" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="5.78" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="11.56" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="17.33" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="23.11" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="28.89" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="34.67" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="40.44" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="46.22" y="0" width="6.13" height="14" fill="#08306B" /><rect x="52.00" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="57.78" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="63.56" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="69.33" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="75.11" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="80.89" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="86.67" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="92.44" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="98.22" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="104.00" y="0" width="6.13" height="14" fill="#08306B" /><rect x="109.78" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="115.56" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="121.33" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="127.11" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="132.89" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="138.67" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="144.44" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="150.22" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="156.00" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="161.78" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="167.56" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="173.33" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="179.11" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="184.89" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="190.67" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="196.44" y="0" width="6.13" height="14" fill="#67000D" /><rect x="202.22" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="208.00" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="213.78" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="219.56" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="225.33" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="231.11" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="236.89" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="242.67" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="248.44" y="0" width="6.13" height="14" fill="#67000D" /><rect x="254.22" y="0" width="6.13" height="14" fill="#CB181D" /></g>
+  <rect x="0.5" y="0.5" width="259" height="13" rx="2" fill="none" stroke="#2E2E30" stroke-width="1" />
+</svg>
+    </div>
+    <p class="case-takeaway">Noites tropicais mais quentes elevam estresse térmico humano, pecuário e no café.</p>
+  </article><article class="case-card">
+    <div class="case-card-top">
+      <span class="mono tag" style="color:#B8862E">03 · NACIONAL · PANTANAL</span>
+      <span class="mono badge-strong">FORTE · 99%</span>
+    </div>
+    <h3>Corumbá (Pantanal), MS — Brasil</h3>
+    <p class="case-meta">Umidade Radicular do Solo (GWETROOT) · Série Anual · Jan–Dez</p>
+    <div class="case-metrics">
+      <div class="case-delta" style="color:#B8862E">-5,60 pts (%)</div>
+      <div class="case-stats mono">
+        <div>-1,27 pts/década</div>
+        <div>p = 0,000024 · Z = -4,23 · R² = 0,29</div>
+      </div>
+    </div>
+    <div class="case-viz">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 74" width="100%" height="74" role="img" aria-label="Série observada e linha de tendência de Sen">
+  
+  <polyline fill="none" stroke="#EDEDEA" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="10.0,23.4 15.4,19.9 20.7,17.9 26.1,32.1 31.5,44.3 36.8,43.1 42.2,35.6 47.5,33.3 52.9,29.3 58.3,37.6 63.6,31.7 69.0,22.6 74.4,59.3 79.7,49.0 85.1,21.5 90.5,46.6 95.8,39.6 101.2,40.7 106.5,53.0 111.9,33.6 117.3,51.4 122.6,61.6 128.0,44.7 133.4,37.2 138.7,53.7 144.1,44.7 149.5,39.6 154.8,43.1 160.2,48.2 165.5,55.3 170.9,15.2 176.3,48.6 181.6,46.6 187.0,12.0 192.4,50.2 197.7,43.1 203.1,36.8 208.5,50.6 213.8,57.3 219.2,58.1 224.5,55.3 229.9,58.5 235.3,53.4 240.6,62.0 246.0,59.6" opacity="0.92" />
+  <line x1="10.0" y1="30.0" x2="246.0" y2="56.4" stroke="#B8862E" stroke-width="2.2" stroke-dasharray="none" stroke-linecap="round" />
+  <circle cx="15.4" cy="19.9" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="20.7" cy="17.9" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="85.1" cy="21.5" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="170.9" cy="15.2" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="187.0" cy="12.0" r="2.3" fill="#B8862E" stroke="#121212" stroke-width="1" />
+  <circle cx="10.0" cy="30.0" r="3.5" fill="#B8862E" />
+<circle cx="246.0" cy="56.4" r="4" fill="#B8862E" />
+  
+</svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" width="100%" height="14" preserveAspectRatio="none" role="img" aria-label="Faixas climáticas NASA POWER 1981 a 2025">
+  <defs><clipPath id="clip-GWETROOT-260-14"><rect x="0" y="0" width="260" height="14" rx="2" /></clipPath></defs>
+  <g clip-path="url(#clip-GWETROOT-260-14)"><rect x="0.00" y="0" width="6.13" height="14" fill="#01665E" /><rect x="5.78" y="0" width="6.13" height="14" fill="#01665E" /><rect x="11.56" y="0" width="6.13" height="14" fill="#003C30" /><rect x="17.33" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="23.11" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="28.89" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="34.67" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="40.44" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="46.22" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="52.00" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="57.78" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="63.56" y="0" width="6.13" height="14" fill="#01665E" /><rect x="69.33" y="0" width="6.13" height="14" fill="#D94801" /><rect x="75.11" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="80.89" y="0" width="6.13" height="14" fill="#01665E" /><rect x="86.67" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="92.44" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="98.22" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="104.00" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="109.78" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="115.56" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="121.33" y="0" width="6.13" height="14" fill="#D94801" /><rect x="127.11" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="132.89" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="138.67" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="144.44" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="150.22" y="0" width="6.13" height="14" fill="#C7EAE5" /><rect x="156.00" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="161.78" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="167.56" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="173.33" y="0" width="6.13" height="14" fill="#003C30" /><rect x="179.11" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="184.89" y="0" width="6.13" height="14" fill="#FDD0A2" /><rect x="190.67" y="0" width="6.13" height="14" fill="#003C30" /><rect x="196.44" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="202.22" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="208.00" y="0" width="6.13" height="14" fill="#5AB4AC" /><rect x="213.78" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="219.56" y="0" width="6.13" height="14" fill="#D94801" /><rect x="225.33" y="0" width="6.13" height="14" fill="#D94801" /><rect x="231.11" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="236.89" y="0" width="6.13" height="14" fill="#D94801" /><rect x="242.67" y="0" width="6.13" height="14" fill="#FD8D3C" /><rect x="248.44" y="0" width="6.13" height="14" fill="#D94801" /><rect x="254.22" y="0" width="6.13" height="14" fill="#D94801" /></g>
+  <rect x="0.5" y="0.5" width="259" height="13" rx="2" fill="none" stroke="#2E2E30" stroke-width="1" />
+</svg>
+    </div>
+    <p class="case-takeaway">Ressecamento estrutural na zona das raízes amplia vulnerabilidade a queimadas.</p>
+  </article><article class="case-card">
+    <div class="case-card-top">
+      <span class="mono tag" style="color:#C1472E">04 · GLOBAL · CONTRASTE ÁRTICO</span>
+      <span class="mono badge-strong">FORTE · 99%</span>
+    </div>
+    <h3>Svalbard — Ártico</h3>
+    <p class="case-meta">Temperatura Média a 2m (T2M) · Série Anual · Jan–Dez</p>
+    <div class="case-metrics">
+      <div class="case-delta" style="color:#C1472E">+3,50 °C</div>
+      <div class="case-stats mono">
+        <div>+0,79 °C/década</div>
+        <div>p &lt; 0,000001 · Z = +5,32 · R² = 0,52</div>
+      </div>
+    </div>
+    <div class="case-viz">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 74" width="100%" height="74" role="img" aria-label="Série observada e linha de tendência de Sen">
+  
+  <polyline fill="none" stroke="#EDEDEA" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="10.0,50.7 15.4,54.3 20.7,53.0 26.1,26.8 31.5,40.4 36.8,45.8 42.2,48.9 47.5,62.0 52.9,46.6 58.3,30.1 63.6,39.8 69.0,42.2 74.4,47.5 79.7,46.9 85.1,48.7 90.5,38.3 95.8,46.3 101.2,47.9 106.5,32.8 111.9,33.0 117.3,38.3 122.6,36.0 128.0,45.2 133.4,34.9 138.7,33.3 144.1,30.3 149.5,29.9 154.8,36.5 160.2,32.1 165.5,37.8 170.9,33.6 176.3,23.3 181.6,35.6 187.0,25.9 192.4,27.7 197.7,12.0 203.1,25.4 208.5,24.8 213.8,36.3 219.2,37.9 224.5,31.6 229.9,27.1 235.3,23.8 240.6,29.2 246.0,23.9" opacity="0.92" />
+  <line x1="10.0" y1="49.1" x2="246.0" y2="23.9" stroke="#C1472E" stroke-width="2.2" stroke-dasharray="none" stroke-linecap="round" />
+  <circle cx="15.4" cy="54.3" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="20.7" cy="53.0" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="47.5" cy="62.0" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" /><circle cx="197.7" cy="12.0" r="2.3" fill="#C1472E" stroke="#121212" stroke-width="1" />
+  <circle cx="10.0" cy="49.1" r="3.5" fill="#C1472E" />
+<circle cx="246.0" cy="23.9" r="4" fill="#C1472E" />
+  
+</svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" width="100%" height="14" preserveAspectRatio="none" role="img" aria-label="Faixas climáticas NASA POWER 1981 a 2025">
+  <defs><clipPath id="clip-T2M-260-14"><rect x="0" y="0" width="260" height="14" rx="2" /></clipPath></defs>
+  <g clip-path="url(#clip-T2M-260-14)"><rect x="0.00" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="5.78" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="11.56" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="17.33" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="23.11" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="28.89" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="34.67" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="40.44" y="0" width="6.13" height="14" fill="#08306B" /><rect x="46.22" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="52.00" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="57.78" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="63.56" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="69.33" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="75.11" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="80.89" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="86.67" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="92.44" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="98.22" y="0" width="6.13" height="14" fill="#2171B5" /><rect x="104.00" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="109.78" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="115.56" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="121.33" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="127.11" y="0" width="6.13" height="14" fill="#6BAED6" /><rect x="132.89" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="138.67" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="144.44" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="150.22" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="156.00" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="161.78" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="167.56" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="173.33" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="179.11" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="184.89" y="0" width="6.13" height="14" fill="#FCBBA1" /><rect x="190.67" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="196.44" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="202.22" y="0" width="6.13" height="14" fill="#67000D" /><rect x="208.00" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="213.78" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="219.56" y="0" width="6.13" height="14" fill="#F4EFE6" /><rect x="225.33" y="0" width="6.13" height="14" fill="#C6DBEF" /><rect x="231.11" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="236.89" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="242.67" y="0" width="6.13" height="14" fill="#CB181D" /><rect x="248.44" y="0" width="6.13" height="14" fill="#FB6A4A" /><rect x="254.22" y="0" width="6.13" height="14" fill="#CB181D" /></g>
+  <rect x="0.5" y="0.5" width="259" height="13" rx="2" fill="none" stroke="#2E2E30" stroke-width="1" />
+</svg>
+    </div>
+    <p class="case-takeaway">Amplificação polar comprova velocidades e respostas distintas em cada latitude.</p>
+  </article>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="5" data-note="[1:55–2:25] Demonstração: Seguindo o Manual de Vilhena, qualquer pessoa busca qualquer município brasileiro em frase natural, compara imagens de satélite NASA MODIS de 2000 contra 2025, alterna para Faixas Climáticas e exporta CSV, card PNG ou citação ABNT em português ou inglês.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">04 · PLATAFORMA AO VIVO EM GEOTREND.EARTH</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">05/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <h2 class="slide-title">Do município à órbita: busca em linguagem natural, satélite NASA MODIS e cartões compartilháveis.</h2>
+    <div class="demo-split">
+      <div class="demo-left card">
+        <div class="case-card-top">
+          <span class="mono tag" style="color:#B8862E">EVIDÊNCIA VISUAL · CASO #01 VILHENA</span>
+          <span class="mono badge-strong">STRONG EVIDENCE · p = 0,000131</span>
+        </div>
+        <h3>Seca de Vilhena perdeu -53,29 mm por década (Abr–Set)</h3>
+        <div class="demo-chart-box">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 238" width="100%" height="238" role="img" aria-label="Série observada e linha de tendência de Sen">
+  <line x1="42" y1="20.0" x2="526" y2="20.0" stroke="#2E2E30" stroke-dasharray="3 3" stroke-width="1" />
+<text x="36" y="23" text-anchor="end" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">544</text><line x1="42" y1="116.0" x2="526" y2="116.0" stroke="#2E2E30" stroke-dasharray="3 3" stroke-width="1" />
+<text x="36" y="119" text-anchor="end" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">320</text><line x1="42" y1="212.0" x2="526" y2="212.0" stroke="#2E2E30" stroke-dasharray="3 3" stroke-width="1" />
+<text x="36" y="215" text-anchor="end" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">95,1</text>
+  <polyline fill="none" stroke="#EDEDEA" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" points="42.0,144.1 53.0,112.4 64.0,105.2 75.0,85.9 86.0,33.2 97.0,50.9 108.0,143.0 119.0,139.7 130.0,66.4 141.0,84.0 152.0,102.1 163.0,75.3 174.0,106.1 185.0,33.8 196.0,74.4 207.0,91.9 218.0,64.5 229.0,118.9 240.0,98.4 251.0,101.7 262.0,90.8 273.0,100.9 284.0,96.2 295.0,110.6 306.0,114.5 317.0,101.1 328.0,187.0 339.0,114.9 350.0,128.8 361.0,172.8 372.0,138.4 383.0,92.2 394.0,159.0 405.0,80.6 416.0,134.3 427.0,198.8 438.0,83.9 449.0,103.2 460.0,173.1 471.0,171.1 482.0,178.1 493.0,182.7 504.0,165.3 515.0,169.9 526.0,183.8" opacity="0.92" />
+  <line x1="42.0" y1="63.5" x2="526.0" y2="163.7" stroke="#B8862E" stroke-width="2.8" stroke-dasharray="6 4" stroke-linecap="round" />
+  <circle cx="86.0" cy="33.2" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="97.0" cy="50.9" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="185.0" cy="33.8" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="328.0" cy="187.0" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="427.0" cy="198.8" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="493.0" cy="182.7" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" /><circle cx="526.0" cy="183.8" r="3.3" fill="#B8862E" stroke="#121212" stroke-width="1" />
+  <circle cx="42.0" cy="63.5" r="3.5" fill="#B8862E" />
+<circle cx="526.0" cy="163.7" r="4" fill="#B8862E" />
+  <text x="42" y="232" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">1981</text>
+<text x="284" y="232" text-anchor="middle" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">Série NASA POWER (45 anos)</text>
+<text x="526" y="232" text-anchor="end" fill="#9B9B98" font-family="'Courier Prime', monospace" font-size="10">2025</text>
+</svg>
+        </div>
+        <div class="demo-legend mono">
+          <span>━ Série NASA POWER observada</span>
+          <span style="color:#B8862E">┄ Tendência de Sen (-234,46 mm em 45 anos)</span>
+          <span>● Anomalia extrema (|z| &gt; 1,5)</span>
+        </div>
+      </div>
+      <div class="demo-right">
+        <div class="feature-item">
+          <span class="mono tag" style="color:#C1472E">01 · BUSCA GLOBAL &amp; IA EM 3 ETAPAS</span>
+          <p>Pergunte em português ou inglês por <strong>qualquer cidade do planeta</strong> (ou selecione no mapa + 20 casos calibrados). Tradução de filtros e síntese com transparência por etapa e modo local resiliente.</p>
+        </div>
+        <div class="feature-item">
+          <span class="mono tag" style="color:#2E8B86">02 · SATÉLITE NASA GIBS / MODIS (2000–2025)</span>
+          <p>Comparação orbital <strong>Antes vs. Depois</strong> e timelapse anual em <em>True Color</em> e índice de vegetação <em>NDVI</em>, exportáveis em PNG com citação da NASA.</p>
+        </div>
+        <div class="feature-item">
+          <span class="mono tag" style="color:#4C7EA8">03 · ESTÚDIO DE COMPARTILHAMENTO &amp; CITAÇÕES</span>
+          <p>Exporte <strong>CSV</strong>, cards <strong>Story 9:16</strong>, <strong>1:1</strong>, <strong>Slide 16:9</strong> e figura <strong>Artigo</strong>, além de referências prontas em <strong>ABNT (NBR 6023), APA e BibTeX</strong>.</p>
+        </div>
+        <div class="feature-item">
+          <span class="mono tag" style="color:#B8862E">04 · EXPLORAR &amp; PARIDADE BILÍNGUE</span>
+          <p>Alternância instantânea <code>PT | EN</code> e <code>°C | °F</code>, mais o modo interativo <strong>Sua Linha do Tempo Climática</strong> desde o ano de nascimento.</p>
+        </div>
+      </div>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="6" data-note="[2:25–2:40] Rigor e Missão Amazônia: Nosso Arquivo de Métodos ensina estudantes e gestores a não confundir correlação com causalidade, dialogando com o MapBiomas e os ODS 6, 13 e 15 em Vilhena e na Amazônia.">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">05 · RIGOR CIENTÍFICO &amp; MISSÃO AMAZÔNIA</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">06/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <h2 class="slide-title">Significância estatística não é causalidade única — ciência aberta exige contexto territorial.</h2>
+    <div class="grid-2">
+      <div class="card card-tall">
+        <span class="mono tag" style="color:#C1472E">GUARDRAILS METODOLÓGICOS (ARQUIVO DE MÉTODOS 01–07)</span>
+        <ul class="editorial-list">
+          <li><strong>Correlação ≠ Causalidade:</strong> O teste de Mann-Kendall comprova mudança direcional consistente nos dados observados, sem reduzir fenômenos complexos a uma causa isolada.</li>
+          <li><strong>Escala de Reanálise (~50 km):</strong> Explicação explícita da resolução da grade MERRA-2 e leitura conjunta com uso do solo (<strong>MapBiomas</strong>) e zoneamento agrícola (ZARC/Embrapa).</li>
+          <li><strong>Transparência Matemática:</strong> Fórmulas completas, intervalos de confiança 95%, controle de falsas descobertas (BH FDR) e alertas de autocorrelação serial visíveis na interface.</li>
+        </ul>
+      </div>
+      <div class="card card-tall">
+        <span class="mono tag" style="color:#2E8B86">CONEXÃO LOCAL · MISSÃO AMAZÔNIA &amp; ODS DA ONU</span>
+        <div class="sdg-list">
+          <div class="sdg-row">
+            <span class="sdg-code mono" style="border-color:#4C7EA8;color:#4C7EA8">ODS 6</span>
+            <div><strong>Água Limpa e Saneamento</strong><br /><span>Evidência hídrica da estação seca em Vilhena (-53,29 mm/década) e da bacia do Pantanal para gestão regional.</span></div>
+          </div>
+          <div class="sdg-row">
+            <span class="sdg-code mono" style="border-color:#C1472E;color:#C1472E">ODS 13</span>
+            <div><strong>Ação Contra a Mudança do Clima</strong><br /><span>Separa variabilidade natural de tendências reais de aquecimento noturno em Rondônia (+1,82 °C) e no globo.</span></div>
+          </div>
+          <div class="sdg-row">
+            <span class="sdg-code mono" style="border-color:#2E8B86;color:#2E8B86">ODS 15</span>
+            <div><strong>Vida Terrestre &amp; Educação</strong><br /><span>Cartões visuais e metodologia didática prontos para escolas, universidades, cooperativas agrícolas e Defesa Civil.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+<section class="slide " data-slide="7" data-note="[2:40–3:00] Fechamento: O GeoTrend já está publicado em geotrend.earth, bilíngue em português e inglês, auditado por 127 testes automatizados. Apontem a câmera para testar agora. Contra o achismo climático, ciência com dados da NASA. Muito obrigado!">
+    <div class="slide-accent-bar"></div>
+    <header class="slide-header">
+      <span class="mono eyebrow">06 · CIÊNCIA VERIFICÁVEL EM PRODUÇÃO · ENCERRAMENTO</span>
+      <div class="brand-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+  <line x1="5.2" y1="16.8" x2="25.2" y2="16.8" stroke="#9B9B98" stroke-width="1.2" />
+  <ellipse cx="15.2" cy="16.8" rx="4.7" ry="10.2" stroke="#9B9B98" stroke-width="1.2" />
+  <circle cx="15.2" cy="16.8" r="10.2" stroke="#EDEDEA" stroke-width="1.85" />
+  <path d="M5.5 22.5 L11.8 17.2 L15.8 18.8 L26.2 6.2" stroke="#C1472E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="26.2" cy="6.2" r="2.6" fill="#C1472E" />
+</svg>
+        <span class="brand-chip-name">GeoTrend</span>
+        <span class="mono slide-counter">07/07</span>
+      </div>
+    </header>
+    <div class="slide-body">
+      <div class="closing-layout">
+      <div class="closing-left">
+        <span class="mono tag" style="color:#C1472E">PRONTO PARA O CAMPO, A SALA DE AULA E A BANCA GLOBAL</span>
+        <h2 class="closing-quote">“Contra o achismo climático, entregamos perícia científica auditável com dados abertos da NASA.”</h2>
+        <div class="closing-stack">
+          <div class="stack-pill"><span class="mono">FRONTEND</span><strong>React + TypeScript + SVG Editorial</strong></div>
+          <div class="stack-pill"><span class="mono">BORDA &amp; CACHE</span><strong>Cloudflare Workers + Banco Global</strong></div>
+          <div class="stack-pill"><span class="mono">DADOS &amp; QUALIDADE</span><strong>NASA POWER · GIBS · 19 Suítes / 127 Testes</strong></div>
+        </div>
+        <div class="team-box">
+          <span class="mono tag" style="color:#9B9B98">EQUIPE GEOTREND · POLO VILHENA (RO)</span>
+          <p class="team-names">Higor &nbsp;·&nbsp; Kauê Rian &nbsp;·&nbsp; Luis &nbsp;·&nbsp; Mylena</p>
+        </div>
+      </div>
+      <div class="closing-qr-card">
+        <span class="mono qr-kicker">ACESSE O PROJETO AO VIVO</span>
+        <div class="qr-svg-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" width="220" height="220" shape-rendering="crispEdges" role="img" aria-label="QR Code para https://geotrend.earth">
+            <path fill="#FFFFFF" d="M0 0h33v33H0z" />
+            <path stroke="#14110F" d="M4 4.5h7m2 0h3m4 0h1m1 0h7M4 5.5h1m5 0h1m5 0h1m1 0h2m2 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h7m3 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h2m8 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m6 0h1m2 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h1m1 0h2m2 0h3M4 12.5h1m1 0h5m2 0h1m1 0h1m1 0h3m2 0h5M4 13.5h5m2 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h1M4 14.5h5m1 0h1m3 0h1m1 0h2m1 0h1m1 0h5m1 0h2M4 15.5h1m1 0h1m4 0h3m2 0h1m3 0h4m4 0h1M5 16.5h1m2 0h4m2 0h1m2 0h2m2 0h2m1 0h1m1 0h3M4 17.5h2m6 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1M4 18.5h1m1 0h1m1 0h1m1 0h4m4 0h4m1 0h3m1 0h2M4 19.5h1m3 0h1m5 0h1m1 0h1m2 0h3m1 0h2m3 0h1M4 20.5h1m1 0h2m1 0h4m1 0h1m1 0h9m1 0h1M12 21.5h3m2 0h1m1 0h2m3 0h2M4 22.5h7m4 0h2m3 0h1m1 0h1m1 0h1m1 0h3M4 23.5h1m5 0h1m1 0h2m1 0h1m4 0h1m3 0h2M4 24.5h1m1 0h3m1 0h1m1 0h2m1 0h1m3 0h6m1 0h3M4 25.5h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h4m1 0h5M4 26.5h1m1 0h3m1 0h1m1 0h1m4 0h3m1 0h1m3 0h2m1 0h1M4 27.5h1m5 0h1m2 0h1m2 0h2m2 0h6m2 0h1M4 28.5h7m1 0h1m3 0h1m1 0h1m3 0h7" />
+          </svg>
+        </div>
+        <div class="qr-url mono">https://geotrend.earth</div>
+        <p class="qr-caption">Teste agora no celular em PT ou EN: Caso #01 Vilhena, investigação ao vivo, satélite MODIS e cartão PNG.</p>
+      </div>
+    </div>
+    </div>
+    <footer class="slide-footer">
+      <span class="mono">NASA POWER / MERRA-2 (1981–2025) · NASA GIBS MODIS · GEOTREND.EARTH</span>
+      <span class="mono">POLO VILHENA — RO · NASA SPACE APPS 2026</span>
+    </footer>
+  </section>
+  </main>
+
+  <nav class="presenter-bar no-print" aria-label="Controles da apresentação">
+    <button type="button" id="btn-prev" title="Anterior (←)">← Anterior</button>
+    <span class="mono" id="hud-counter" style="font-size:12px;padding:0 6px;color:#EDEDEA">01 / 07</span>
+    <button type="button" id="btn-next" title="Próximo (→ ou Espaço)">Próximo →</button>
+    <button type="button" id="btn-overview" title="Ver todos os slides (G)">Visão Geral [G]</button>
+    <button type="button" id="btn-notes" title="Notas do orador (N)">Notas [N]</button>
+    <button type="button" id="btn-fullscreen" title="Tela cheia (F)">Tela Cheia [F]</button>
+    <button type="button" id="btn-print" class="btn-accent" title="Salvar como PDF 16:9 (Ctrl+P)">Exportar PDF 16:9</button>
+  </nav>
+
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const counter = document.getElementById("hud-counter");
+      const noteDrawer = document.getElementById("speaker-note");
+      const noteText = document.getElementById("speaker-note-text");
+      let activeIndex = 0;
+
+      function updateDeck() {
+        slides.forEach((el, idx) => {
+          el.classList.toggle("is-active", idx === activeIndex);
+        });
+        counter.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+        noteText.textContent = slides[activeIndex]?.getAttribute("data-note") || "";
+      }
+
+      function goTo(nextIdx) {
+        activeIndex = Math.max(0, Math.min(slides.length - 1, nextIdx));
+        updateDeck();
+        if (document.body.classList.contains("overview-mode")) {
+          slides[activeIndex]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      document.getElementById("btn-prev")?.addEventListener("click", () => { goTo(activeIndex - 1); });
+      document.getElementById("btn-next")?.addEventListener("click", () => { goTo(activeIndex + 1); });
+      document.getElementById("btn-overview")?.addEventListener("click", () => {
+        document.body.classList.toggle("overview-mode");
+      });
+      document.getElementById("btn-notes")?.addEventListener("click", () => {
+        noteDrawer?.classList.toggle("is-open");
+      });
+      document.getElementById("btn-fullscreen")?.addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      });
+      document.getElementById("btn-print")?.addEventListener("click", () => {
+        window.print();
+      });
+
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "ArrowRight" || ev.key === " " || ev.key === "PageDown") {
+          ev.preventDefault();
+          goTo(activeIndex + 1);
+        } else if (ev.key === "ArrowLeft" || ev.key === "PageUp") {
+          ev.preventDefault();
+          goTo(activeIndex - 1);
+        } else if (ev.key === "Home") {
+          goTo(0);
+        } else if (ev.key === "End") {
+          goTo(slides.length - 1);
+        } else if (ev.key === "g" || ev.key === "G") {
+          document.body.classList.toggle("overview-mode");
+        } else if (ev.key === "n" || ev.key === "N") {
+          noteDrawer?.classList.toggle("is-open");
+        } else if (ev.key === "f" || ev.key === "F") {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen?.();
+          } else {
+            document.exitFullscreen?.();
+          }
+        }
+      });
+
+      updateDeck();
+    })();
+  </script>
+</body>
+</html>
