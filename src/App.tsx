@@ -148,6 +148,7 @@ export function App() {
         ) : route.view === "dossier" ? (
           <SharedDossierView
             dossierId={route.dossierId}
+            initialSatellite={route.initialSatellite}
             onStartNewInvestigation={() => navigateHome("01")}
           />
         ) : (
@@ -157,6 +158,7 @@ export function App() {
               presetId={route.presetId}
               presetNonce={presetNonce}
               initialLiveQuery={route.initialLiveQuery}
+              initialSatellite={route.initialSatellite}
               onNavigateMethods={navigateMethods}
               onOpenDossierPermalink={navigateDossier}
             />

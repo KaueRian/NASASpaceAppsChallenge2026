@@ -204,5 +204,18 @@ describe("i18n dictionary key parity", () => {
     expect(en.pagination.casesNavLabel).toBe("Investigations pagination");
     expect(pt.pagination.dossiersNavLabel).toBe("Paginação de dossiês recentes");
     expect(en.pagination.dossiersNavLabel).toBe("Recent dossiers pagination");
+
+    const ariquemes = getCasePresetById("02").result;
+    const academicPtHtml = renderWithLocale("pt", createElement(ShareSheet, { result: ariquemes }));
+    expect(academicPtHtml).toContain("Slide 16:9");
+    expect(academicPtHtml).toContain("Artigo / Paper");
+    expect(academicPtHtml).toContain("ABNT");
+    expect(academicPtHtml).toContain("BibTeX");
+
+    const academicEnHtml = renderWithLocale("en", createElement(ShareSheet, { result: ariquemes }));
+    expect(academicEnHtml).toContain("Slide 16:9");
+    expect(academicEnHtml).toContain("Paper / Article");
+    expect(academicEnHtml).toContain("APA");
+    expect(academicEnHtml).toContain("BibTeX");
   });
 });

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../../i18n/i18n.tsx";
-import type { LocationInfo } from "../../types/investigation.ts";
+import { buildSatelliteCitationText } from "../../lib/export/dossierExport.ts";
+import { buildSatelliteDeepLink } from "../../lib/routing.ts";
+import type { ValidatedInvestigateQuery } from "../../lib/validation/investigate.ts";
+import type { CasePresetId, LocationInfo } from "../../types/investigation.ts";
 import {
   buildFrameTileUrls,
   buildNasaGibsTileUrl,
@@ -16,6 +19,7 @@ import {
   preloadTimelapseSequence,
   resolveGibsComparisonWindow,
 } from "./gibsTileCache.ts";
+import { downloadSatelliteFigurePng } from "./satelliteExport.ts";
 
 export {
   buildNasaGibsTileUrl,
@@ -28,11 +32,21 @@ export {
 
 export type SatelliteViewMode = "compare" | "timelapse";
 
+export interface SatelliteDeepLinkContext {
+  presetId?: CasePresetId;
+  dossierId?: string;
+  investigation?: ValidatedInvestigateQuery;
+}
+
 export interface SatelliteTimelapseProps {
   location: LocationInfo;
   startYear?: number;
   endYear?: number;
   defaultExpanded?: boolean;
+  initialMode?: SatelliteViewMode;
+  initialLayer?: GibsLayerId;
+  initialYear?: number;
+  deepLinkContext?: SatelliteDeepLinkContext;
 }
 
 const TILE_SLOT_IDS = ["nw", "n", "ne", "w", "c", "e", "sw", "s", "se"] as const;
@@ -281,20 +295,35 @@ export function SatelliteTimelapse({
   startYear = GIBS_MIN_YEAR,
   endYear = GIBS_MAX_YEAR,
   defaultExpanded = true,
+  initialMode,
+  initialLayer,
+  initialYear,
+  deepLinkContext,
 }: SatelliteTimelapseProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const { beforeYear, afterYear, startsBeforeArchive } = resolveGibsComparisonWindow(
     startYear,
     endYear,
   );
 
-  const [expanded, setExpanded] = useState(defaultExpanded);
-  const [mode, setMode] = useState<SatelliteViewMode>("compare");
-  const [year, setYear] = useState(beforeYear);
-  const [layer, setLayer] = useState<GibsLayerId>("MODIS_Terra_CorrectedReflectance_TrueColor");
-  const [zoom, setZoom] = useState(7);
+  const clampValidYear = (candidate: number) =>
+    Math.max(beforeYear, Math.min(afterYear, candidate));
 
-  const safeYear = Math.max(beforeYear, Math.min(afterYear, year));
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [mode, setMode] = useState<SatelliteViewMode>(initialMode ?? "compare");
+  const [year, setYear] = useState(() =>
+    clampValidYear(initialYear !== undefined ? initialYear : beforeYear),
+  );
+  const [layer, setLayer] = useState<GibsLayerId>(
+    initialLayer ?? "MODIS_Terra_CorrectedReflectance_TrueColor",
+  );
+  const [zoom, setZoom] = useState(7);
+  const [exportingPng, setExportingPng] = useState(false);
+  const [copiedSatelliteCitation, setCopiedSatelliteCitation] = useState(false);
+  const [copiedSatelliteLink, setCopiedSatelliteLink] = useState(false);
+  const [pngFallbackNoticeVisible, setPngFallbackNoticeVisible] = useState(false);
+
+  const safeYear = clampValidYear(year);
   const maxZoomForLayer = layer === "MODIS_Terra_L3_NDVI_Monthly" ? 7 : 8;
   const effectiveZoom = Math.min(zoom, maxZoomForLayer);
 
@@ -325,8 +354,106 @@ export function SatelliteTimelapse({
   const isBufferingToPlay = playRequested && !allFramesReady && expanded && mode === "timelapse";
 
   useEffect(() => {
-    setYear(beforeYear);
-  }, [beforeYear]);
+    if (initialMode) setMode(initialMode);
+  }, [initialMode]);
+
+  useEffect(() => {
+    if (initialLayer) setLayer(initialLayer);
+  }, [initialLayer]);
+
+  useEffect(() => {
+    const targetYear = initialYear !== undefined ? initialYear : beforeYear;
+    setYear(Math.max(beforeYear, Math.min(afterYear, targetYear)));
+  }, [beforeYear, afterYear, initialYear]);
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const satelliteShareUrl = buildSatelliteDeepLink({
+    origin,
+    ...deepLinkContext,
+    satellite: {
+      mode,
+      layer,
+      year: safeYear,
+    },
+  });
+
+  async function handleDownloadSatellitePng() {
+    setExportingPng(true);
+    setPngFallbackNoticeVisible(false);
+    try {
+      const exportResult = await downloadSatelliteFigurePng({
+        location,
+        layer,
+        mode,
+        beforeYear,
+        afterYear,
+        selectedYear: safeYear,
+        zoom: effectiveZoom,
+        locale,
+        shareUrl: satelliteShareUrl,
+      });
+      if (exportResult.usedFallback) {
+        setPngFallbackNoticeVisible(true);
+      }
+    } finally {
+      setExportingPng(false);
+    }
+  }
+
+  async function handleCopySatelliteCitation() {
+    const worldviewUrl = buildNasaWorldviewUrl(
+      location.lat,
+      location.lon,
+      mode === "compare" ? afterYear : safeYear,
+    );
+    const citationText = buildSatelliteCitationText({
+      location,
+      layer,
+      mode,
+      beforeYear,
+      afterYear,
+      selectedYear: safeYear,
+      locale,
+      shareUrl: satelliteShareUrl,
+      worldviewUrl,
+    });
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(citationText);
+      setCopiedSatelliteCitation(true);
+      setTimeout(() => setCopiedSatelliteCitation(false), 2500);
+    }
+  }
+
+  async function handleCopySatelliteLink() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(satelliteShareUrl);
+      setCopiedSatelliteLink(true);
+      setTimeout(() => setCopiedSatelliteLink(false), 2500);
+    }
+  }
+
+  async function handleNativeSatelliteShare() {
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      const layerLabel =
+        layer === "MODIS_Terra_L3_NDVI_Monthly"
+          ? t("satellite.layerNdvi")
+          : t("satellite.layerTrueColor");
+      const period = mode === "compare" ? `${beforeYear}–${afterYear}` : String(safeYear);
+      try {
+        await navigator.share({
+          title: `GeoTrend — ${location.label}`,
+          text: t("satellite.nativeShareSummary", {
+            location: location.label,
+            layer: layerLabel,
+            period,
+          }),
+          url: satelliteShareUrl,
+        });
+      } catch {
+        // User dismissed native share sheet
+      }
+    }
+  }
 
   useEffect(() => {
     if (!expanded) return;
@@ -640,16 +767,65 @@ export function SatelliteTimelapse({
             </div>
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-text-muted">
-            <span>{startsBeforeArchive ? t("satellite.archiveNote", { startYear }) : ""}</span>
-            <a
-              href={buildNasaWorldviewUrl(location.lat, location.lon, worldviewYear)}
-              target="_blank"
-              rel="noreferrer"
-              className="text-accent hover:underline"
-            >
-              {t("satellite.worldviewLink")}
-            </a>
+          <div className="space-y-2 border-t border-border pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-text-muted">
+                {t("satellite.shareTitle")}
+              </span>
+              <div className="flex flex-wrap gap-2 font-mono text-xs">
+                <button
+                  type="button"
+                  onClick={handleDownloadSatellitePng}
+                  disabled={exportingPng}
+                  className="border border-accent bg-accent px-3 py-1 font-bold text-bg hover:opacity-90 disabled:opacity-60"
+                >
+                  {exportingPng ? t("satellite.downloadingPng") : t("satellite.downloadPng")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopySatelliteCitation}
+                  className="border border-border bg-bg px-3 py-1 text-text hover:border-accent"
+                >
+                  {copiedSatelliteCitation
+                    ? t("satellite.citationCopied")
+                    : t("satellite.copyCitation")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopySatelliteLink}
+                  className="border border-border bg-bg px-3 py-1 text-text hover:border-accent"
+                >
+                  {copiedSatelliteLink ? t("satellite.linkCopied") : t("satellite.copyLink")}
+                </button>
+                {typeof navigator !== "undefined" && "share" in navigator && (
+                  <button
+                    type="button"
+                    onClick={handleNativeSatelliteShare}
+                    className="border border-border bg-bg px-3 py-1 text-text hover:border-accent"
+                  >
+                    {t("satellite.nativeShare")}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {pngFallbackNoticeVisible && (
+              <p className="font-mono text-[11px] text-[#D4A84F]">
+                {t("satellite.pngFallbackNotice")}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-text-muted">
+              <span>{startsBeforeArchive ? t("satellite.archiveNote", { startYear }) : ""}</span>
+              <a
+                href={buildNasaWorldviewUrl(location.lat, location.lon, worldviewYear)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent hover:underline"
+              >
+                {t("satellite.worldviewLink")}
+              </a>
+            </div>
           </div>
         </div>
       )}
