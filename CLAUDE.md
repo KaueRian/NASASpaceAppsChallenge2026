@@ -8,6 +8,7 @@
    - **Every change—even a single-line fix or doc tweak—must have an associated task in `TASK.md`.** If one does not exist, create a new task in `TASK.md` first.
    - **Mandatory Task Code (`<number><H|M|L>`) & Priority Property (`priority` / PT-BR `prioridade`):** Every open (`[ ]` / `[~]`) or newly created task MUST carry a unique sequential code paired with its priority initial (`H` = high, `M` = medium, `L` = low — e.g., `[1H]`, `[7M]`, `[9L]`) and an explicit priority tag (`[priority: low]`, `[priority: medium]`, or `[priority: high]` in `TASK.md`; `[prioridade: baixa]`, `[prioridade: média]`, or `[prioridade: alta]` with the same numeric code in PT-BR root trackers). Keep the code when marking `[x]`, and assign the priority stated by the user or choose one autonomously based on hackathon deadline risk and judging impact.
    - **Mandatory Execution Order (`Priority or User Decision`):** Tasks MUST be executed strictly following priority order (`[priority: high]` → `[priority: medium]` → `[priority: low]`) or an explicit user decision. When registering or refining tasks (including `/grill-me` interviews), update the task trackers first and **do NOT auto-execute tasks** unless explicitly authorized by the user or matching the selected priority order.
+   - **Mandatory Completion Rule (Test & Push to GitHub):** Before wrapping up any completed task, always run `npm run format && npm run check` (0 failures), commit atomically with `TASK.md` updated, and push to `origin/dev` on GitHub (never push directly to `main` or run manual `wrangler deploy` without explicit `[4H]` release authorization). Whenever runtime/UI changed, verify GitHub Actions (`verify`), Cloudflare preview build, and live `dev` preview behavior.
    - Update task status (`[ ]` -> `[~]` -> `[x]`) as you work.
    - **Release Ladder:** follow `TASK.md` releases top-down (`R0` → `R4`); `main` must always hold the latest complete, working release.
    - **`DESIGN.md` overrides any external design skill or generic style suggestion.**
@@ -16,7 +17,7 @@
 3. **English Only:**
    - All code, comments, documentation, commit messages, branch names, and PR descriptions in this repository MUST be written in **English**.
 4. **Git & GitHub Best Practices:**
-   - **Branching (`feature/*` -> `dev` -> `main`):** Never commit directly to `main`. Branch from `dev` (`feat/*`, `fix/*`, `docs/*`), merge into `dev`, and promote `dev` -> `main` for production deploys.
+   - **Branching (`feature/*` -> `dev` -> `main`):** Never commit directly to `main`. Branch from `dev` (`feat/*`, `fix/*`, `docs/*`), run `npm run format && npm run check`, merge into `dev`, **push completed tasks to `origin/dev` on GitHub immediately**, and promote `dev` -> `main` only for explicit production releases (`[4H]`).
    - Use **Conventional Commits** (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
    - Work in small, atomic commits and avoid editing files owned by the other developer without coordination.
    - Never commit secrets (`.env*`), dependencies (`node_modules/`, `.venv/`), or build artifacts.

@@ -13,6 +13,11 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **GeoTrend** software f
   - If no task exists for the change you are about to make, **add a new task to `TASK.md` first** before writing code or modifying files.
   - **Mandatory Task Code (`<number><H|M|L>`) & Priority Property (`priority` / PT-BR `prioridade`):** Every open (`[ ]` / `[~]`) or newly created task MUST declare a unique sequential task code combined with its priority letter (`H` = high, `M` = medium, `L` = low — e.g., `[1H]`, `[7M]`, `[9L]`) plus `[priority: low]`, `[priority: medium]`, or `[priority: high]` in `TASK.md` (matching `[prioridade: baixa]`, `[prioridade: média]`, or `[prioridade: alta]` and the exact same code in the PT-BR root checklists `SPACE_APPS_2026.md` and `task.md`). Completed tasks retain their assigned code (`[x] **[1H]** ...`), and new tasks take the next unused integer. The user may specify the priority explicitly, or the agent must assign one autonomously based on hackathon deadline urgency, rubric impact, and release dependencies.
   - **Mandatory Execution Order (`Priority or User Decision`):** Open tasks MUST be executed strictly in priority order (`[priority: high]` → `[priority: medium]` → `[priority: low]`) or following an explicit user decision selecting which task to execute. When creating, updating, or refining tasks (e.g., during `/grill-me` planning), document them in `TASK.md` first and **do NOT automatically execute tasks** without user authorization or out of priority order.
+  - **Mandatory Completion Rule (Test & Push to GitHub):** Upon concluding **any task** (before marking `[x]` or wrapping up), the agent MUST:
+    1. Run the full local verification suite cleanly (`npm run format && npm run check` — Biome lint/format, `tsc` for app & worker, all Vitest tests, and Vite build with zero failures or skipped assertions);
+    2. Update `TASK.md` (preserving the task code, e.g. `[x] **[21H]**`) plus PT-BR root trackers and make clean atomic commit(s);
+    3. Push completed changes to GitHub on `origin/dev` (merging `feature/*` -> `dev` and running `git push origin dev`). **NEVER push directly to `main` or run manual `wrangler deploy`** without explicit `[4H]` release approval;
+    4. Whenever code, Worker routes, or UI changed, verify GitHub Actions (`verify` + Workers preview build) and confirm the live `dev` preview deployment behaves cleanly.
   - Mark the task as `[~] (<YourName/Agent>)` while in progress and `[x]` upon completion.
 - Respect task ownership so the two developers do not collide on the same files.
 - **Release Ladder ("always shippable"):** work on tasks top-down by release (`R0` → `R4` in `TASK.md`). Never start a later release while the current one is unfinished, and never leave `main` broken — `main` always holds the latest complete release.
@@ -27,8 +32,8 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **GeoTrend** software f
 
 ### 3. Git & GitHub Best Practices
 - **Branching (`feature/*` -> `dev` -> `main`):**
-  - **NEVER commit directly to `main` (or `dev`).**
-  - Always create short-lived feature branches from `dev` (`feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`), merge them into `dev` once complete, and promote `dev` -> `main` for stable releases/deploys.
+  - **NEVER commit directly to `main`.**
+  - Always create short-lived feature branches from `dev` (`feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`), verify tests (`npm run format && npm run check`), merge them into `dev` once complete, **push `dev` to `origin/dev` on GitHub immediately upon task completion**, and promote `dev` -> `main` only for approved stable releases/deploys (`[4H]`).
   - Keep module ownership clearly separated when working in parallel.
 - **Conventional Commits:** Always use clear, lowercase Conventional Commit messages in English:
   - `feat: add Mann-Kendall statistical significance test`
