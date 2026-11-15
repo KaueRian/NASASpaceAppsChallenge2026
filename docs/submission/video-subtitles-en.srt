@@ -1,0 +1,29 @@
+1
+00:00:00,200 --> 00:00:04,900
+When extreme heat or drought hits, is it weather noise
+or a real climate trend? Meet GeoTrend.
+
+2
+00:00:05,100 --> 00:00:10,000
+Powered by 45 years of NASA POWER and MERRA-2 data,
+our engine isolates homologous seasonal windows.
+
+3
+00:00:10,100 --> 00:00:14,900
+Mann-Kendall and Sen's Slope prove Vilhena's dry season
+lost 234.5 millimeters of rain since 1981 (p = 0.00013).
+
+4
+00:00:15,100 --> 00:00:20,000
+Compare Amazon drying against Arctic warming in Svalbard
+or run a 4-variable FDR scan anywhere on Earth.
+
+5
+00:00:20,100 --> 00:00:24,900
+Inspect NASA MODIS satellite imagery from 2000 to 2025
+without ever confusing correlation with causation.
+
+6
+00:00:25,100 --> 00:00:28,900
+Export Climate Stripes cards, slides, and ABNT/APA citations.
+GeoTrend at geotrend.earth — science you can verify.
