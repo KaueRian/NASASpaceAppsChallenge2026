@@ -3,7 +3,8 @@
     "wordmark": "EarthTrend Detective",
     "investigate": "Investigar",
     "cases": "Casos",
-    "methods": "Método"
+    "methods": "Método",
+    "explore": "Explorar"
   },
   "hero": {
     "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · MOTOR DE EVIDÊNCIA ESTATÍSTICA",
@@ -188,7 +189,69 @@
     "NASA_UPSTREAM_ERROR": "Não foi possível conectar ao serviço NASA POWER / MERRA-2 agora. Os Casos em Destaque seguem disponíveis offline.",
     "GEOCODE_NOT_FOUND": "Nenhum município ou localidade encontrado. Tente outro nome ou digite latitude e longitude diretamente.",
     "DOSSIER_NOT_FOUND": "Este link de investigação compartilhada não foi encontrado.",
-    "EMPTY_SEARCH": "Selecione um Caso em Destaque abaixo ou informe qualquer coordenada da Terra para começar."
+    "EMPTY_SEARCH": "Selecione um Caso em Destaque abaixo ou informe qualquer coordenada da Terra para começar.",
+    "INVALID_BIRTH_DATE": "Informe uma data de calendário válida, não futura, e não anterior a 1900."
+  },
+  "explore": {
+    "hub": {
+      "title": "Explorar",
+      "subtitle": "Formas interativas de vivenciar 45 anos de evidência climática da NASA — mais modos em breve.",
+      "comingSoonBadge": "Em breve",
+      "timelineTeaser": "Data de nascimento + cidade → sua história climática pessoal, pronta para compartilhar.",
+      "comingSoon1": "Copas do Mundo",
+      "comingSoon2": "Música & Clima"
+    },
+    "timeline": {
+      "navCard": "Sua Linha do Tempo",
+      "title": "Seu Clima Desde que Você Nasceu",
+      "subtitle": "Informe sua data de nascimento e sua cidade — escaneamos as 4 variáveis da NASA POWER para o seu mês de nascimento, em todos os anos desde que você nasceu, e mostramos qual delas mudou mais.",
+      "birthDateLabel": "Data de nascimento",
+      "locationLabel": "Cidade",
+      "locationPlaceholder": "Sua cidade",
+      "useLocationButton": "Usar minha localização",
+      "locatingButton": "Localizando…",
+      "submitButton": "→ Revelar seu clima",
+      "runningButton": "Escaneando 4 variáveis…",
+      "backToHub": "← Voltar para Explorar",
+      "stepBack": "← Voltar",
+      "stepNext": "Avançar →",
+      "scanningTitle": "Escaneando seu clima…",
+      "scanningSubtitle": "Checando 4 variáveis da NASA para o seu mês de nascimento, em todos os anos desde que você nasceu.",
+      "detectiveLinkFromShare": "🔍 Modo Detetive — veja a ciência completa",
+      "coverageNote": "A cobertura de satélite da NASA POWER começa em 1981, então a análise roda a partir de {{effectiveStartYear}}, não do seu ano de nascimento literal.",
+      "cardTitle": "CERTIDÃO CLIMÁTICA",
+      "cardEveryMonth": "todo mês de {{month}}",
+      "cardTagline": "DESDE QUE NASCI · {{location}}, {{year}}",
+      "statCaption": {
+        "warming": "mais quente desde {{startYear}}",
+        "cooling": "mais frio desde {{startYear}}",
+        "wetter": "mais chuvoso desde {{startYear}}",
+        "drier": "mais seco desde {{startYear}}",
+        "neutral": "sem mudança clara desde {{startYear}}"
+      },
+      "chartCaption": "Cada barra é um ano — cores mais fortes marcam os anos mais fora do normal.",
+      "headline": {
+        "warming": "Todo mês de {{month}} desde {{startYear}}, {{location}} esquentou {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+        "cooling": "Todo mês de {{month}} desde {{startYear}}, {{location}} esfriou {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+        "wetter": "Todo mês de {{month}} desde {{startYear}}, {{location}} ficou {{totalChange}} {{unit}} mais chuvoso ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+        "drier": "Todo mês de {{month}} desde {{startYear}}, {{location}} ficou {{totalChange}} {{unit}} mais seco ({{perDecade}} {{unit}}/década, p = {{pValue}}).",
+        "neutral": "Nenhuma tendência estatisticamente significativa foi encontrada para {{month}} em {{location}} desde {{startYear}} (p = {{pValue}})."
+      },
+      "badge": {
+        "STRONG_EVIDENCE": "Evidência forte",
+        "EVIDENCE_CONFIRMED": "Evidência confirmada",
+        "INSUFFICIENT_EVIDENCE": "Evidência insuficiente"
+      },
+      "rarityFraming": "Essa é uma das maiores mudanças climáticas de mês de nascimento que medimos — a maioria dos resultados que vemos é mais fraca que isso.",
+      "detectiveToggle": "Modo Detetive — dossiê estatístico completo",
+      "scanTableTitle": "As 4 variáveis escaneadas (ajuste FDR de Benjamini-Hochberg)",
+      "scanColVariable": "Variável",
+      "scanColSlope": "Por década",
+      "scanColPValue": "valor-p",
+      "scanColQValue": "valor-q FDR",
+      "variableLabel": "Variável",
+      "periodLabel": "Período"
+    }
   },
   "methods": {
     "title": "Metodologia Científica e Limitações",

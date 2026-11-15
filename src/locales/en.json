@@ -3,7 +3,8 @@
     "wordmark": "EarthTrend Detective",
     "investigate": "Investigate",
     "cases": "Cases",
-    "methods": "Methods"
+    "methods": "Methods",
+    "explore": "Explore"
   },
   "hero": {
     "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · STATISTICAL EVIDENCE ENGINE",
@@ -188,7 +189,69 @@
     "NASA_UPSTREAM_ERROR": "Could not reach the NASA POWER / MERRA-2 service right now. Featured Cases remain available offline.",
     "GEOCODE_NOT_FOUND": "No matching municipality or location found. Try another name or enter latitude and longitude directly.",
     "DOSSIER_NOT_FOUND": "This shared investigation link could not be found.",
-    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin."
+    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin.",
+    "INVALID_BIRTH_DATE": "Enter a real calendar date, not in the future, and no earlier than 1900."
+  },
+  "explore": {
+    "hub": {
+      "title": "Explore",
+      "subtitle": "Interactive ways to experience 45 years of NASA climate evidence — more modes coming soon.",
+      "comingSoonBadge": "Coming soon",
+      "timelineTeaser": "Birth date + city → your personal climate story, ready to share.",
+      "comingSoon1": "World Cups",
+      "comingSoon2": "Music & Climate"
+    },
+    "timeline": {
+      "navCard": "Your Timeline",
+      "title": "Your Climate Since Birth",
+      "subtitle": "Enter your birth date and city — we scan all 4 NASA POWER variables for your birth month, across every year since you were born, and report which one moved the most.",
+      "birthDateLabel": "Birth date",
+      "locationLabel": "City",
+      "locationPlaceholder": "Your city",
+      "useLocationButton": "Use my location",
+      "locatingButton": "Locating…",
+      "submitButton": "→ Reveal your climate",
+      "runningButton": "Scanning 4 variables…",
+      "backToHub": "← Back to Explore",
+      "stepBack": "← Back",
+      "stepNext": "Next →",
+      "scanningTitle": "Scanning your climate…",
+      "scanningSubtitle": "Checking 4 NASA variables for your birth month, across every year since you were born.",
+      "detectiveLinkFromShare": "🔍 Modo Detetive — see the full science",
+      "coverageNote": "NASA POWER satellite coverage starts in 1981, so the analysis runs from {{effectiveStartYear}}, not your literal birth year.",
+      "cardTitle": "BIRTH CASE FILE",
+      "cardEveryMonth": "every {{month}}",
+      "cardTagline": "SINCE I WAS BORN · {{location}}, {{year}}",
+      "statCaption": {
+        "warming": "warmer since {{startYear}}",
+        "cooling": "cooler since {{startYear}}",
+        "wetter": "wetter since {{startYear}}",
+        "drier": "drier since {{startYear}}",
+        "neutral": "no clear change since {{startYear}}"
+      },
+      "chartCaption": "Each bar is one year — stronger colors mark the years furthest from normal.",
+      "headline": {
+        "warming": "Every {{month}} since {{startYear}}, {{location}} has warmed by {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "cooling": "Every {{month}} since {{startYear}}, {{location}} has cooled by {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "wetter": "Every {{month}} since {{startYear}}, {{location}} has gotten {{totalChange}} {{unit}} wetter ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "drier": "Every {{month}} since {{startYear}}, {{location}} has gotten {{totalChange}} {{unit}} drier ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "neutral": "No statistically significant trend was found for {{month}} in {{location}} since {{startYear}} (p = {{pValue}})."
+      },
+      "badge": {
+        "STRONG_EVIDENCE": "Strong evidence",
+        "EVIDENCE_CONFIRMED": "Evidence confirmed",
+        "INSUFFICIENT_EVIDENCE": "Insufficient evidence"
+      },
+      "rarityFraming": "This is one of the strongest birth-month climate shifts we measure — most results we see are weaker than this.",
+      "detectiveToggle": "Modo Detetive — full statistical case file",
+      "scanTableTitle": "All 4 variables scanned (Benjamini-Hochberg FDR adjusted)",
+      "scanColVariable": "Variable",
+      "scanColSlope": "Per decade",
+      "scanColPValue": "p-value",
+      "scanColQValue": "FDR q-value",
+      "variableLabel": "Variable",
+      "periodLabel": "Period"
+    }
   },
   "methods": {
     "title": "Scientific Methodology & Limitations",

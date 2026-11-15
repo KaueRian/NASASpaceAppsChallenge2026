@@ -5,6 +5,14 @@ export {
 } from "../../lib/export/dossierExport.ts";
 export { ClimateStripes, type ClimateStripesProps, getStripeColor } from "./ClimateStripes.tsx";
 export {
+  BirthdayCard,
+  type BirthdayCardCopy,
+  type BirthdayCardProps,
+  downloadBirthdayCardPng,
+  shareBirthdayCardPng,
+} from "./BirthdayCard.tsx";
+export {
+  buildQrMatrix,
   downloadEvidenceCardPng,
   EvidenceCard,
   type EvidenceCardAspect,

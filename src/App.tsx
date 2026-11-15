@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader, type SectionId } from "./components/AppHeader";
 import { CasesGrid } from "./components/CasesGrid";
+import { ExplorePage } from "./components/ExplorePage";
 import { Hero } from "./components/Hero";
 import { Investigation } from "./components/Investigation";
 import { MethodsPage } from "./components/MethodsPage";
 import { MethodTeaser } from "./components/MethodTeaser";
 import type { CasePresetId } from "./types/investigation";
 
-type View = "home" | "methods";
+type View = "home" | "methods" | "explore";
 
 function scrollToSection(id: string) {
   const prefersReduced =
@@ -48,11 +49,14 @@ export function App() {
       <AppHeader
         onNavigateSection={navigateSection}
         onNavigateMethods={() => setView("methods")}
+        onNavigateExplore={() => setView("explore")}
         onNavigateHome={() => setView("home")}
       />
       <main className="mx-auto max-w-5xl">
         {view === "methods" ? (
           <MethodsPage onNavigateHome={() => setView("home")} />
+        ) : view === "explore" ? (
+          <ExplorePage onNavigateHome={() => setView("home")} />
         ) : (
           <>
             <Hero />
