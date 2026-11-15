@@ -49,7 +49,7 @@ import type {
   VariableId,
 } from "../types/investigation";
 import { MIN_ANALYSIS_YEARS, SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
-import { AiAssistantBar, type AiPipelineStage } from "./AiAssistantBar";
+import { AiAssistantBar, type AiFailedStage, type AiPipelineStage } from "./AiAssistantBar";
 import { AiSynthesisPanel } from "./AiSynthesisPanel";
 import { CitySearchInput } from "./CitySearchInput";
 import { buildCitationText, RecentDossiersDrawer, SatelliteTimelapse, ShareSheet } from "./share";
@@ -118,6 +118,7 @@ export function Investigation({
 
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiStage, setAiStage] = useState<AiPipelineStage>("idle");
+  const [aiFailedStage, setAiFailedStage] = useState<AiFailedStage | null>(null);
   const [aiTranslation, setAiTranslation] = useState<AiTranslateResult | null>(null);
   const [aiInterpretation, setAiInterpretation] = useState<AiInterpretResult | null>(null);
   const [aiErrorCode, setAiErrorCode] = useState<AiErrorCode | null>(null);
@@ -136,6 +137,7 @@ export function Investigation({
     aiAbortRef.current?.abort();
     aiAbortRef.current = null;
     setAiStage("idle");
+    setAiFailedStage(null);
     setAiTranslation(null);
     setAiInterpretation(null);
     setAiErrorCode(null);
@@ -271,7 +273,9 @@ export function Investigation({
     aiAbortRef.current = controller;
     const thisRequestId = ++requestIdRef.current;
 
+    let currentFailedStage: AiFailedStage = "translating";
     setAiStage("translating");
+    setAiFailedStage(null);
     setAiErrorCode(null);
     setErrorCode(null);
     setAiTranslation(null);
@@ -320,6 +324,7 @@ export function Investigation({
         return;
       }
 
+      currentFailedStage = "computing";
       setAiStage("computing");
       const resolvedLocation = await resolveAiLocation(
         translation.filters,
@@ -375,6 +380,7 @@ export function Investigation({
       setResult(nextResult);
       if (basePresetId !== null) setIsDerived(true);
 
+      currentFailedStage = "interpreting";
       setAiStage("interpreting");
       const interpretPayload = {
         question: trimmed,
@@ -414,16 +420,19 @@ export function Investigation({
 
       if (err instanceof ClientAiError) {
         setAiErrorCode(err.code);
-        setAiStage("idle");
+        setAiFailedStage(currentFailedStage);
+        setAiStage("error");
         return;
       }
       if (err instanceof ClientInvestigationError) {
         applyInvestigationError(err);
-        setAiStage("idle");
+        setAiFailedStage(currentFailedStage);
+        setAiStage("error");
         return;
       }
       setAiErrorCode("AI_UPSTREAM_ERROR");
-      setAiStage("idle");
+      setAiFailedStage(currentFailedStage);
+      setAiStage("error");
     }
   };
 
@@ -558,8 +567,10 @@ export function Investigation({
             void handleAskAi(q);
           }}
           stage={aiStage}
+          failedStage={aiFailedStage}
           isBusy={isAiBusy || loading}
           translation={aiTranslation}
+          interpretation={aiInterpretation}
           errorCode={aiErrorCode}
           fallbackActive={aiFallbackActive}
           hasScanApplied={scanItems !== null}

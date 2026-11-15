@@ -1,15 +1,35 @@
 import { useI18n } from "../i18n/i18n";
-import type { AiErrorCode, AiTranslateResult } from "../types/ai";
+import { LOCAL_INTERPRET_MODEL, LOCAL_TRANSLATE_MODEL } from "../lib/ai/fallback";
+import type { AiErrorCode, AiInterpretResult, AiTranslateResult } from "../types/ai";
 
-export type AiPipelineStage = "idle" | "translating" | "computing" | "interpreting" | "done";
+export type AiPipelineStage =
+  | "idle"
+  | "translating"
+  | "computing"
+  | "interpreting"
+  | "done"
+  | "error";
+
+export type AiFailedStage = "translating" | "computing" | "interpreting";
+
+export type StepState =
+  | "pending"
+  | "running"
+  | "done_ai"
+  | "done_data"
+  | "done_local"
+  | "skipped"
+  | "failed";
 
 interface AiAssistantBarProps {
   question: string;
   onQuestionChange: (value: string) => void;
   onAskQuestion: (questionText: string) => void;
   stage: AiPipelineStage;
+  failedStage?: AiFailedStage | null;
   isBusy: boolean;
   translation: AiTranslateResult | null;
+  interpretation?: AiInterpretResult | null;
   errorCode: AiErrorCode | null;
   fallbackActive?: boolean;
   hasScanApplied: boolean;
@@ -21,35 +41,135 @@ interface AiAssistantBarProps {
 
 const EXAMPLE_KEYS = ["vilhenaDry", "ariquemesNights", "manausScan", "arcticCompare"] as const;
 
-type StepState = "pending" | "active" | "done";
+interface ResolveStepStatesInput {
+  stage: AiPipelineStage;
+  failedStage?: AiFailedStage | null;
+  translation: AiTranslateResult | null;
+  interpretation?: AiInterpretResult | null;
+  fallbackActive?: boolean;
+}
 
-function resolveStepStates(
-  stage: AiPipelineStage,
+function resolveStage1DoneState(
   translation: AiTranslateResult | null,
-): [StepState, StepState, StepState] {
-  if (stage === "translating") return ["active", "pending", "pending"];
-  if (stage === "computing") return ["done", "active", "pending"];
-  if (stage === "interpreting") return ["done", "done", "active"];
+  fallbackActive: boolean,
+): "done_ai" | "done_local" {
+  if (translation?.model === LOCAL_TRANSLATE_MODEL) return "done_local";
+  if (!translation && fallbackActive) return "done_local";
+  return "done_ai";
+}
+
+function resolveStage3DoneState(
+  interpretation: AiInterpretResult | null | undefined,
+  fallbackActive: boolean,
+): "done_ai" | "done_local" {
+  if (interpretation?.model === LOCAL_INTERPRET_MODEL) return "done_local";
+  if (!interpretation && fallbackActive) return "done_local";
+  return "done_ai";
+}
+
+/** Resolves explicit per-stage execution status (AI, real NASA data, local mode, skipped, running, or failed). */
+export function resolvePipelineStepStates({
+  stage,
+  failedStage = null,
+  translation,
+  interpretation = null,
+  fallbackActive = false,
+}: ResolveStepStatesInput): [StepState, StepState, StepState] {
+  const stage1Done = resolveStage1DoneState(translation, fallbackActive);
+
+  if (stage === "translating") return ["running", "pending", "pending"];
+  if (stage === "computing") return [stage1Done, "running", "pending"];
+  if (stage === "interpreting") return [stage1Done, "done_data", "running"];
   if (stage === "done") {
-    if (translation && !translation.inScope) return ["done", "pending", "done"];
-    return ["done", "done", "done"];
+    if (translation && !translation.inScope) return [stage1Done, "skipped", "skipped"];
+    return [stage1Done, "done_data", resolveStage3DoneState(interpretation, fallbackActive)];
+  }
+  if (stage === "error") {
+    const failedAt = failedStage ?? "translating";
+    if (failedAt === "translating") return ["failed", "skipped", "skipped"];
+    if (failedAt === "computing") return [stage1Done, "failed", "skipped"];
+    return [stage1Done, "done_data", "failed"];
   }
   return ["pending", "pending", "pending"];
 }
 
-function stepClassName(state: StepState): string {
-  if (state === "active") return "border-accent text-text";
-  if (state === "done") return "border-border text-text";
-  return "border-border/60 text-text-muted opacity-65";
+interface StepVisualStyle {
+  cardClass: string;
+  titleClass: string;
+  statusClass: string;
+  iconClass: string;
+  icon: string;
+  statusKey: string;
 }
+
+const STEP_VISUAL_STYLES: Record<StepState, StepVisualStyle> = {
+  pending: {
+    cardClass: "border-border/60",
+    titleClass: "text-text-muted opacity-75",
+    statusClass: "text-text-muted opacity-75",
+    iconClass: "text-text-muted",
+    icon: "○",
+    statusKey: "ai.stepStatuses.pending",
+  },
+  running: {
+    cardClass: "border-accent",
+    titleClass: "text-text",
+    statusClass: "text-text",
+    iconClass: "text-accent motion-safe:animate-pulse",
+    icon: "●",
+    statusKey: "ai.stepStatuses.running",
+  },
+  done_ai: {
+    cardClass: "border-dir-wet/70",
+    titleClass: "text-text",
+    statusClass: "text-text",
+    iconClass: "text-dir-wet",
+    icon: "✓",
+    statusKey: "ai.stepStatuses.doneAi",
+  },
+  done_data: {
+    cardClass: "border-dir-wet/70",
+    titleClass: "text-text",
+    statusClass: "text-text",
+    iconClass: "text-dir-wet",
+    icon: "✓",
+    statusKey: "ai.stepStatuses.doneData",
+  },
+  done_local: {
+    cardClass: "border-dir-dry/75 border-dashed",
+    titleClass: "text-text",
+    statusClass: "text-text",
+    iconClass: "text-dir-dry",
+    icon: "◈",
+    statusKey: "ai.stepStatuses.doneLocal",
+  },
+  skipped: {
+    cardClass: "border-border/60",
+    titleClass: "text-text-muted opacity-75",
+    statusClass: "text-text-muted opacity-75",
+    iconClass: "text-text-muted",
+    icon: "—",
+    statusKey: "ai.stepStatuses.skipped",
+  },
+  failed: {
+    cardClass: "border-accent",
+    titleClass: "text-accent",
+    statusClass: "text-accent",
+    iconClass: "text-accent",
+    icon: "✕",
+    statusKey: "ai.stepStatuses.failed",
+  },
+};
 
 export function AiAssistantBar({
   question,
   onQuestionChange,
   onAskQuestion,
   stage,
+  failedStage = null,
   isBusy,
   translation,
+  interpretation = null,
   errorCode,
   fallbackActive = false,
   hasScanApplied,
@@ -59,9 +179,16 @@ export function AiAssistantBar({
   onOpenAdvancedForRecovery,
 }: AiAssistantBarProps) {
   const { t } = useI18n();
-  const [step1, step2, step3] = resolveStepStates(stage, translation);
+  const [step1, step2, step3] = resolvePipelineStepStates({
+    stage,
+    failedStage,
+    translation,
+    interpretation,
+    fallbackActive,
+  });
   const showTracker = stage !== "idle";
   const isOutOfScope = translation !== null && !translation.inScope;
+  const showLocalNotice = fallbackActive || step1 === "done_local" || step3 === "done_local";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,15 +260,24 @@ export function AiAssistantBar({
               { state: step2, label: t("ai.steps.compute") },
               { state: step3, label: t("ai.steps.interpret") },
             ] as const
-          ).map((step) => (
-            <div
-              key={step.label}
-              className={`border bg-bg px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide ${stepClassName(step.state)}`}
-            >
-              {step.state === "done" ? "✓ " : step.state === "active" ? "● " : "○ "}
-              {step.label}
-            </div>
-          ))}
+          ).map((step) => {
+            const visual = STEP_VISUAL_STYLES[step.state];
+            return (
+              <div key={step.label} className={`border bg-bg px-2.5 py-1.5 ${visual.cardClass}`}>
+                <p className={`font-mono text-[11px] uppercase tracking-wide ${visual.titleClass}`}>
+                  {step.label}
+                </p>
+                <p
+                  className={`mt-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide ${visual.statusClass}`}
+                >
+                  <span aria-hidden="true" className={visual.iconClass}>
+                    {visual.icon}
+                  </span>
+                  <span>{t(visual.statusKey)}</span>
+                </p>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -187,7 +323,7 @@ export function AiAssistantBar({
         </div>
       )}
 
-      {fallbackActive && (
+      {showLocalNotice && (
         <div role="status" className="border border-border bg-bg p-3">
           <p className="font-mono text-[11px] uppercase tracking-wide text-accent">
             {t("ai.fallbackTitle")}

@@ -280,6 +280,84 @@ describe("R3 & R4 UI components", () => {
     expect(outOfScopeHtml).toContain("Fora do escopo histórico da ferramenta");
     expect(outOfScopeHtml).toContain("Como mudou a chuva em Manaus desde 1981?");
     expect(outOfScopeHtml).toContain("Abrir filtros manuais (Avançado)");
+    expect(outOfScopeHtml).toContain("Concluído · IA");
+    expect(outOfScopeHtml).toContain("Não executada");
+
+    const runningHtml = renderWithI18n(
+      createElement(AiAssistantBar, {
+        question: "Como mudou a chuva em Vilhena?",
+        onQuestionChange: () => {},
+        onAskQuestion: () => {},
+        stage: "computing",
+        isBusy: true,
+        translation: {
+          ok: true,
+          inScope: true,
+          reasoning: "Vilhena rain.",
+          initialHypothesis: "Rain drop.",
+          suggestedValidQuestions: [],
+          filters: {
+            reuseCurrentLocation: false,
+            locationQuery: "Vilhena",
+            variable: "PRECTOTCORR",
+            season: "apr_sep",
+            startYear: 1981,
+            endYear: 2025,
+            runMultiVariableScan: false,
+          },
+          model: "gemini-3.5-flash-lite",
+          cached: false,
+        },
+        errorCode: null,
+        hasScanApplied: false,
+        filterSummaryLine: "PRECTOTCORR · Vilhena · 1981–2025",
+        advancedOpen: false,
+        onToggleAdvanced: () => {},
+        onOpenAdvancedForRecovery: () => {},
+      }),
+    );
+    expect(runningHtml).toContain("Concluído · IA");
+    expect(runningHtml).toContain("Executando…");
+    expect(runningHtml).toContain("Aguardando");
+    expect(runningHtml).toContain("animate-pulse");
+
+    const failedStageHtml = renderWithI18n(
+      createElement(AiAssistantBar, {
+        question: "Como mudou a chuva em Vilhena?",
+        onQuestionChange: () => {},
+        onAskQuestion: () => {},
+        stage: "error",
+        failedStage: "computing",
+        isBusy: false,
+        translation: {
+          ok: true,
+          inScope: true,
+          reasoning: "Vilhena rain.",
+          initialHypothesis: "Rain drop.",
+          suggestedValidQuestions: [],
+          filters: {
+            reuseCurrentLocation: false,
+            locationQuery: "Vilhena",
+            variable: "PRECTOTCORR",
+            season: "apr_sep",
+            startYear: 1981,
+            endYear: 2025,
+            runMultiVariableScan: false,
+          },
+          model: "gemini-3.5-flash-lite",
+          cached: false,
+        },
+        errorCode: null,
+        hasScanApplied: false,
+        filterSummaryLine: "PRECTOTCORR · Vilhena · 1981–2025",
+        advancedOpen: false,
+        onToggleAdvanced: () => {},
+        onOpenAdvancedForRecovery: () => {},
+      }),
+    );
+    expect(failedStageHtml).toContain("Concluído · IA");
+    expect(failedStageHtml).toContain("Falhou");
+    expect(failedStageHtml).toContain("Não executada");
 
     const synthesisHtml = renderWithI18n(
       createElement(AiSynthesisPanel, {
@@ -301,6 +379,7 @@ describe("R3 & R4 UI components", () => {
       }),
     );
     expect(synthesisHtml).toContain("Síntese Científica da IA");
+    expect(synthesisHtml).not.toContain("gemini-4-hydrogen");
     expect(synthesisHtml).toContain("Cobertura do solo");
     expect(synthesisHtml).toContain("Correlação estatística não prova causalidade isolada.");
     expect(synthesisHtml).toContain("Comparar com a estação chuvosa em Vilhena?");

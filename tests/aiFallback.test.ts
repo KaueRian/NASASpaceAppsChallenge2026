@@ -1,7 +1,8 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { AiAssistantBar } from "../src/components/AiAssistantBar.tsx";
+import { AiAssistantBar, resolvePipelineStepStates } from "../src/components/AiAssistantBar.tsx";
+import { AiSynthesisPanel } from "../src/components/AiSynthesisPanel.tsx";
 import { getCasePresetById } from "../src/data/presets/index.ts";
 import { I18nProvider } from "../src/i18n/i18n.tsx";
 import { ClientAiError } from "../src/lib/ai/clientAi.ts";
@@ -192,8 +193,118 @@ describe("AI outage resilient fallback mode (TDD)", () => {
     expect(insufficient.keyFindings.some((f) => /short record|< 20/i.test(f))).toBe(true);
   });
 
-  it("renders transparent fallback mode notice inside AiAssistantBar", () => {
-    const html = renderToStaticMarkup(
+  it("resolves independent per-stage pipeline states across AI, local fallback, out-of-scope, and error paths", () => {
+    const aiTranslation = {
+      ok: true as const,
+      inScope: true,
+      reasoning: "Matched Vilhena precipitation.",
+      initialHypothesis: "Dry season trend check.",
+      suggestedValidQuestions: [],
+      filters: {
+        reuseCurrentLocation: false,
+        locationQuery: "Vilhena, RO, Brazil",
+        variable: "PRECTOTCORR" as const,
+        season: "apr_sep" as const,
+        startYear: 1990,
+        endYear: 2025,
+        runMultiVariableScan: false,
+      },
+      model: "gemini-3.5-flash-lite",
+      cached: false,
+    };
+    const localTranslation = {
+      ...aiTranslation,
+      model: "local-deterministic-fallback",
+    };
+    const aiInterpretation = {
+      ok: true as const,
+      directAnswer: "Precipitation declined.",
+      keyFindings: ["Significant decline."],
+      hypotheses: [],
+      causalityWarning: "Correlation is not causation.",
+      followUpQuestions: [],
+      model: "gemini-3.5-flash-lite",
+      cached: false,
+    };
+    const localInterpretation = {
+      ...aiInterpretation,
+      model: "local-statistical-fallback",
+    };
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "done",
+        translation: aiTranslation,
+        interpretation: aiInterpretation,
+      }),
+    ).toEqual(["done_ai", "done_data", "done_ai"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "done",
+        translation: localTranslation,
+        interpretation: localInterpretation,
+      }),
+    ).toEqual(["done_local", "done_data", "done_local"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "done",
+        translation: aiTranslation,
+        interpretation: localInterpretation,
+      }),
+    ).toEqual(["done_ai", "done_data", "done_local"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "done",
+        translation: localTranslation,
+        interpretation: aiInterpretation,
+      }),
+    ).toEqual(["done_local", "done_data", "done_ai"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "done",
+        translation: { ...aiTranslation, inScope: false },
+      }),
+    ).toEqual(["done_ai", "skipped", "skipped"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "error",
+        failedStage: "computing",
+        translation: aiTranslation,
+      }),
+    ).toEqual(["done_ai", "failed", "skipped"]);
+
+    expect(
+      resolvePipelineStepStates({
+        stage: "error",
+        failedStage: "translating",
+        translation: null,
+      }),
+    ).toEqual(["failed", "skipped", "skipped"]);
+  });
+
+  it("renders transparent local fallback states and clean AI vs local synthesis badges without jargon", () => {
+    const sampleTranslation = translateQuestionWithLocalFallback({
+      question: "A estação seca em Vilhena ficou mais seca desde 1990?",
+      lang: "pt",
+    });
+    const samplePreset = getCasePresetById("01").result;
+    const localSynthesis = interpretWithLocalFallback({
+      question: "A estação seca em Vilhena ficou mais seca desde 1990?",
+      lang: "pt",
+      location: samplePreset.location,
+      variable: samplePreset.variable,
+      unit: samplePreset.unit,
+      season: samplePreset.season,
+      stats: samplePreset.stats,
+      extremeYears: [],
+    });
+
+    const fullFallbackHtml = renderToStaticMarkup(
       createElement(
         I18nProvider,
         null,
@@ -203,7 +314,8 @@ describe("AI outage resilient fallback mode (TDD)", () => {
           onAskQuestion: () => {},
           stage: "done",
           isBusy: false,
-          translation: null,
+          translation: sampleTranslation,
+          interpretation: localSynthesis,
           errorCode: null,
           fallbackActive: true,
           hasScanApplied: false,
@@ -214,7 +326,54 @@ describe("AI outage resilient fallback mode (TDD)", () => {
         }),
       ),
     );
-    expect(html).toContain("Gemini");
-    expect(html).toContain("NASA POWER");
+    expect(fullFallbackHtml).toContain("Modo local · sem IA");
+    expect(fullFallbackHtml).toContain("Concluído · Dados reais");
+    expect(fullFallbackHtml).not.toContain("Concluído · IA");
+    expect(fullFallbackHtml).toContain("Modo local ativo (sem IA)");
+    expect(fullFallbackHtml).toContain("O serviço de IA não respondeu no momento");
+    expect(fullFallbackHtml).toContain("NASA POWER");
+    expect(fullFallbackHtml).not.toContain("sem chave configurada");
+    expect(fullFallbackHtml).not.toContain("Modo Resiliente Local Ativo");
+
+    const partialFallbackHtml = renderToStaticMarkup(
+      createElement(
+        I18nProvider,
+        null,
+        createElement(AiAssistantBar, {
+          question: "Chuva em Vilhena?",
+          onQuestionChange: () => {},
+          onAskQuestion: () => {},
+          stage: "done",
+          isBusy: false,
+          translation: { ...sampleTranslation, model: "gemini-3.5-flash-lite" },
+          interpretation: localSynthesis,
+          errorCode: null,
+          hasScanApplied: false,
+          filterSummaryLine: "Vilhena, RO · PRECTOTCORR · Apr-Sep · 1981-2025",
+          advancedOpen: false,
+          onToggleAdvanced: () => {},
+          onOpenAdvancedForRecovery: () => {},
+        }),
+      ),
+    );
+    expect(partialFallbackHtml).toContain("Concluído · IA");
+    expect(partialFallbackHtml).toContain("Modo local · sem IA");
+    expect(partialFallbackHtml).toContain("Modo local ativo (sem IA)");
+    expect(partialFallbackHtml).toContain("NASA POWER");
+
+    const localPanelHtml = renderToStaticMarkup(
+      createElement(
+        I18nProvider,
+        null,
+        createElement(AiSynthesisPanel, {
+          interpretation: localSynthesis,
+          isInterpreting: false,
+          onSelectFollowUp: () => {},
+        }),
+      ),
+    );
+    expect(localPanelHtml).toContain("Síntese Estatística Local (sem IA)");
+    expect(localPanelHtml).not.toContain("Gemini");
+    expect(localPanelHtml).not.toContain("local-statistical-fallback");
   });
 });
