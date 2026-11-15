@@ -18,6 +18,66 @@ export interface ExplorePageProps {
   onNavigateHome: () => void;
 }
 
+interface IconProps {
+  className?: string;
+}
+
+/** Small hand-rolled line icons for the hub tiles — no icon library in this codebase, and emoji
+ * read as unpolished/off-brand for this product's minimal Dark Editorial tone. */
+function ClockIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      className={className}
+    >
+      <title>Clock</title>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrophyIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      className={className}
+    >
+      <title>Trophy</title>
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" strokeLinejoin="round" />
+      <path d="M7 5H4a3 3 0 0 0 3 5M17 5h3a3 3 0 0 1-3 5" strokeLinecap="round" />
+      <path
+        d="M12 14v3M9 20h6M9.5 17h5l.5 3h-6l.5-3Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MusicNoteIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      className={className}
+    >
+      <title>Music note</title>
+      <path d="M9 18V5l10-2v13" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="16.5" cy="16" r="2.5" />
+    </svg>
+  );
+}
+
 type HubView = "hub" | "timeline";
 /** "scanning" is intentionally NOT a step here — it's a transient `loading` flag overlaid on the
  * "input" step instead (see below). Making it a real step previously let Back-navigation from
@@ -290,9 +350,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
         </button>
 
         <header className="mb-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-accent">
-            {t("explore.hub.title")}
-          </p>
+          <h2 className="font-display text-3xl text-text">{t("explore.hub.title")}</h2>
           <p className="mt-1 max-w-2xl font-sans text-sm text-text-muted">
             {t("explore.hub.subtitle")}
           </p>
@@ -304,7 +362,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
             onClick={enterTimeline}
             className="border border-accent bg-surface p-5 text-left transition-colors hover:bg-bg"
           >
-            <span className="text-3xl">🎂</span>
+            <ClockIcon className="h-8 w-8 text-text" />
             <h3 className="mt-3 font-display text-lg text-text">{t("explore.timeline.navCard")}</h3>
             <p className="mt-2 font-sans text-xs text-text-muted">
               {t("explore.hub.timelineTeaser")}
@@ -312,7 +370,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
           </button>
 
           <div className="border border-border bg-bg/40 p-5 opacity-50">
-            <span className="text-3xl">⚽</span>
+            <TrophyIcon className="h-8 w-8 text-text-muted" />
             <h3 className="mt-3 font-display text-lg text-text-muted">
               {t("explore.hub.comingSoon1")}
             </h3>
@@ -322,7 +380,7 @@ export function ExplorePage({ onNavigateHome }: ExplorePageProps) {
           </div>
 
           <div className="border border-border bg-bg/40 p-5 opacity-50">
-            <span className="text-3xl">🎵</span>
+            <MusicNoteIcon className="h-8 w-8 text-text-muted" />
             <h3 className="mt-3 font-display text-lg text-text-muted">
               {t("explore.hub.comingSoon2")}
             </h3>
