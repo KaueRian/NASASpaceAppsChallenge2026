@@ -9,12 +9,26 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
-  "previews": {},
+  "vars": {
+    "GEMINI_MODEL": "gemini-4-hydrogen"
+  },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "earthtrend-db",
       "database_id": "c271e33e-e666-4678-b4a1-60b2fc829471"
     }
-  ]
+  ],
+  "previews": {
+    "vars": {
+      "GEMINI_MODEL": "gemini-4-hydrogen"
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "earthtrend-db",
+        "database_id": "c271e33e-e666-4678-b4a1-60b2fc829471"
+      }
+    ]
+  }
 }
