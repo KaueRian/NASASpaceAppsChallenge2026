@@ -1,6 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { getCasePresetById } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
+import {
+  ClientAiError,
+  extractExtremeYearsForAi,
+  requestAiInterpret,
+  requestAiTranslate,
+  resolveAiLocation,
+} from "../lib/ai/clientAi";
 import { ClientInvestigationError, investigateClientSide } from "../lib/nasa/clientInvestigate";
 import {
   formatMerraGridCell,
@@ -16,6 +23,12 @@ import {
   type ValidatedInvestigateQuery,
 } from "../lib/validation/investigate";
 import type {
+  AiErrorCode,
+  AiInterpretResult,
+  AiScanFindingInput,
+  AiTranslateResult,
+} from "../types/ai";
+import type {
   CasePreset,
   CasePresetId,
   InvestigationErrorCode,
@@ -25,6 +38,8 @@ import type {
   VariableId,
 } from "../types/investigation";
 import { MIN_ANALYSIS_YEARS, SEASON_IDS, VARIABLE_IDS } from "../types/investigation";
+import { AiAssistantBar, type AiPipelineStage } from "./AiAssistantBar";
+import { AiSynthesisPanel } from "./AiSynthesisPanel";
 import { CitySearchInput } from "./CitySearchInput";
 import { buildCitationText, RecentDossiersDrawer, SatelliteTimelapse, ShareSheet } from "./share";
 import { TrendChart } from "./TrendChart";
@@ -37,6 +52,7 @@ interface InvestigationProps {
   presetId: CasePresetId;
   presetNonce?: number;
   initialLiveQuery?: ValidatedInvestigateQuery | null;
+  defaultAdvancedOpen?: boolean;
   onNavigateMethods: () => void;
   onOpenDossierPermalink?: (dossierId: string) => void;
 }
@@ -59,15 +75,25 @@ export function Investigation({
   presetId,
   presetNonce = 0,
   initialLiveQuery = null,
+  defaultAdvancedOpen = false,
   onNavigateMethods,
   onOpenDossierPermalink,
 }: InvestigationProps) {
   const { locale, t, formatNumber } = useI18n();
   const [methodOpen, setMethodOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [customSeasonPinned, setCustomSeasonPinned] = useState(false);
-  const [isDerived, setIsDerived] = useState(Boolean(initialLiveQuery));
+  const [advancedOpen, setAdvancedOpen] = useState(
+    () =>
+      defaultAdvancedOpen ||
+      (initialLiveQuery
+        ? !isValidPeriodRange(initialLiveQuery.startYear, initialLiveQuery.endYear)
+        : false),
+  );
+  const [customSeasonPinned, setCustomSeasonPinned] = useState(Boolean(initialLiveQuery));
+  const [basePresetId, setBasePresetId] = useState<CasePresetId | null>(() =>
+    initialLiveQuery ? null : presetId,
+  );
+  const [isDerived, setIsDerived] = useState(false);
 
   const [query, setQuery] = useState<InvestigationQuery>(
     () => initialLiveQuery ?? toQuery(getCasePresetById(presetId)),
@@ -78,25 +104,47 @@ export function Investigation({
   const [loading, setLoading] = useState(false);
   const [errorCode, setErrorCode] = useState<InvestigationErrorCode | null>(null);
 
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiStage, setAiStage] = useState<AiPipelineStage>("idle");
+  const [aiTranslation, setAiTranslation] = useState<AiTranslateResult | null>(null);
+  const [aiInterpretation, setAiInterpretation] = useState<AiInterpretResult | null>(null);
+  const [aiErrorCode, setAiErrorCode] = useState<AiErrorCode | null>(null);
+  const aiAbortRef = useRef<AbortController | null>(null);
+
   const [scanItems, setScanItems] = useState<MultiVariableScanItem[] | null>(null);
   const [scanningAll, setScanningAll] = useState(false);
   const requestIdRef = useRef(0);
   const hasMountedRef = useRef(false);
   const liveQueryKey = initialLiveQuery ? JSON.stringify(initialLiveQuery) : null;
+  const liveDispatchKey = liveQueryKey ? `${liveQueryKey}#${presetNonce}` : null;
   const lastLiveKeyRef = useRef<string | null>(null);
 
-  const resetToPreset = useCallback((targetPresetId: CasePresetId) => {
-    requestIdRef.current += 1;
-    const preset = getCasePresetById(targetPresetId);
-    setQuery(toQuery(preset));
-    setResult(preset.result);
-    setLoading(false);
-    setErrorCode(null);
-    setAdvancedOpen(false);
-    setCustomSeasonPinned(false);
-    setIsDerived(false);
-    setScanItems(null);
+  const clearAiState = useCallback(() => {
+    aiAbortRef.current?.abort();
+    aiAbortRef.current = null;
+    setAiStage("idle");
+    setAiTranslation(null);
+    setAiInterpretation(null);
+    setAiErrorCode(null);
   }, []);
+
+  const resetToPreset = useCallback(
+    (targetPresetId: CasePresetId) => {
+      requestIdRef.current += 1;
+      clearAiState();
+      const preset = getCasePresetById(targetPresetId);
+      setQuery(toQuery(preset));
+      setResult(preset.result);
+      setLoading(false);
+      setErrorCode(null);
+      setAdvancedOpen(defaultAdvancedOpen);
+      setCustomSeasonPinned(false);
+      setBasePresetId(targetPresetId);
+      setIsDerived(false);
+      setScanItems(null);
+    },
+    [clearAiState, defaultAdvancedOpen],
+  );
 
   const applyInvestigationError = useCallback((err: unknown) => {
     const code = err instanceof ClientInvestigationError ? err.code : "NASA_UPSTREAM_ERROR";
@@ -107,14 +155,19 @@ export function Investigation({
   }, []);
 
   useEffect(() => {
-    if (liveQueryKey && initialLiveQuery) {
-      if (lastLiveKeyRef.current === liveQueryKey) return;
-      lastLiveKeyRef.current = liveQueryKey;
+    if (liveDispatchKey && initialLiveQuery) {
+      if (lastLiveKeyRef.current === liveDispatchKey) return;
+      lastLiveKeyRef.current = liveDispatchKey;
       hasMountedRef.current = true;
+      clearAiState();
       setQuery(initialLiveQuery);
       setCustomSeasonPinned(true);
-      setIsDerived(true);
+      setBasePresetId(null);
+      setIsDerived(false);
       setScanItems(null);
+      if (!isValidPeriodRange(initialLiveQuery.startYear, initialLiveQuery.endYear)) {
+        setAdvancedOpen(true);
+      }
       const thisRequestId = ++requestIdRef.current;
       setLoading(true);
       setErrorCode(null);
@@ -144,18 +197,20 @@ export function Investigation({
   }, [
     presetId,
     presetNonce,
-    liveQueryKey,
+    liveDispatchKey,
     initialLiveQuery,
     resetToPreset,
     applyInvestigationError,
+    clearAiState,
   ]);
 
   const handleRestore = () => {
-    resetToPreset(presetId);
+    resetToPreset(basePresetId ?? presetId);
   };
 
   const handleSelectSavedDossier = (dossier: SavedDossier) => {
     requestIdRef.current += 1;
+    clearAiState();
     const next = dossier.result;
     setQuery({
       lat: next.location.lat,
@@ -170,12 +225,14 @@ export function Investigation({
     setLoading(false);
     setErrorCode(null);
     setCustomSeasonPinned(true);
-    setIsDerived(true);
+    setBasePresetId(null);
+    setIsDerived(false);
     setScanItems(null);
   };
 
   const executeInvestigation = async (targetQuery: InvestigationQuery) => {
     const thisRequestId = ++requestIdRef.current;
+    clearAiState();
     setLoading(true);
     setErrorCode(null);
     try {
@@ -191,7 +248,145 @@ export function Investigation({
     }
   };
 
+  const handleAskAi = async (rawQuestion: string) => {
+    const trimmed = rawQuestion.trim();
+    if (!trimmed) return;
+
+    aiAbortRef.current?.abort();
+    const controller = new AbortController();
+    aiAbortRef.current = controller;
+    const thisRequestId = ++requestIdRef.current;
+
+    setAiStage("translating");
+    setAiErrorCode(null);
+    setErrorCode(null);
+    setAiTranslation(null);
+    setAiInterpretation(null);
+
+    const activeContext = {
+      lat: query.lat,
+      lon: query.lon,
+      ...(query.label ? { label: query.label } : {}),
+      variable: query.variable,
+      season: query.season,
+      startYear: query.startYear,
+      endYear: query.endYear,
+    };
+
+    try {
+      const translation = await requestAiTranslate(
+        {
+          question: trimmed,
+          lang: locale,
+          currentContext: activeContext,
+        },
+        controller.signal,
+      );
+      if (thisRequestId !== requestIdRef.current) return;
+      setAiTranslation(translation);
+
+      if (!translation.inScope) {
+        setAiStage("done");
+        return;
+      }
+
+      setAiStage("computing");
+      const resolvedLocation = await resolveAiLocation(
+        translation.filters,
+        activeContext,
+        controller.signal,
+      );
+      if (thisRequestId !== requestIdRef.current) return;
+
+      const nextQuery: InvestigationQuery = {
+        lat: resolvedLocation.lat,
+        lon: resolvedLocation.lon,
+        label: resolvedLocation.label,
+        variable: translation.filters.variable,
+        season: translation.filters.season,
+        startYear: translation.filters.startYear,
+        endYear: translation.filters.endYear,
+      };
+      setQuery(nextQuery);
+      setCustomSeasonPinned(true);
+
+      let nextResult: InvestigationResult;
+      let scanFindings: AiScanFindingInput[] | undefined;
+
+      if (translation.filters.runMultiVariableScan) {
+        const items = await scanAllVariablesWithFdr({
+          lat: nextQuery.lat,
+          lon: nextQuery.lon,
+          label: nextQuery.label,
+          startYear: nextQuery.startYear,
+          endYear: nextQuery.endYear,
+          seasonOverride: nextQuery.season,
+        });
+        if (thisRequestId !== requestIdRef.current) return;
+        setScanItems(items);
+        const primaryItem = items.find((item) => item.variable === nextQuery.variable) ?? items[0];
+        nextResult = primaryItem ? primaryItem.result : await investigateClientSide(nextQuery);
+        scanFindings = items.map((item) => ({
+          variable: item.variable,
+          season: item.season,
+          senSlopePerDecade: item.result.stats.senSlopePerDecade,
+          pValue: item.result.stats.pValue,
+          qValue: item.qValue,
+          fdrSignificant: item.fdrSignificant,
+          verdict: item.result.stats.verdict,
+          direction: item.result.stats.direction,
+        }));
+      } else {
+        setScanItems(null);
+        nextResult = await investigateClientSide(nextQuery);
+      }
+
+      if (thisRequestId !== requestIdRef.current) return;
+      setResult(nextResult);
+      if (basePresetId !== null) setIsDerived(true);
+
+      setAiStage("interpreting");
+      const interpretation = await requestAiInterpret(
+        {
+          question: trimmed,
+          lang: locale,
+          ...(translation.limitationNotice
+            ? { limitationNotice: translation.limitationNotice }
+            : {}),
+          location: nextResult.location,
+          variable: nextResult.variable,
+          unit: nextResult.unit,
+          season: nextResult.season,
+          stats: nextResult.stats,
+          extremeYears: extractExtremeYearsForAi(nextResult.series),
+          ...(scanFindings ? { scanSummary: scanFindings } : {}),
+        },
+        controller.signal,
+      );
+      if (thisRequestId !== requestIdRef.current) return;
+      setAiInterpretation(interpretation);
+      setAiStage("done");
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      if (thisRequestId !== requestIdRef.current) return;
+
+      if (err instanceof ClientAiError) {
+        setAiErrorCode(err.code);
+        setAiStage("idle");
+        return;
+      }
+      if (err instanceof ClientInvestigationError) {
+        applyInvestigationError(err);
+        setAiStage("idle");
+        return;
+      }
+      setAiErrorCode("AI_UPSTREAM_ERROR");
+      setAiStage("idle");
+    }
+  };
+
   const applyNextQuery = (nextQuery: InvestigationQuery, options?: { clearScan?: boolean }) => {
+    clearAiState();
     setQuery(nextQuery);
     setErrorCode(null);
     if (options?.clearScan) {
@@ -235,6 +430,7 @@ export function Investigation({
 
   const handleRunScanAll = async () => {
     if (!isValidPeriodRange(query.startYear, query.endYear)) return;
+    clearAiState();
     setScanningAll(true);
     setErrorCode(null);
     try {
@@ -292,88 +488,41 @@ export function Investigation({
         })
     : null;
   const recommendedSeasonForCurrent = getRecommendedSeason(query.variable, query.lat);
+  const isAiBusy =
+    aiStage === "translating" || aiStage === "computing" || aiStage === "interpreting";
+  const activeLocationDisplay = query.label ?? `${query.lat.toFixed(2)}, ${query.lon.toFixed(2)}`;
+  const activeFilterSummaryLine = `${t(`variables.${query.variable}.shortLabel`)} · ${t(`seasons.${query.season}`)} · ${activeLocationDisplay} · ${query.startYear}–${query.endYear}${
+    isPeriodValid ? ` (${t("form.periodSpanYears", { count: selectedSpan })})` : ""
+  }`;
 
   return (
     <section id="investigation" className="border-b border-border px-4 py-8 sm:px-6 sm:py-10">
-      {isDerived && (
+      {isDerived && basePresetId !== null && (
         <div className="mb-3 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wide text-text-muted">
-          <span>{t("cases.derivedBanner", { id: presetId })}</span>
+          <span>{t("cases.derivedBanner", { id: basePresetId })}</span>
           <button type="button" onClick={handleRestore} className="text-accent hover:underline">
             {t("cases.restoreAction")}
           </button>
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="mb-8 space-y-3 border border-border bg-surface p-3 sm:p-4"
-      >
-        <div className="flex flex-wrap items-center gap-2 font-display text-base text-text sm:text-lg">
-          <span className="text-text-muted">{t("form.phrasePrefix")}</span>
-          <select
-            aria-label={t("form.variableLabel")}
-            value={query.variable}
-            onChange={(e) => handleVariableChange(e.target.value as VariableId)}
-            className="max-w-full border-b border-accent bg-transparent font-display text-base text-text sm:text-lg"
-          >
-            {VARIABLE_IDS.map((id) => {
-              const autoSeason = customSeasonPinned
-                ? query.season
-                : getRecommendedSeason(id, query.lat);
-              return (
-                <option key={id} value={id} className="bg-surface text-text">
-                  {t(`variables.${id}.simple`)} ({t(`seasonsSimple.${autoSeason}`)})
-                </option>
-              );
-            })}
-          </select>
-          <span className="text-text-muted">{t("form.phraseIn")}</span>
-          <CitySearchInput
-            currentLabel={query.label ?? `${query.lat.toFixed(2)}, ${query.lon.toFixed(2)}`}
-            onSelect={handleCitySelect}
-            onPickOnMap={() => setAdvancedOpen(true)}
-            className="min-w-36 flex-1 sm:min-w-48 sm:flex-initial"
-          />
-          <span className="inline-flex flex-wrap items-center gap-1.5">
-            {(
-              [
-                {
-                  field: "startYear",
-                  prefixKey: "form.phraseFrom",
-                  labelKey: "form.startYearLabel",
-                },
-                {
-                  field: "endYear",
-                  prefixKey: "form.phraseTo",
-                  labelKey: "form.endYearLabel",
-                },
-              ] as const
-            ).map(({ field, prefixKey, labelKey }) => (
-              <span key={field} className="inline-flex items-center gap-1.5">
-                <span className="text-text-muted">{t(prefixKey)}</span>
-                <select
-                  aria-label={t(labelKey)}
-                  value={query[field]}
-                  onChange={(e) => handleYearChange(field, Number(e.target.value))}
-                  className="border-b border-accent bg-transparent font-display text-base tabular-nums text-text sm:text-lg"
-                >
-                  {selectableYears.map((year) => (
-                    <option key={year} value={year} className="bg-surface text-text">
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </span>
-            ))}
-          </span>
-          <button
-            type="submit"
-            disabled={loading || !isPeriodValid}
-            className="w-full border border-accent px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50 sm:ml-auto sm:w-auto sm:py-1"
-          >
-            {loading ? t("form.runningButton") : `→ ${t("form.goButton")}`}
-          </button>
-        </div>
+      <div className="mb-8 space-y-4 border border-border bg-surface p-3 sm:p-4">
+        <AiAssistantBar
+          question={aiQuestion}
+          onQuestionChange={setAiQuestion}
+          onAskQuestion={(q) => {
+            void handleAskAi(q);
+          }}
+          stage={aiStage}
+          isBusy={isAiBusy || loading}
+          translation={aiTranslation}
+          errorCode={aiErrorCode}
+          hasScanApplied={scanItems !== null}
+          filterSummaryLine={activeFilterSummaryLine}
+          advancedOpen={advancedOpen}
+          onToggleAdvanced={() => setAdvancedOpen((open) => !open)}
+          onOpenAdvancedForRecovery={() => setAdvancedOpen(true)}
+        />
 
         {periodValidationMessage && (
           <p
@@ -384,22 +533,75 @@ export function Investigation({
           </p>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => setAdvancedOpen((open) => !open)}
-            className="font-sans text-xs text-accent hover:underline"
-          >
-            {advancedOpen ? "▾" : "▸"} {t("form.moreOptions")}
-          </button>
-          <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
-            {t("form.seasonHintAuto", { season: t(`seasons.${query.season}`) })}
-            {isPeriodValid ? ` · ${t("form.periodSpanYears", { count: selectedSpan })}` : ""}
-          </span>
-        </div>
-
         {advancedOpen && (
-          <div className="space-y-4 border-t border-border pt-4">
+          <form onSubmit={handleSubmit} className="space-y-4 border-t border-border pt-4">
+            <div className="flex flex-wrap items-center gap-2 font-display text-base text-text sm:text-lg">
+              <span className="text-text-muted">{t("form.phrasePrefix")}</span>
+              <select
+                aria-label={t("form.variableLabel")}
+                value={query.variable}
+                onChange={(e) => handleVariableChange(e.target.value as VariableId)}
+                className="max-w-full border-b border-accent bg-transparent font-display text-base text-text sm:text-lg"
+              >
+                {VARIABLE_IDS.map((id) => {
+                  const autoSeason = customSeasonPinned
+                    ? query.season
+                    : getRecommendedSeason(id, query.lat);
+                  return (
+                    <option key={id} value={id} className="bg-surface text-text">
+                      {t(`variables.${id}.simple`)} ({t(`seasonsSimple.${autoSeason}`)})
+                    </option>
+                  );
+                })}
+              </select>
+              <span className="text-text-muted">{t("form.phraseIn")}</span>
+              <CitySearchInput
+                currentLabel={activeLocationDisplay}
+                onSelect={handleCitySelect}
+                onPickOnMap={() => setAdvancedOpen(true)}
+                className="min-w-36 flex-1 sm:min-w-48 sm:flex-initial"
+              />
+              <span className="inline-flex flex-wrap items-center gap-1.5">
+                {(
+                  [
+                    {
+                      field: "startYear",
+                      prefixKey: "form.phraseFrom",
+                      labelKey: "form.startYearLabel",
+                    },
+                    {
+                      field: "endYear",
+                      prefixKey: "form.phraseTo",
+                      labelKey: "form.endYearLabel",
+                    },
+                  ] as const
+                ).map(({ field, prefixKey, labelKey }) => (
+                  <span key={field} className="inline-flex items-center gap-1.5">
+                    <span className="text-text-muted">{t(prefixKey)}</span>
+                    <select
+                      aria-label={t(labelKey)}
+                      value={query[field]}
+                      onChange={(e) => handleYearChange(field, Number(e.target.value))}
+                      className="border-b border-accent bg-transparent font-display text-base tabular-nums text-text sm:text-lg"
+                    >
+                      {selectableYears.map((year) => (
+                        <option key={year} value={year} className="bg-surface text-text">
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
+                ))}
+              </span>
+              <button
+                type="submit"
+                disabled={loading || !isPeriodValid}
+                className="w-full border border-accent px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-text hover:bg-bg disabled:opacity-50 sm:ml-auto sm:w-auto sm:py-1"
+              >
+                {loading ? t("form.runningButton") : `→ ${t("form.goButton")}`}
+              </button>
+            </div>
+
             <div className="flex flex-wrap items-end gap-4">
               <label className="font-mono text-xs text-text-muted">
                 {t("form.seasonLabel")}
@@ -436,6 +638,7 @@ export function Investigation({
                 lat={query.lat}
                 lon={query.lon}
                 onChange={(next) => {
+                  clearAiState();
                   setQuery((q) => ({
                     ...q,
                     ...next,
@@ -459,77 +662,74 @@ export function Investigation({
                   ? t("form.scanningAllVariables")
                   : `⚡ ${t("form.scanAllVariablesButton")}`}
               </button>
-
-              {scanItems && (
-                <div className="mt-3 overflow-x-auto border border-border bg-bg p-3">
-                  <p className="mb-2 font-mono text-xs uppercase tracking-wide text-text-muted">
-                    {t("form.scanTableTitle")}
-                  </p>
-                  <table className="w-full text-left font-mono text-xs">
-                    <thead>
-                      <tr className="border-b border-border text-text-muted">
-                        <th className="py-1 pr-3">{t("form.scanColVariable")}</th>
-                        <th className="py-1 pr-3">{t("form.scanColSlope")}</th>
-                        <th className="py-1 pr-3">{t("form.scanColPValue")}</th>
-                        <th className="py-1 pr-3">{t("form.scanColQValue")}</th>
-                        <th className="py-1">{t("form.scanColAction")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {scanItems.map((item) => {
-                        const itemUnit = UNIT_SUFFIX[item.result.unit]?.trim() ?? "";
-                        const isActive =
-                          item.variable === result.variable && item.season === result.season;
-                        return (
-                          <tr key={item.variable} className="border-b border-border/50">
-                            <td className="py-1.5 pr-3 text-text">
-                              {t(`variables.${item.variable}.shortLabel`)} ·{" "}
-                              {t(`seasons.${item.season}`)}
-                            </td>
-                            <td
-                              className={`py-1.5 pr-3 ${DIRECTION_COLOR[item.result.stats.direction]}`}
-                            >
-                              {item.result.stats.senSlopePerDecade > 0 ? "+" : ""}
-                              {formatNumber(item.result.stats.senSlopePerDecade, {
-                                maximumFractionDigits: 2,
-                              })}{" "}
-                              {itemUnit}/dec
-                            </td>
-                            <td className="py-1.5 pr-3 text-text-muted">
-                              {formatPValue(item.result.stats.pValue)}
-                            </td>
-                            <td className="py-1.5 pr-3 text-text">
-                              {formatPValue(item.qValue)} {item.fdrSignificant ? "✓" : ""}
-                            </td>
-                            <td className="py-1.5">
-                              {isActive ? (
-                                <span className="text-text-muted">{t("form.scanActiveBadge")}</span>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setQuery((q) => ({
-                                      ...q,
-                                      variable: item.variable,
-                                      season: item.season,
-                                    }));
-                                    setResult(item.result);
-                                    setIsDerived(true);
-                                  }}
-                                  className="text-accent hover:underline"
-                                >
-                                  {t("form.scanLoadAction")}
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
             </div>
+          </form>
+        )}
+
+        {scanItems && (
+          <div className="overflow-x-auto border border-border bg-bg p-3">
+            <p className="mb-2 font-mono text-xs uppercase tracking-wide text-text-muted">
+              {t("form.scanTableTitle")}
+            </p>
+            <table className="w-full text-left font-mono text-xs">
+              <thead>
+                <tr className="border-b border-border text-text-muted">
+                  <th className="py-1 pr-3">{t("form.scanColVariable")}</th>
+                  <th className="py-1 pr-3">{t("form.scanColSlope")}</th>
+                  <th className="py-1 pr-3">{t("form.scanColPValue")}</th>
+                  <th className="py-1 pr-3">{t("form.scanColQValue")}</th>
+                  <th className="py-1">{t("form.scanColAction")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scanItems.map((item) => {
+                  const itemUnit = UNIT_SUFFIX[item.result.unit]?.trim() ?? "";
+                  const isActive =
+                    item.variable === result.variable && item.season === result.season;
+                  return (
+                    <tr key={item.variable} className="border-b border-border/50">
+                      <td className="py-1.5 pr-3 text-text">
+                        {t(`variables.${item.variable}.shortLabel`)} · {t(`seasons.${item.season}`)}
+                      </td>
+                      <td className={`py-1.5 pr-3 ${DIRECTION_COLOR[item.result.stats.direction]}`}>
+                        {item.result.stats.senSlopePerDecade > 0 ? "+" : ""}
+                        {formatNumber(item.result.stats.senSlopePerDecade, {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        {itemUnit}/dec
+                      </td>
+                      <td className="py-1.5 pr-3 text-text-muted">
+                        {formatPValue(item.result.stats.pValue)}
+                      </td>
+                      <td className="py-1.5 pr-3 text-text">
+                        {formatPValue(item.qValue)} {item.fdrSignificant ? "✓" : ""}
+                      </td>
+                      <td className="py-1.5">
+                        {isActive ? (
+                          <span className="text-text-muted">{t("form.scanActiveBadge")}</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQuery((q) => ({
+                                ...q,
+                                variable: item.variable,
+                                season: item.season,
+                              }));
+                              setResult(item.result);
+                              setIsDerived(true);
+                            }}
+                            className="text-accent hover:underline"
+                          >
+                            {t("form.scanLoadAction")}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
 
@@ -542,7 +742,7 @@ export function Investigation({
             <p className="mt-2 font-mono text-xs text-text-muted">{t("errors.stillShowing")}</p>
           </div>
         )}
-      </form>
+      </div>
 
       <p className="max-w-2xl font-display text-xl text-text">{headline}</p>
 
@@ -551,6 +751,15 @@ export function Investigation({
       >
         {DIRECTION_ARROW[stats.direction]} {verdictText}
       </p>
+
+      <AiSynthesisPanel
+        interpretation={aiInterpretation}
+        isInterpreting={aiStage === "interpreting"}
+        onSelectFollowUp={(followUpText) => {
+          setAiQuestion(followUpText);
+          void handleAskAi(followUpText);
+        }}
+      />
 
       <div className="mt-6 border border-border bg-surface p-3 sm:p-4">
         <TrendChart series={series} unit={unit} variable={variable} />
@@ -602,6 +811,28 @@ export function Investigation({
               <p>{t("investigation.warnings.highAutocorrelation")}</p>
             )}
             <p className="pt-2 text-text-muted">{buildCitationText(result, locale)}</p>
+            {aiTranslation?.inScope && (
+              <div className="mt-3 space-y-1 border border-border bg-bg p-3">
+                <p className="font-mono text-[11px] uppercase tracking-wide text-text">
+                  {t("ai.layer1DetailsTitle")} ({t("ai.layer1Model")}: {aiTranslation.model})
+                </p>
+                {aiTranslation.initialHypothesis && (
+                  <p className="font-sans text-xs text-text-muted">
+                    <strong className="text-text">{t("ai.layer1Hypothesis")}:</strong>{" "}
+                    {aiTranslation.initialHypothesis}
+                  </p>
+                )}
+                {aiTranslation.reasoning && (
+                  <p className="font-sans text-xs text-text-muted">
+                    <strong className="text-text">{t("ai.layer1Reasoning")}:</strong>{" "}
+                    {aiTranslation.reasoning}
+                  </p>
+                )}
+                <pre className="mt-2 overflow-x-auto border border-border bg-surface p-2 font-mono text-[11px] text-text-muted">
+                  {JSON.stringify(aiTranslation.filters, null, 2)}
+                </pre>
+              </div>
+            )}
             <button
               type="button"
               onClick={onNavigateMethods}

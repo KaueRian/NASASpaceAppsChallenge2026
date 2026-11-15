@@ -14,18 +14,132 @@
     "stripesCaption": "Case #01 · Vilhena, RO · Apr–Sep Rainfall Anomaly Barcode (1981–2025 · −234.5 mm · p = 0.000131)"
   },
   "cases": {
-    "sectionTitle": "Featured Cases",
-    "sectionSubtitle": "Four verified 45-year investigations (1981–2025) spanning Vilhena, Rondônia, Brazil, and the Arctic — one for each NASA POWER variable.",
+    "sectionTitle": "Featured Cases & Suggested Investigations",
+    "sectionSubtitle": "20 curated investigations (4 offline benchmark cases + 16 high-demand NASA POWER live probes) with scale, climate variable, and seasonal window filters.",
     "scaleBadge": {
       "local": "Case #01 · Local Host City (Vilhena, RO)",
       "state": "Case #02 · State Scale (Rondônia)",
       "national": "Case #03 · National Scale (Brazil)",
       "global": "Case #04 · Global Benchmark (Arctic)"
     },
+    "scaleShortBadge": {
+      "local": "Southern Cone · RO",
+      "state": "Rondônia & W. Amazon",
+      "national": "Brazil & Biomes",
+      "global": "Global"
+    },
+    "topics": {
+      "agro": "Agro & Crops",
+      "warming": "Thermal Shift",
+      "hydrology": "Water & Soil",
+      "urban": "Urban Heat",
+      "benchmark": "Global Benchmark"
+    },
+    "filters": {
+      "scaleLabel": "Scale",
+      "allScales": "All (20)",
+      "local": "Southern Cone RO",
+      "state": "Rondônia & Amazon",
+      "national": "Brazil & Biomes",
+      "global": "Global",
+      "variableLabel": "Variable",
+      "allVariables": "All variables",
+      "seasonLabel": "Window",
+      "allSeasons": "All windows",
+      "searchLabel": "Search investigation",
+      "searchPlaceholder": "Filter city, biome, or topic (e.g. soy, coffee, COP30)…",
+      "clearButton": "Clear filters",
+      "countSummary": "{{shown}} of {{total}} investigations",
+      "emptyTitle": "No curated investigations match these filters.",
+      "offlineReady": "Offline",
+      "liveQuery": "NASA API"
+    },
     "openAction": "Load Investigation",
     "alreadyViewed": "Reviewed",
     "derivedBanner": "Derived from Case #{{id}}",
     "restoreAction": "Restore original case",
+    "catalog": {
+      "ro-cerejeiras": {
+        "title": "Cerejeiras, RO, Brazil",
+        "region": "Agricultural Frontier · Southern Cone of Rondônia",
+        "hook": "Is Apr–Sep transition rainfall also falling along Rondônia's southern soy belt?"
+      },
+      "ro-porto-velho": {
+        "title": "Porto Velho, RO, Brazil",
+        "region": "Madeira River Basin · Capital of Rondônia",
+        "hook": "How strongly has annual mean temperature warmed along the Madeira Basin since 1981?"
+      },
+      "ro-ji-parana": {
+        "title": "Ji-Paraná, RO, Brazil",
+        "region": "Central Rondônia · Machado River Basin",
+        "hook": "Is dry-season root-zone soil wetness declining across central Rondônia pasture basins?"
+      },
+      "ro-cacoal": {
+        "title": "Cacoal, RO, Brazil",
+        "region": "Robusta Coffee Hub · East-Central Rondônia",
+        "hook": "Are warmer tropical nights putting physiological heat pressure on Cacoal's coffee belt?"
+      },
+      "ac-rio-branco": {
+        "title": "Rio Branco, AC, Brazil",
+        "region": "Acre Valley · Southwestern Amazonia",
+        "hook": "Has dry-season heat accelerated in the Southwestern Amazon over the past four decades?"
+      },
+      "am-manaus": {
+        "title": "Manaus, AM, Brazil",
+        "region": "Central Amazonia · Negro–Solimões Confluence",
+        "hook": "Did annual mean air temperatures at the heart of the Amazon cross +1 °C since 1981?"
+      },
+      "pa-belem": {
+        "title": "Belém, PA, Brazil",
+        "region": "Amazon River Delta · COP30 Host City",
+        "hook": "How have minimum night-time temperatures shifted in the Eastern Amazon capital?"
+      },
+      "ba-matopiba": {
+        "title": "Barreiras (MATOPIBA), BA, Brazil",
+        "region": "Western Bahia · Cerrado Agricultural Frontier",
+        "hook": "Has dry-season root-zone soil drying reached critical rates across the MATOPIBA frontier?"
+      },
+      "df-brasilia": {
+        "title": "Brasília, DF, Brazil",
+        "region": "Central Plateau · Cerrado Headwaters",
+        "hook": "Is Central Cerrado dry-season soil moisture losing capacity for basin recharge?"
+      },
+      "mt-sorriso": {
+        "title": "Sorriso, MT, Brazil",
+        "region": "Northern Mato Grosso · Brazil's Grain Capital",
+        "hook": "Contrast case: does Apr–Sep second-crop rainfall in Sorriso show a statistically significant trend?"
+      },
+      "sp-sao-paulo": {
+        "title": "São Paulo, SP, Brazil",
+        "region": "Metropolitan Basin · Southeastern Brazil",
+        "hook": "Are minimum night temperatures persistently rising across South America's largest metropolis?"
+      },
+      "pe-petrolina": {
+        "title": "Petrolina, PE, Brazil",
+        "region": "Lower-Middle São Francisco · Brazilian Semiarid",
+        "hook": "Is annual warming in the Caatinga increasing evaporative demand on irrigated orchards?"
+      },
+      "rs-porto-alegre": {
+        "title": "Porto Alegre, RS, Brazil",
+        "region": "Guaíba Basin · Southern Brazil",
+        "hook": "Contrast case: does warm-season (Oct–Mar) rainfall show a monotonic trend or high volatility?"
+      },
+      "es-sevilla": {
+        "title": "Seville, Spain",
+        "region": "Guadalquivir Valley · Northern Hemisphere Summer",
+        "hook": "How rapidly are Mediterranean boreal summers (Apr–Sep) warming in southern Spain?"
+      },
+      "jp-tokyo": {
+        "title": "Tokyo, Japan",
+        "region": "Kanto Plain · Pacific Megacity",
+        "hook": "How sharply have minimum nocturnal temperatures climbed in East Asia's largest urban corridor?"
+      },
+      "ne-niamey": {
+        "title": "Niamey (Sahel), Niger",
+        "region": "Sahelian Transition Belt · West Africa",
+        "hook": "Does regional air temperature in the West African Sahel show confirmed warming since 1981?"
+      }
+    },
     "01": {
       "title": "Vilhena, RO, Brazil",
       "region": "Southern Amazon–Cerrado Transition (Chapada dos Parecis)",
@@ -187,6 +301,7 @@
     "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
     "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",
+    "INVALID_FILTER": "Invalid filter parameter supplied for investigations or dossiers query.",
     "INSUFFICIENT_YEARS": "Fewer than 15 complete seasonal years are available in this range. Expand the year span to run Mann-Kendall.",
     "NO_DATA_ALL_MISSING": "No valid observations available here (NASA POWER returned -999 missing values, e.g. root-zone soil wetness over open ocean).",
     "NASA_UPSTREAM_TIMEOUT": "The NASA POWER archive took too long to respond. Please try again in a few seconds.",
@@ -251,6 +366,10 @@
     "archiveNote": "MODIS Terra imagery begins in 2000 (climatology selected starts in {{startYear}}).",
     "play": "Play Timelapse",
     "pause": "Pause",
+    "buffering": "Buffering frames ({{ready}}/{{total}})…",
+    "preloadProgress": "Preloading NASA GIBS frames: {{ready}} / {{total}} years",
+    "preloadReady": "{{total}} / {{total}} years cached · Ready for smooth playback",
+    "frameUpdating": "Updating {{year}}…",
     "worldviewLink": "Open in NASA Worldview ↗",
     "tileAlt": "NASA MODIS {{layer}} satellite tile for {{year}}",
     "zoomOut": "Zoom out",
@@ -271,5 +390,51 @@
     "sharedBackHome": "← Return to Case Board",
     "sharedBadge": "READ-ONLY ARCHIVED DOSSIER · ID {{id}}",
     "sharedOpenNew": "Open your own investigation →"
+  },
+  "ai": {
+    "eyebrow": "ASK IN PLAIN LANGUAGE · NASA POWER + GEMINI",
+    "inputLabel": "Ask a climate investigation question",
+    "placeholder": "e.g., Is Vilhena's dry season losing rainfall since 1990?",
+    "submitButton": "Investigate with AI",
+    "runningButton": "Investigating…",
+    "examplesLabel": "Try asking:",
+    "examples": {
+      "vilhenaDry": "Is Vilhena's dry season getting drier since 1990?",
+      "ariquemesNights": "Are night-time temperatures rising in Ariquemes?",
+      "manausScan": "Which climate variables changed significantly in Manaus?",
+      "arcticCompare": "How fast has Svalbard warmed since 1981?"
+    },
+    "steps": {
+      "translate": "1. AI Filters",
+      "compute": "2. NASA + Mann-Kendall",
+      "interpret": "3. AI Synthesis"
+    },
+    "activeSummaryLabel": "Active filters",
+    "openAdvancedFilters": "Advanced / Edit filters manually",
+    "hideAdvancedFilters": "Hide manual filters",
+    "scanAppliedBadge": "4-var FDR scan",
+    "outOfScopeTitle": "Outside historical trend scope",
+    "limitationTitle": "Closest supported filter applied",
+    "tryValidQuestion": "Try a supported investigation:",
+    "errorTitle": "AI assistant unavailable right now",
+    "openManualRecovery": "Open manual filters (Advanced)",
+    "errors": {
+      "AI_INVALID_REQUEST": "Enter a concise climate question (up to 500 characters).",
+      "AI_NOT_CONFIGURED": "Gemini API key is not configured on this server yet. You can still investigate using manual filters in Advanced.",
+      "AI_RATE_LIMITED": "AI rate limit reached temporarily. Please wait a moment or use Advanced filters manually.",
+      "AI_TIMEOUT": "The AI service took too long to respond. Please retry or adjust filters manually in Advanced.",
+      "AI_UPSTREAM_ERROR": "Could not reach Gemini right now. Manual NASA POWER filters remain available in Advanced.",
+      "AI_BAD_RESPONSE": "The AI returned an unexpected structure. Please rephrase or adjust filters in Advanced."
+    },
+    "synthesisTitle": "AI Scientific Synthesis",
+    "synthesisCached": "Cached",
+    "findingsTitle": "Observed Statistical Findings",
+    "hypothesesTitle": "Plausible Scientific Hypotheses (Not Proven Causes)",
+    "followUpTitle": "Suggested follow-up investigations",
+    "layer1DetailsTitle": "Layer 1 · AI Filter Translation (Structured Parameters)",
+    "layer1Hypothesis": "Initial hypothesis",
+    "layer1Reasoning": "Translation rationale",
+    "layer1Model": "Model",
+    "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
   }
 }

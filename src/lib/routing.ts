@@ -110,6 +110,29 @@ export function buildHomePath(caseId?: CasePresetId): string {
   return caseId ? `/?case=${encodeURIComponent(caseId)}` : "/";
 }
 
+export function buildInvestigateQueryString(query: ValidatedInvestigateQuery): string {
+  const params = new URLSearchParams({
+    lat: String(query.lat),
+    lon: String(query.lon),
+    variable: query.variable,
+    season: query.season,
+    startYear: String(query.startYear),
+    endYear: String(query.endYear),
+  });
+  if (query.label) {
+    params.set("label", query.label);
+  }
+  return params.toString();
+}
+
+export function buildInvestigatePath(query: ValidatedInvestigateQuery): string {
+  return `/investigate?${buildInvestigateQueryString(query)}`;
+}
+
+export function buildInvestigateApiPath(query: ValidatedInvestigateQuery): string {
+  return `/api/investigate?${buildInvestigateQueryString(query)}`;
+}
+
 export function buildMethodsPath(): string {
   return "/methods";
 }
