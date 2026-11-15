@@ -62,19 +62,25 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
   return (
     <div className="relative">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
+        {viewMode === "stripes" ? (
+          <span className="font-mono text-[10px] uppercase tracking-wide text-text-muted">
+            {t("form.viewStripes")}
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
-            {t("chart.legendTrend")}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
-            {t("chart.legendAnomaly")}
-          </span>
-        </div>
+        ) : (
+          <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
+              {t("chart.legendTrend")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
+              {t("chart.legendAnomaly")}
+            </span>
+          </div>
+        )}
 
         <fieldset
           aria-label={t("form.viewAsLabel")}
@@ -104,7 +110,13 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
 
       {viewMode === "stripes" ? (
         <div className="py-2">
-          <ClimateStripes series={series} variable={variable} height={180} tone="dark" />
+          <ClimateStripes
+            series={series}
+            variable={variable}
+            unit={unit}
+            height={180}
+            tone="dark"
+          />
         </div>
       ) : (
         <>

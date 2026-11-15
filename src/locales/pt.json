@@ -163,6 +163,17 @@
     "legendAnomaly": "Anomalia (|z| > 1,5)",
     "anomalyTag": "Anomalia"
   },
+  "stripes": {
+    "zScoreLabel": "z = {{z}}",
+    "extremeAnomalyTag": "Anomalia extrema (|z| > 1,5)",
+    "scaleLowTemp": "Mais frio (−z)",
+    "scaleHighTemp": "Mais quente (+z)",
+    "scaleLowHydro": "Mais seco (−z)",
+    "scaleHighHydro": "Mais úmido (+z)",
+    "scaleMean": "Média (z ≈ 0)",
+    "explainTemp": "Como ler: cada faixa vertical representa um ano da série em ordem cronológica. Tons azuis indicam anos mais frios que a média do período; faixas neutras ficam próximas à média; tons vermelhos indicam anos mais quentes (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos.",
+    "explainHydro": "Como ler: cada faixa vertical representa um ano ou janela sazonal da série em ordem cronológica. Tons ocre indicam anos mais secos que a média do período; faixas neutras ficam próximas à média; tons verde-água indicam anos mais úmidos (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos."
+  },
   "investigation": {
     "yearsLabel": "Anos",
     "ciPerYear": "IC 95% (por ano)",
