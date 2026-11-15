@@ -1,4 +1,4 @@
--- EarthTrend Detective — Cloudflare D1 Schema
+-- GeoTrend — Cloudflare D1 Schema (database: earthtrend-db)
 -- Tables for caching raw NASA POWER monthly climatology and persisting shared dossiers.
 
 CREATE TABLE IF NOT EXISTS nasa_cache (
@@ -31,3 +31,19 @@ CREATE TABLE IF NOT EXISTS dossiers (
 
 CREATE INDEX IF NOT EXISTS idx_dossiers_created_at
   ON dossiers (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS ai_cache (
+  cache_key TEXT PRIMARY KEY,
+  stage TEXT NOT NULL,
+  response_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_model_cooldowns (
+  model TEXT PRIMARY KEY,
+  cooldown_until INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  failure_count INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+

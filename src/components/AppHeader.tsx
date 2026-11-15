@@ -1,17 +1,21 @@
 import { useI18n } from "../i18n/i18n";
+import { BrandLogo } from "./BrandLogo";
 import { LanguageToggle } from "./LanguageToggle";
+import { TemperatureUnitToggle } from "./TemperatureUnitToggle";
 
 export type SectionId = "investigation" | "cases";
 
 interface AppHeaderProps {
   onNavigateSection: (id: SectionId) => void;
   onNavigateMethods: () => void;
+  onNavigateExplore: () => void;
   onNavigateHome: () => void;
 }
 
 export function AppHeader({
   onNavigateSection,
   onNavigateMethods,
+  onNavigateExplore,
   onNavigateHome,
 }: AppHeaderProps) {
   const { t } = useI18n();
@@ -22,9 +26,9 @@ export function AppHeader({
         <button
           type="button"
           onClick={onNavigateHome}
-          className="font-display text-base text-text sm:text-lg"
+          className="inline-flex items-center rounded-sm transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
-          {t("nav.wordmark")}
+          <BrandLogo variant="wordmark" tone="dark" label={t("nav.wordmark")} size={24} />
         </button>
 
         <nav className="flex flex-wrap items-center gap-4 font-sans text-sm text-text-muted sm:gap-6">
@@ -45,9 +49,22 @@ export function AppHeader({
           <button type="button" onClick={onNavigateMethods} className="hover:text-text">
             {t("nav.methods")}
           </button>
+          <button
+            type="button"
+            onClick={onNavigateExplore}
+            className="rounded-full border border-accent px-3 py-1 font-mono text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-bg"
+          >
+            {t("nav.explore")}
+          </button>
         </nav>
 
-        <LanguageToggle />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <TemperatureUnitToggle />
+          <span aria-hidden="true" className="text-border">
+            |
+          </span>
+          <LanguageToggle />
+        </div>
       </div>
     </header>
   );

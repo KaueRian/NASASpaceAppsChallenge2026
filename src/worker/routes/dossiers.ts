@@ -1,6 +1,9 @@
 import type { Context } from "hono";
+import { validateCatalogFilterParams } from "../../data/investigations.ts";
 import { aggregateMonthlySeries } from "../../lib/nasa/aggregate.ts";
 import { fetchNasaPowerMonthly } from "../../lib/nasa/powerClient.ts";
+import { normalizeSearchText } from "../../lib/nasa/smartInvestigation.ts";
+import { buildPaginationMetadata, paginateSlice } from "../../lib/pagination.ts";
 import { analyzeTrend } from "../../lib/stats/analyzeTrend.ts";
 import {
   buildNasaCacheKey,
@@ -252,25 +255,160 @@ export async function handleGetDossier(c: Context<{ Bindings: WorkerBindings }>)
   return errorResponse(c, 404, "DOSSIER_NOT_FOUND", "Dossier not found.");
 }
 
+function parseOptionalYearFilter(raw?: string): number | null | "invalid" {
+  if (raw === undefined || raw.trim() === "") return null;
+  const parsed = Number(raw);
+  const maxYear = new Date().getUTCFullYear();
+  if (!Number.isInteger(parsed) || parsed < 1981 || parsed > maxYear) {
+    return "invalid";
+  }
+  return parsed;
+}
+
 export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }>) {
+  const filterValidation = validateCatalogFilterParams({
+    variable: c.req.query("variable"),
+    season: c.req.query("season"),
+    q: c.req.query("q"),
+    limit: c.req.query("limit"),
+    page: c.req.query("page"),
+  });
+
+  if (!filterValidation.ok) {
+    return errorResponse(c, 400, filterValidation.code, filterValidation.message);
+  }
+
+  const startYearFilter = parseOptionalYearFilter(c.req.query("startYear"));
+  const endYearFilter = parseOptionalYearFilter(c.req.query("endYear"));
+  if (
+    startYearFilter === "invalid" ||
+    endYearFilter === "invalid" ||
+    (startYearFilter !== null && endYearFilter !== null && startYearFilter > endYearFilter)
+  ) {
+    return errorResponse(
+      c,
+      400,
+      "INVALID_FILTER",
+      "Invalid startYear/endYear filter for dossiers list.",
+    );
+  }
+
+  const { variable, season, q, limit = 10, page = 1 } = filterValidation.data;
+  const normalizedQ = q ? normalizeSearchText(q) : "";
+
   if (c.env?.DB) {
     await ensureD1Schema(c.env.DB);
     try {
-      const queryResult = await c.env.DB.prepare(
-        "SELECT id, created_at, result_json FROM dossiers ORDER BY created_at DESC LIMIT 10",
-      ).all<DossierRow>();
+      const clauses: string[] = [];
+      const bindings: Array<string | number> = [];
 
-      const items: SavedDossier[] = (queryResult.results ?? []).map((row) => ({
+      if (variable) {
+        clauses.push("variable = ?");
+        bindings.push(variable);
+      }
+      if (season) {
+        clauses.push("season = ?");
+        bindings.push(season);
+      }
+      if (startYearFilter !== null) {
+        clauses.push("start_year >= ?");
+        bindings.push(startYearFilter);
+      }
+      if (endYearFilter !== null) {
+        clauses.push("end_year <= ?");
+        bindings.push(endYearFilter);
+      }
+
+      const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
+      const mapRowToDossier = (row: DossierRow): SavedDossier => ({
         id: row.id,
         createdAt: row.created_at,
         result: JSON.parse(row.result_json) as InvestigationResult,
-      }));
-      return c.json({ ok: true, dossiers: items }, 200);
+      });
+
+      if (normalizedQ) {
+        const scanLimit = Math.min(1000, Math.max(limit * page * 5, 200));
+        const queryResult = await c.env.DB.prepare(
+          `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`,
+        )
+          .bind(...bindings, scanLimit)
+          .all<DossierRow>();
+
+        const matched = (queryResult.results ?? [])
+          .map(mapRowToDossier)
+          .filter((dossier) =>
+            normalizeSearchText(dossier.result.location.label).includes(normalizedQ),
+          );
+        const { items, pagination } = paginateSlice(matched, page, limit);
+        return c.json(
+          {
+            ok: true,
+            total: pagination.totalItems,
+            pagination,
+            dossiers: items,
+          },
+          200,
+        );
+      }
+
+      const countStmt = c.env.DB.prepare(`SELECT COUNT(*) AS total FROM dossiers ${whereSql}`);
+      const countResult = await (bindings.length > 0
+        ? countStmt.bind(...bindings)
+        : countStmt
+      ).all<{ total: number }>();
+      const totalItems = Number(countResult.results?.[0]?.total ?? 0);
+      const pagination = buildPaginationMetadata(totalItems, page, limit);
+      const offset = (pagination.page - 1) * pagination.pageSize;
+
+      const selectSql =
+        offset > 0
+          ? `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+          : `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`;
+      const selectBindings =
+        offset > 0
+          ? [...bindings, pagination.pageSize, offset]
+          : [...bindings, pagination.pageSize];
+
+      const queryResult = await c.env.DB.prepare(selectSql)
+        .bind(...selectBindings)
+        .all<DossierRow>();
+
+      const items = (queryResult.results ?? []).map(mapRowToDossier);
+      return c.json(
+        {
+          ok: true,
+          total: pagination.totalItems,
+          pagination,
+          dossiers: items,
+        },
+        200,
+      );
     } catch {
       // Fall back to in-memory isolate store
     }
   }
 
-  const items = Array.from(memoryDossiers.values()).slice(-10).reverse();
-  return c.json({ ok: true, dossiers: items }, 200);
+  const matched = Array.from(memoryDossiers.values())
+    .reverse()
+    .filter((dossier) => {
+      const { result } = dossier;
+      if (variable && result.variable !== variable) return false;
+      if (season && result.season !== season) return false;
+      if (startYearFilter !== null && result.stats.startYear < startYearFilter) return false;
+      if (endYearFilter !== null && result.stats.endYear > endYearFilter) return false;
+      if (normalizedQ && !normalizeSearchText(result.location.label).includes(normalizedQ)) {
+        return false;
+      }
+      return true;
+    });
+  const { items, pagination } = paginateSlice(matched, page, limit);
+  return c.json(
+    {
+      ok: true,
+      total: pagination.totalItems,
+      pagination,
+      dossiers: items,
+    },
+    200,
+  );
 }

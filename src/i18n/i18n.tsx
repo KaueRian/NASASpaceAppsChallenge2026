@@ -7,14 +7,12 @@ import {
   useMemo,
   useState,
 } from "react";
-import en from "../locales/en.json";
-import pt from "../locales/pt.json";
+import { TemperatureUnitProvider } from "./temperatureUnit";
+import { formatNumberForLocale, type Locale, translateForLocale } from "./translate";
 
-export type Locale = "en" | "pt";
+export { formatNumberForLocale, type Locale, translateForLocale } from "./translate";
 
-const DICTS: Record<Locale, Record<string, unknown>> = { en, pt };
 const STORAGE_KEY = "etd.locale";
-const INTL_LOCALE: Record<Locale, string> = { en: "en-US", pt: "pt-BR" };
 
 function readStoredLocale(): Locale {
   try {
@@ -34,37 +32,6 @@ function persistLocale(locale: Locale): void {
   } catch {
     // ignore — nothing we can do if the write fails/throws
   }
-}
-
-function resolvePath(dict: Record<string, unknown>, path: string): string | undefined {
-  const value = path
-    .split(".")
-    .reduce<unknown>(
-      (node, key) =>
-        typeof node === "object" && node !== null
-          ? (node as Record<string, unknown>)[key]
-          : undefined,
-      dict,
-    );
-  return typeof value === "string" ? value : undefined;
-}
-
-function interpolate(template: string, params?: Record<string, string | number>): string {
-  if (!params) return template;
-  return template.replace(/\{\{(\w+)\}\}/g, (match, name) =>
-    name in params ? String(params[name]) : match,
-  );
-}
-
-function translate(locale: Locale, key: string, params?: Record<string, string | number>): string {
-  const raw = resolvePath(DICTS[locale], key) ?? resolvePath(DICTS.en, key);
-  if (raw === undefined) {
-    if (import.meta.env.DEV) {
-      console.warn(`[i18n] missing key "${key}" in both "${locale}" and "en" dictionaries`);
-    }
-    return key;
-  }
-  return interpolate(raw, params);
 }
 
 interface I18nContextValue {
@@ -89,13 +56,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = useCallback(
-    (key: string, params?: Record<string, string | number>) => translate(locale, key, params),
+    (key: string, params?: Record<string, string | number>) =>
+      translateForLocale(locale, key, params),
     [locale],
   );
 
   const formatNumber = useCallback(
     (value: number, options?: Intl.NumberFormatOptions) =>
-      new Intl.NumberFormat(INTL_LOCALE[locale], options).format(value),
+      formatNumberForLocale(locale, value, options),
     [locale],
   );
 
@@ -104,7 +72,34 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale, setLocale, t, formatNumber],
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return (
+    <I18nContext.Provider value={value}>
+      <TemperatureUnitProvider>{children}</TemperatureUnitProvider>
+    </I18nContext.Provider>
+  );
+}
+
+export function useOptionalI18n(): I18nContextValue | null {
+  return useContext(I18nContext);
+}
+
+export function useResolvedI18n(explicitLocale?: Locale): {
+  locale: Locale;
+  t: (key: string, params?: Record<string, string | number>) => string;
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string;
+} {
+  const ctx = useContext(I18nContext);
+  const resolvedLocale: Locale = explicitLocale ?? ctx?.locale ?? "en";
+
+  if (ctx && resolvedLocale === ctx.locale) {
+    return { locale: ctx.locale, t: ctx.t, formatNumber: ctx.formatNumber };
+  }
+
+  return {
+    locale: resolvedLocale,
+    t: (key, params) => translateForLocale(resolvedLocale, key, params),
+    formatNumber: (value, options) => formatNumberForLocale(resolvedLocale, value, options),
+  };
 }
 
 export function useI18n(): I18nContextValue {

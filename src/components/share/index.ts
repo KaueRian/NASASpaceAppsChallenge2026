@@ -1,14 +1,37 @@
 export {
+  type AcademicCitationFormat,
+  type AcademicCitationOptions,
+  buildAcademicCitation,
   buildCitationText,
   buildDossierCsv,
+  buildSatelliteCitationText,
   downloadDossierCsv,
+  type SatelliteCitationInput,
 } from "../../lib/export/dossierExport.ts";
-export { ClimateStripes, type ClimateStripesProps, getStripeColor } from "./ClimateStripes.tsx";
 export {
+  BirthdayCard,
+  type BirthdayCardCopy,
+  type BirthdayCardProps,
+  downloadBirthdayCardPng,
+  shareBirthdayCardPng,
+} from "./BirthdayCard.tsx";
+export {
+  ClimateStripes,
+  type ClimateStripesProps,
+  computeStripeTooltipAnchor,
+  formatSignedZScore,
+  getPaletteForVariable,
+  getStripeColor,
+  isTemperatureVariable,
+  type StripeTooltipAnchor,
+} from "./ClimateStripes.tsx";
+export {
+  buildQrMatrix,
   downloadEvidenceCardPng,
   EvidenceCard,
   type EvidenceCardAspect,
   type EvidenceCardProps,
+  getEvidenceCardCanvasDimensions,
 } from "./EvidenceCard.tsx";
 export {
   RecentDossiersDrawer,
@@ -21,6 +44,7 @@ export {
   type GibsLayerId,
   latLonToTileXY,
   resolveGibsComparisonWindow,
+  type SatelliteDeepLinkContext,
   SatelliteTimelapse,
   type SatelliteTimelapseProps,
   type SatelliteViewMode,
@@ -30,3 +54,10 @@ export {
   type SharedDossierViewProps,
 } from "./SharedDossierView.tsx";
 export { buildInvestigationDeepLink, ShareSheet, type ShareSheetProps } from "./ShareSheet.tsx";
+export {
+  buildSatellitePngFilename,
+  downloadSatelliteFigurePng,
+  loadCorsSafeTileCanvas,
+  type SatellitePngExportOptions,
+  type SatellitePngExportResult,
+} from "./satelliteExport.ts";

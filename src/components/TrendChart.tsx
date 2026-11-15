@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useI18n } from "../i18n/i18n";
-import { UNIT_SUFFIX } from "../lib/resultDisplay";
+import { useOptionalTemperatureUnit } from "../i18n/temperatureUnit";
+import { convertSeriesForDisplay, getDisplayUnitLabel } from "../lib/temperatureUnit";
 import type { SeriesPoint, VariableId, VariableUnit } from "../types/investigation";
 import { ClimateStripes } from "./share/ClimateStripes";
 
@@ -21,6 +22,7 @@ const PADDING_BOTTOM = 36;
 
 export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) {
   const { t, formatNumber } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ChartViewMode>("line");
 
@@ -28,7 +30,8 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
     return null;
   }
 
-  const allValues = series.flatMap((point) => [point.value, point.trendValue]);
+  const displaySeries = convertSeriesForDisplay(series, unit, tempUnit);
+  const allValues = displaySeries.flatMap((point) => [point.value, point.trendValue]);
   const min = Math.min(...allValues);
   const max = Math.max(...allValues);
   const range = max - min || 1;
@@ -36,24 +39,24 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
   const plotWidth = WIDTH - PADDING_LEFT - PADDING_RIGHT;
   const plotHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
-  const xStep = plotWidth / Math.max(series.length - 1, 1);
+  const xStep = plotWidth / Math.max(displaySeries.length - 1, 1);
   const xAt = (index: number) => PADDING_LEFT + index * xStep;
   const yAt = (value: number) => PADDING_TOP + plotHeight - ((value - min) / range) * plotHeight;
 
-  const observedPoints = series
+  const observedPoints = displaySeries
     .map((point, index) => `${xAt(index)},${yAt(point.value)}`)
     .join(" ");
-  const trendPoints = series
+  const trendPoints = displaySeries
     .map((point, index) => `${xAt(index)},${yAt(point.trendValue)}`)
     .join(" ");
 
-  const first = series[0];
-  const last = series[series.length - 1];
-  const unitSuffix = UNIT_SUFFIX[unit]?.trim() ?? "";
+  const first = displaySeries[0];
+  const last = displaySeries[displaySeries.length - 1];
+  const unitSuffix = getDisplayUnitLabel(unit, tempUnit);
   const formatValue = (value: number) =>
     `${formatNumber(value, { maximumFractionDigits: 1 })}${unitSuffix ? ` ${unitSuffix}` : ""}`;
 
-  const hovered = hoveredIndex !== null ? series[hoveredIndex] : undefined;
+  const hovered = hoveredIndex !== null ? displaySeries[hoveredIndex] : undefined;
   const tooltipLeftPct = hovered ? (xAt(hoveredIndex as number) / WIDTH) * 100 : 0;
   const tooltipTopPct = hovered ? (yAt(hovered.value) / HEIGHT) * 100 : 0;
   const barWidth = Math.max(4, Math.min(12, xStep * 0.68));
@@ -62,19 +65,25 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
   return (
     <div className="relative">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
+        {viewMode === "stripes" ? (
+          <span className="font-mono text-[10px] uppercase tracking-wide text-text-muted">
+            {t("form.viewStripes")}
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
-            {t("chart.legendTrend")}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
-            {t("chart.legendAnomaly")}
-          </span>
-        </div>
+        ) : (
+          <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wide text-text-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-0.5 w-4 bg-text" /> {t("chart.legendObserved")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-0 w-4 border-t-2 border-dashed border-accent" />{" "}
+              {t("chart.legendTrend")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />{" "}
+              {t("chart.legendAnomaly")}
+            </span>
+          </div>
+        )}
 
         <fieldset
           aria-label={t("form.viewAsLabel")}
@@ -104,7 +113,13 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
 
       {viewMode === "stripes" ? (
         <div className="py-2">
-          <ClimateStripes series={series} variable={variable} height={180} tone="dark" />
+          <ClimateStripes
+            series={series}
+            variable={variable}
+            unit={unit}
+            height={180}
+            tone="dark"
+          />
         </div>
       ) : (
         <>
@@ -112,7 +127,12 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             className="w-full"
             role="img"
-            aria-label={`Chart (${viewMode}): observed values${unitSuffix ? ` in ${unitSuffix}` : ""} from ${first.label} to ${last.label}, with the Sen's Slope trend line and marked anomalies.`}
+            aria-label={t("chart.ariaLabel", {
+              mode: viewMode === "line" ? t("form.viewLine") : t("form.viewBars"),
+              unitClause: unitSuffix ? t("chart.unitClause", { unit: unitSuffix }) : "",
+              start: first.label,
+              end: last.label,
+            })}
           >
             {[min, (min + max) / 2, max].map((value) => (
               <g key={value}>
@@ -146,7 +166,7 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
                 strokeWidth={1.5}
               />
             ) : (
-              series.map((point, index) => {
+              displaySeries.map((point, index) => {
                 const topY = yAt(point.value);
                 const barHeight = Math.max(2, baselineY - topY);
                 return (
@@ -173,7 +193,7 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
               strokeDasharray="6 5"
             />
 
-            {series.map((point, index) => (
+            {displaySeries.map((point, index) => (
               <g key={point.year}>
                 {viewMode === "line" && point.isExtremeAnomaly && (
                   <circle

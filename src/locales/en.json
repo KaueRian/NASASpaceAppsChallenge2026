@@ -1,9 +1,12 @@
 {
   "nav": {
-    "wordmark": "EarthTrend Detective",
+    "wordmark": "GeoTrend",
     "investigate": "Investigate",
     "cases": "Cases",
-    "methods": "Methods"
+    "methods": "Methods",
+    "explore": "Explore",
+    "languageLabel": "Language",
+    "temperatureUnitLabel": "Temperature unit"
   },
   "hero": {
     "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · STATISTICAL EVIDENCE ENGINE",
@@ -14,18 +17,132 @@
     "stripesCaption": "Case #01 · Vilhena, RO · Apr–Sep Rainfall Anomaly Barcode (1981–2025 · −234.5 mm · p = 0.000131)"
   },
   "cases": {
-    "sectionTitle": "Featured Cases",
-    "sectionSubtitle": "Four verified 45-year investigations (1981–2025) spanning Vilhena, Rondônia, Brazil, and the Arctic — one for each NASA POWER variable.",
+    "sectionTitle": "Featured Cases & Suggested Investigations",
+    "sectionSubtitle": "20 curated investigations (4 offline benchmark cases + 16 high-demand NASA POWER live probes) with scale, climate variable, and seasonal window filters.",
     "scaleBadge": {
       "local": "Case #01 · Local Host City (Vilhena, RO)",
       "state": "Case #02 · State Scale (Rondônia)",
       "national": "Case #03 · National Scale (Brazil)",
       "global": "Case #04 · Global Benchmark (Arctic)"
     },
+    "scaleShortBadge": {
+      "local": "Southern Cone · RO",
+      "state": "Rondônia & W. Amazon",
+      "national": "Brazil & Biomes",
+      "global": "Global"
+    },
+    "topics": {
+      "agro": "Agro & Crops",
+      "warming": "Thermal Shift",
+      "hydrology": "Water & Soil",
+      "urban": "Urban Heat",
+      "benchmark": "Global Benchmark"
+    },
+    "filters": {
+      "scaleLabel": "Scale",
+      "allScales": "All (20)",
+      "local": "Southern Cone RO",
+      "state": "Rondônia & Amazon",
+      "national": "Brazil & Biomes",
+      "global": "Global",
+      "variableLabel": "Variable",
+      "allVariables": "All variables",
+      "seasonLabel": "Window",
+      "allSeasons": "All windows",
+      "searchLabel": "Search investigation",
+      "searchPlaceholder": "Filter city, biome, or topic (e.g. soy, coffee, COP30)…",
+      "clearButton": "Clear filters",
+      "countSummary": "{{shown}} of {{total}} investigations",
+      "emptyTitle": "No curated investigations match these filters.",
+      "offlineReady": "Offline case",
+      "liveQuery": "Live NASA"
+    },
     "openAction": "Load Investigation",
     "alreadyViewed": "Reviewed",
     "derivedBanner": "Derived from Case #{{id}}",
     "restoreAction": "Restore original case",
+    "catalog": {
+      "ro-cerejeiras": {
+        "title": "Cerejeiras, RO, Brazil",
+        "region": "Agricultural Frontier · Southern Cone of Rondônia",
+        "hook": "Is Apr–Sep transition rainfall also falling along Rondônia's southern soy belt?"
+      },
+      "ro-porto-velho": {
+        "title": "Porto Velho, RO, Brazil",
+        "region": "Madeira River Basin · Capital of Rondônia",
+        "hook": "How strongly has annual mean temperature warmed along the Madeira Basin since 1981?"
+      },
+      "ro-ji-parana": {
+        "title": "Ji-Paraná, RO, Brazil",
+        "region": "Central Rondônia · Machado River Basin",
+        "hook": "Is dry-season root-zone soil wetness declining across central Rondônia pasture basins?"
+      },
+      "ro-cacoal": {
+        "title": "Cacoal, RO, Brazil",
+        "region": "Robusta Coffee Hub · East-Central Rondônia",
+        "hook": "Are warmer tropical nights putting physiological heat pressure on Cacoal's coffee belt?"
+      },
+      "ac-rio-branco": {
+        "title": "Rio Branco, AC, Brazil",
+        "region": "Acre Valley · Southwestern Amazonia",
+        "hook": "Has dry-season heat accelerated in the Southwestern Amazon over the past four decades?"
+      },
+      "am-manaus": {
+        "title": "Manaus, AM, Brazil",
+        "region": "Central Amazonia · Negro–Solimões Confluence",
+        "hook": "Did annual mean air temperatures at the heart of the Amazon cross +1 °C since 1981?"
+      },
+      "pa-belem": {
+        "title": "Belém, PA, Brazil",
+        "region": "Amazon River Delta · COP30 Host City",
+        "hook": "How have minimum night-time temperatures shifted in the Eastern Amazon capital?"
+      },
+      "ba-matopiba": {
+        "title": "Barreiras (MATOPIBA), BA, Brazil",
+        "region": "Western Bahia · Cerrado Agricultural Frontier",
+        "hook": "Has dry-season root-zone soil drying reached critical rates across the MATOPIBA frontier?"
+      },
+      "df-brasilia": {
+        "title": "Brasília, DF, Brazil",
+        "region": "Central Plateau · Cerrado Headwaters",
+        "hook": "Is Central Cerrado dry-season soil moisture losing capacity for basin recharge?"
+      },
+      "mt-sorriso": {
+        "title": "Sorriso, MT, Brazil",
+        "region": "Northern Mato Grosso · Brazil's Grain Capital",
+        "hook": "Contrast case: does Apr–Sep second-crop rainfall in Sorriso show a statistically significant trend?"
+      },
+      "sp-sao-paulo": {
+        "title": "São Paulo, SP, Brazil",
+        "region": "Metropolitan Basin · Southeastern Brazil",
+        "hook": "Are minimum night temperatures persistently rising across South America's largest metropolis?"
+      },
+      "pe-petrolina": {
+        "title": "Petrolina, PE, Brazil",
+        "region": "Lower-Middle São Francisco · Brazilian Semiarid",
+        "hook": "Is annual warming in the Caatinga increasing evaporative demand on irrigated orchards?"
+      },
+      "rs-porto-alegre": {
+        "title": "Porto Alegre, RS, Brazil",
+        "region": "Guaíba Basin · Southern Brazil",
+        "hook": "Contrast case: does warm-season (Oct–Mar) rainfall show a monotonic trend or high volatility?"
+      },
+      "es-sevilla": {
+        "title": "Seville, Spain",
+        "region": "Guadalquivir Valley · Northern Hemisphere Summer",
+        "hook": "How rapidly are Mediterranean boreal summers (Apr–Sep) warming in southern Spain?"
+      },
+      "jp-tokyo": {
+        "title": "Tokyo, Japan",
+        "region": "Kanto Plain · Pacific Megacity",
+        "hook": "How sharply have minimum nocturnal temperatures climbed in East Asia's largest urban corridor?"
+      },
+      "ne-niamey": {
+        "title": "Niamey (Sahel), Niger",
+        "region": "Sahelian Transition Belt · West Africa",
+        "hook": "Does regional air temperature in the West African Sahel show confirmed warming since 1981?"
+      }
+    },
     "01": {
       "title": "Vilhena, RO, Brazil",
       "region": "Southern Amazon–Cerrado Transition (Chapada dos Parecis)",
@@ -151,17 +268,85 @@
     "scanTableTitle": "Multi-variable scan (Benjamini-Hochberg FDR α = 0.05)",
     "scanColVariable": "Variable (Window)",
     "scanColSlope": "Sen's Slope / Decade",
-    "scanColPValue": "Raw p",
+    "scanColPValue": "p-value",
     "scanColQValue": "FDR q-value",
     "scanColAction": "Action",
     "scanLoadAction": "Load",
-    "scanActiveBadge": "Active"
+    "scanActiveBadge": "Active",
+    "scanUnitPerDecade": "/dec"
   },
   "chart": {
     "legendObserved": "Observed",
     "legendTrend": "Sen's trend",
     "legendAnomaly": "Anomaly (|z| > 1.5)",
-    "anomalyTag": "Anomaly"
+    "anomalyTag": "Anomaly",
+    "unitClause": " in {{unit}}",
+    "ariaLabel": "Chart ({{mode}}): observed values{{unitClause}} from {{start}} to {{end}}, with the Sen's Slope trend line and marked anomalies."
+  },
+  "stripes": {
+    "ariaLabel": "Climate anomaly stripes from {{start}} to {{end}}",
+    "captionLabel": "ANOMALY STRIPES (Z-SCORE)",
+    "zScoreLabel": "z = {{z}}",
+    "extremeAnomalyTag": "Extreme anomaly (|z| > 1.5)",
+    "scaleLowTemp": "Cooler (−z)",
+    "scaleHighTemp": "Warmer (+z)",
+    "scaleLowHydro": "Drier (−z)",
+    "scaleHighHydro": "Wetter (+z)",
+    "scaleMean": "Mean (z ≈ 0)",
+    "explainTemp": "How to read: each vertical stripe represents one year in chronological order. Blue tones indicate years cooler than the period mean; neutral stripes sit near the mean; crimson tones mark warmer years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values.",
+    "explainHydro": "How to read: each vertical stripe represents one year or seasonal window in chronological order. Ochre tones indicate years drier than the period mean; neutral stripes sit near the mean; teal tones mark wetter years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values."
+  },
+  "share": {
+    "sheetAriaLabel": "Export and Share Forensic Evidence Card",
+    "eyebrow": "EVIDENCE EXPORT · SHARE DOSSIER",
+    "title": "Evidence Card & Data Export",
+    "closeButton": "ESC / CLOSE",
+    "aspectStory": "Story 9:16",
+    "aspectSquare": "Square 1:1",
+    "aspectSlide": "Slide 16:9",
+    "aspectPaper": "Paper / Article",
+    "citationFormatLabel": "Citation format",
+    "citationFormats": {
+      "summary": "Summary",
+      "abnt": "ABNT",
+      "apa": "APA",
+      "bibtex": "BibTeX"
+    },
+    "copyAcademicCitation": "Copy {{format}} Citation",
+    "citationCopiedLabel": "Citation Copied ({{format}})!",
+    "savingLink": "Saving…",
+    "nativeShare": "Share…",
+    "nativeShareSummary": "{{location}} ({{variable}}, {{startYear}}–{{endYear}}): {{verdict}}",
+    "card": {
+      "headerLabel": "GEOTREND · CASE FILE",
+      "pngHeaderLabel": "GEOTREND // FORENSIC CASE FILE",
+      "academicHeader": "GEOTREND // SCIENTIFIC FIGURE",
+      "figureCaption": "Fig. — {{location}} ({{startYear}}–{{endYear}})",
+      "totalShiftDom": "TOTAL SHIFT ({{nYears}} YRS)",
+      "totalShiftPng": "TOTAL SHIFT ({{nYears}} YEARS)",
+      "senSlopeDom": "SEN'S SLOPE / DECADE",
+      "senSlopePng": "SEN'S SLOPE PER DECADE",
+      "senSlopeCi": "95% CI: {{low}} to {{high}} {{unit}}/dec",
+      "mannKendallPValue": "MANN-KENDALL P-VALUE",
+      "mannKendallStats": "MK: S = {{s}}, Z = {{z}}, p = {{p}}",
+      "rSquaredLabel": "OLS R²",
+      "sampleSizeLabel": "SAMPLE (N)",
+      "sampleYearsValue": "{{n}} years",
+      "confidenceDom": "CONFIDENCE",
+      "confidencePng": "STATISTICAL CONFIDENCE",
+      "inconclusive": "Inconclusive",
+      "coordinates": "COORDINATES",
+      "sourcePrefix": "SOURCE:",
+      "retrievedPrefix": "RETRIEVED:",
+      "pngDataLine": "DATA: {{provider}} ({{retrievedAt}})",
+      "causationCaveat": "Observational trend (MERRA-2 ~50 km grid). Correlation ≠ causation; does not isolate local vs. global drivers.",
+      "qrAriaLabel": "Case file verification code",
+      "verdictShort": {
+        "STRONG_EVIDENCE": "STRONG EVIDENCE",
+        "EVIDENCE_CONFIRMED": "EVIDENCE CONFIRMED",
+        "INSUFFICIENT_EVIDENCE": "INSUFFICIENT EVIDENCE"
+      }
+    }
   },
   "investigation": {
     "yearsLabel": "Years",
@@ -187,17 +372,87 @@
     "INVALID_COORDINATES": "Invalid coordinates. Enter latitude between -90 and 90 and longitude between -180 and 180.",
     "INVALID_VARIABLE": "Select one of the four supported NASA POWER variables (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Select a valid seasonal window (Annual, Oct–Mar, or Apr–Sep).",
+    "INVALID_FILTER": "Invalid filter parameter supplied for investigations or dossiers query.",
     "INSUFFICIENT_YEARS": "Fewer than 15 complete seasonal years are available in this range. Expand the year span to run Mann-Kendall.",
     "NO_DATA_ALL_MISSING": "No valid observations available here (NASA POWER returned -999 missing values, e.g. root-zone soil wetness over open ocean).",
     "NASA_UPSTREAM_TIMEOUT": "The NASA POWER archive took too long to respond. Please try again in a few seconds.",
     "NASA_UPSTREAM_ERROR": "Could not reach the NASA POWER / MERRA-2 service right now. Featured Cases remain available offline.",
     "GEOCODE_NOT_FOUND": "No matching municipality or location found. Try another name or enter latitude and longitude directly.",
     "DOSSIER_NOT_FOUND": "This shared investigation link could not be found.",
-    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin."
+    "EMPTY_SEARCH": "Select a Featured Case below or enter any coordinates on Earth to begin.",
+    "INVALID_BIRTH_DATE": "Enter a real calendar date, not in the future, and no earlier than 1900."
+  },
+  "explore": {
+    "hub": {
+      "title": "Explore",
+      "subtitle": "Interactive ways to experience 45 years of NASA climate evidence.",
+      "comingSoonBadge": "Coming soon",
+      "timelineTeaser": "Birth date + city → your personal climate story, ready to share.",
+      "comingSoon1": "World Cups",
+      "comingSoon2": "Music & Climate"
+    },
+    "timeline": {
+      "navCard": "Your Timeline",
+      "title": "Your Climate Since Birth",
+      "subtitle": "Enter your birth date and city — we scan all 4 NASA POWER variables for your birth month, across every year since you were born, and report which one moved the most.",
+      "birthDateLabel": "Birth date",
+      "locationLabel": "City",
+      "locationPlaceholder": "Your city",
+      "useLocationButton": "Use my location",
+      "locatingButton": "Locating…",
+      "submitButton": "→ Reveal your climate",
+      "runningButton": "Scanning 4 variables…",
+      "backToHub": "← Back to Explore",
+      "stepBack": "← Back",
+      "stepNext": "Next →",
+      "scanningTitle": "Scanning your climate…",
+      "scanningSubtitle": "Checking 4 NASA variables for your birth month, across every year since you were born.",
+      "detectiveLinkFromShare": "🔍 Modo Detetive — see the full science",
+      "coverageNote": "NASA POWER satellite coverage starts in 1981, so the analysis runs from {{effectiveStartYear}}, not your literal birth year.",
+      "cardTitle": "BIRTH CASE FILE",
+      "cardEveryMonth": "every {{month}}",
+      "cardTagline": "SINCE I WAS BORN · {{location}}, {{year}}",
+      "statCaption": {
+        "warming": "warmer since {{startYear}}",
+        "cooling": "cooler since {{startYear}}",
+        "wetter": "wetter since {{startYear}}",
+        "drier": "drier since {{startYear}}",
+        "neutral": "no clear change since {{startYear}}"
+      },
+      "chartCaption": "Each bar is one year — stronger colors mark the years furthest from normal.",
+      "headline": {
+        "warming": "Every {{month}} since {{startYear}}, {{location}} has warmed by {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "cooling": "Every {{month}} since {{startYear}}, {{location}} has cooled by {{totalChange}} {{unit}} ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "wetter": "Every {{month}} since {{startYear}}, {{location}} has gotten {{totalChange}} {{unit}} wetter ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "drier": "Every {{month}} since {{startYear}}, {{location}} has gotten {{totalChange}} {{unit}} drier ({{perDecade}} {{unit}}/decade, p = {{pValue}}).",
+        "neutral": "No statistically significant trend was found for {{month}} in {{location}} since {{startYear}} (p = {{pValue}})."
+      },
+      "badge": {
+        "STRONG_EVIDENCE": "Strong evidence",
+        "EVIDENCE_CONFIRMED": "Evidence confirmed",
+        "INSUFFICIENT_EVIDENCE": "Insufficient evidence"
+      },
+      "rarityFraming": "This is one of the strongest birth-month climate shifts we measure — most results we see are weaker than this.",
+      "detectiveToggle": "Modo Detetive — full statistical case file",
+      "detectiveIntro": "This is the full evidence behind the result: we checked all 4 climate variables NASA measures for your birth month — temperature, overnight minimum temperature, rainfall, and soil moisture — to see which one changed the most since you were born.",
+      "scanTableTitle": "All 4 variables scanned (Benjamini-Hochberg FDR adjusted)",
+      "scanColVariable": "Variable",
+      "scanColSlope": "Per decade",
+      "scanColPValue": "p-value",
+      "scanColQValue": "FDR q-value",
+      "legendTitle": "How to read this table",
+      "legendStar": "★ — the variable with the strongest change, the one used for the main result",
+      "legendPerDecade": "Per decade — how much it changed every 10 years",
+      "legendPValue": "p-value — the lower, the less likely this is just random coincidence",
+      "legendQValue": "FDR q-value — the p-value adjusted for checking 4 variables at once; ✓ means it still holds up",
+      "causationLabel": "Important caveat",
+      "variableLabel": "Variable",
+      "periodLabel": "Period"
+    }
   },
   "methods": {
     "title": "Scientific Methodology & Limitations",
-    "subtitle": "How EarthTrend Detective processes NASA POWER / MERRA-2 records and evaluates statistical significance.",
+    "subtitle": "How GeoTrend processes NASA POWER / MERRA-2 records and evaluates statistical significance.",
     "teaser": "Every result here comes from the same NASA data and the same two statistical tests, explained in full on the",
     "backToHome": "← Back to Investigation",
     "nasaData": {
@@ -232,7 +487,7 @@
       "gridItem": "MERRA-2 Spatial Grid (~50 km): Values represent a ~0.5° × 0.625° regional grid cell, not an isolated farm rain gauge or urban microclimate station.",
       "causationItem": "Correlation vs. Causation: A statistically significant Mann-Kendall p-value proves that a directional shift occurred in the observed series above random noise; it does not isolate whether the driver is global greenhouse forcing, regional deforestation, or decadal ocean oscillations.",
       "regionalItem": "Regional Contrast & Amazon Context: Global climate change does not act uniformly — different regions and seasons can warm or dry at distinct rates. In Rondônia and the Pantanal, pairing NASA POWER climate trends with land-use series (such as MapBiomas) supports environmental education and territorial planning aligned with UN SDGs 6 (Clean Water), 13 (Climate Action), and 15 (Life on Land).",
-      "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. EarthTrend Detective enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
+      "autocorrelationItem": "Serial Autocorrelation & Minimum Record Length: Positive lag-1 autocorrelation (`r1`) can inflate Z-scores in short records. GeoTrend enforces a strict 15-year minimum (`n ≥ 15`) and flags records shorter than 30 years or with high lag-1 autocorrelation."
     }
   },
   "satellite": {
@@ -251,18 +506,35 @@
     "archiveNote": "MODIS Terra imagery begins in 2000 (climatology selected starts in {{startYear}}).",
     "play": "Play Timelapse",
     "pause": "Pause",
+    "buffering": "Buffering frames ({{ready}}/{{total}})…",
+    "preloadProgress": "Preloading NASA GIBS imagery: {{ready}} / {{total}} years",
+    "preloadReady": "{{total}} / {{total}} years ready · Smooth playback available",
+    "frameUpdating": "Updating {{year}}…",
     "worldviewLink": "Open in NASA Worldview ↗",
     "tileAlt": "NASA MODIS {{layer}} satellite tile for {{year}}",
     "zoomOut": "Zoom out",
     "zoomIn": "Zoom in",
-    "zoomLabel": "Zoom {{zoom}}x"
+    "zoomLabel": "Zoom {{zoom}}x",
+    "shareTitle": "Share & Export Satellite Evidence",
+    "downloadPng": "Download Satellite PNG",
+    "downloadingPng": "Rendering PNG…",
+    "copyCitation": "Copy Satellite Citation",
+    "citationCopied": "Citation Copied!",
+    "copyLink": "Copy Satellite Link",
+    "linkCopied": "Satellite Link Copied!",
+    "nativeShare": "Share…",
+    "nativeShareSummary": "{{location}} — NASA MODIS Terra ({{layer}}, {{period}}) via GeoTrend",
+    "pngFallbackNotice": "CORS mosaic preview fallback — open NASA Worldview for full-resolution tiles",
+    "figureHeader": "GEOTREND // ORBITAL EVIDENCE",
+    "figureAttribution": "Imagery: NASA GIBS / MODIS Terra · GeoTrend Dossier"
   },
   "dossier": {
     "recentButton": "Recent dossiers",
     "recentClose": "Close recent dossiers",
-    "recentTitle": "Recent shared dossiers (D1)",
+    "recentTitle": "Recent shared dossiers",
     "recentLoading": "Loading archived dossiers…",
-    "recentEmpty": "No shared dossiers saved in D1 yet.",
+    "recentEmpty": "No shared dossiers saved yet.",
+    "recentError": "Could not load recent dossiers right now.",
     "recentInspect": "Load in console",
     "recentOpenLink": "Permalink",
     "sharedLoading": "Retrieving archived dossier {{id}}…",
@@ -271,5 +543,83 @@
     "sharedBackHome": "← Return to Case Board",
     "sharedBadge": "READ-ONLY ARCHIVED DOSSIER · ID {{id}}",
     "sharedOpenNew": "Open your own investigation →"
+  },
+  "ai": {
+    "eyebrow": "ASK IN PLAIN LANGUAGE · NASA POWER + AI",
+    "inputLabel": "Ask a climate investigation question",
+    "placeholder": "e.g., Is Vilhena's dry season losing rainfall since 1990?",
+    "submitButton": "Investigate with AI",
+    "runningButton": "Investigating…",
+    "examplesLabel": "Try asking:",
+    "examples": {
+      "vilhenaDry": "Is Vilhena's dry season getting drier since 1990?",
+      "ariquemesNights": "Are night-time temperatures rising in Ariquemes?",
+      "manausScan": "Which climate variables changed significantly in Manaus?",
+      "arcticCompare": "How fast has Svalbard warmed since 1981?"
+    },
+    "steps": {
+      "translate": "1. AI Filters",
+      "compute": "2. NASA + Mann-Kendall",
+      "interpret": "3. AI Synthesis"
+    },
+    "stepStatuses": {
+      "pending": "Waiting",
+      "running": "Running…",
+      "doneAi": "Done · AI",
+      "doneData": "Done · Real data",
+      "doneLocal": "Local mode · no AI",
+      "skipped": "Not executed",
+      "failed": "Failed"
+    },
+    "activeSummaryLabel": "Active filters",
+    "openAdvancedFilters": "Advanced / Edit filters manually",
+    "hideAdvancedFilters": "Hide manual filters",
+    "scanAppliedBadge": "4-var FDR scan",
+    "outOfScopeTitle": "Outside historical trend scope",
+    "limitationTitle": "Closest supported filter applied",
+    "tryValidQuestion": "Try a supported investigation:",
+    "errorTitle": "AI assistant unavailable right now",
+    "openManualRecovery": "Open manual filters (Advanced)",
+    "fallbackTitle": "Local mode active (no AI)",
+    "fallbackBody": "The AI service did not respond right now. Local steps used deterministic rules and verified NASA POWER calculations.",
+    "errors": {
+      "AI_INVALID_REQUEST": "Enter a concise climate question (up to 500 characters).",
+      "AI_NOT_CONFIGURED": "AI service is not configured on this server yet. You can still investigate using manual filters in Advanced.",
+      "AI_RATE_LIMITED": "AI rate limit reached temporarily. Please wait a moment or use Advanced filters manually.",
+      "AI_TIMEOUT": "The AI service took too long to respond. Please retry or adjust filters manually in Advanced.",
+      "AI_UPSTREAM_ERROR": "Could not reach the AI service right now. Manual NASA POWER filters remain available in Advanced.",
+      "AI_BAD_RESPONSE": "The AI returned an unexpected structure. Please rephrase or adjust filters in Advanced."
+    },
+    "synthesisTitle": "AI Scientific Synthesis",
+    "synthesisSourceAi": "AI",
+    "synthesisSourceLocal": "Local Statistical Summary (no AI)",
+    "synthesisCached": "Cached",
+    "findingsTitle": "Observed Statistical Findings",
+    "hypothesesTitle": "Plausible Scientific Hypotheses (Not Proven Causes)",
+    "followUpTitle": "Suggested follow-up investigations",
+    "layer1DetailsTitle": "Structured Investigation Parameters",
+    "layer1Hypothesis": "Initial hypothesis",
+    "layer1Reasoning": "Filter selection rationale",
+    "filterLabels": {
+      "location": "Location",
+      "variable": "Variable",
+      "season": "Seasonal window",
+      "period": "Period",
+      "multiScan": "4-variable scan"
+    },
+    "filterValues": {
+      "yes": "Enabled",
+      "no": "Single variable",
+      "currentLocation": "Current selected location"
+    },
+    "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
+  },
+  "pagination": {
+    "summary": "Showing {{start}}–{{end}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "pageLabel": "Page {{page}}",
+    "casesNavLabel": "Investigations pagination",
+    "dossiersNavLabel": "Recent dossiers pagination"
   }
 }

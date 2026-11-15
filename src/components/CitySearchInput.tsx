@@ -8,6 +8,14 @@ interface CitySearchInputProps {
   onSelect: (candidate: GeocodeCandidate) => void;
   onPickOnMap?: () => void;
   className?: string;
+  /** Overrides the default `form.locationPlaceholder` i18n key for contexts that need shorter,
+   * more specific copy (e.g. a birth-city field doesn't need the "or paste lat, lon" hint). */
+  placeholder?: string;
+  /** Whether to show the curated quick-location list (Vilhena/Ariquemes/etc.) before the user
+   * types anything. Defaults to `true` (the main Investigation form's intended behavior); set
+   * `false` for a general/worldwide context where those Rondônia-specific presets wouldn't make
+   * sense as defaults — there, nothing is suggested until the user actually starts typing. */
+  showQuickSuggestions?: boolean;
 }
 
 export function CitySearchInput({
@@ -15,12 +23,14 @@ export function CitySearchInput({
   onSelect,
   onPickOnMap,
   className,
+  placeholder,
+  showQuickSuggestions = true,
 }: CitySearchInputProps) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [candidates, setCandidates] = useState<GeocodeCandidate[]>(() =>
-    getQuickCitySuggestions(""),
+    showQuickSuggestions ? getQuickCitySuggestions("") : [],
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
@@ -39,7 +49,7 @@ export function CitySearchInput({
     const trimmed = query.trim();
     if (trimmed.length < 3) {
       searchAbortRef.current?.abort();
-      setCandidates(getQuickCitySuggestions(trimmed));
+      setCandidates(showQuickSuggestions ? getQuickCitySuggestions(trimmed) : []);
       return;
     }
 
@@ -59,7 +69,7 @@ export function CitySearchInput({
     }, 300);
 
     return () => clearTimeout(handle);
-  }, [query]);
+  }, [query, showQuickSuggestions]);
 
   const selectCandidate = (candidate: GeocodeCandidate) => {
     onSelect(candidate);
@@ -88,7 +98,7 @@ export function CitySearchInput({
             }
           }
         }}
-        placeholder={currentLabel ?? t("form.locationPlaceholder")}
+        placeholder={currentLabel ?? placeholder ?? t("form.locationPlaceholder")}
         className="w-full border-b border-accent bg-transparent px-1 py-0.5 font-display text-lg text-text placeholder:text-text focus:placeholder:text-text-muted focus:outline-none"
       />
       {isOpen && (candidates.length > 0 || onPickOnMap) && (

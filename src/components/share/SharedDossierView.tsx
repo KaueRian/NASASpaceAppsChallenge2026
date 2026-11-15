@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "../../i18n/i18n.tsx";
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
+import type { SatelliteDeepLinkState } from "../../lib/routing.ts";
 import type { SavedDossier } from "../../types/investigation.ts";
 import { EvidenceCard } from "./EvidenceCard.tsx";
 import { SatelliteTimelapse } from "./SatelliteTimelapse.tsx";
 
 export interface SharedDossierViewProps {
   dossierId: string;
+  initialSatellite?: SatelliteDeepLinkState;
   onStartNewInvestigation?: () => void;
 }
 
-export function SharedDossierView({ dossierId, onStartNewInvestigation }: SharedDossierViewProps) {
+export function SharedDossierView({
+  dossierId,
+  initialSatellite,
+  onStartNewInvestigation,
+}: SharedDossierViewProps) {
   const { t } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [dossier, setDossier] = useState<SavedDossier | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -107,7 +115,12 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
       </div>
 
       <div className="flex justify-center overflow-x-auto">
-        <EvidenceCard result={dossier.result} aspect="story" shortUrl={permalink} />
+        <EvidenceCard
+          result={dossier.result}
+          aspect="story"
+          shortUrl={permalink}
+          tempUnit={tempUnit}
+        />
       </div>
 
       <SatelliteTimelapse
@@ -115,6 +128,10 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
         startYear={dossier.result.stats.startYear}
         endYear={dossier.result.stats.endYear}
         defaultExpanded
+        initialMode={initialSatellite?.mode}
+        initialLayer={initialSatellite?.layer}
+        initialYear={initialSatellite?.year}
+        deepLinkContext={{ dossierId: dossier.id }}
       />
     </section>
   );
