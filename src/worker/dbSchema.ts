@@ -50,6 +50,17 @@ export async function ensureD1Schema(db?: D1Database): Promise<void> {
         )`,
       )
       .run();
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS ai_model_cooldowns (
+          model TEXT PRIMARY KEY,
+          cooldown_until INTEGER NOT NULL,
+          reason TEXT NOT NULL,
+          failure_count INTEGER NOT NULL DEFAULT 1,
+          updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )`,
+      )
+      .run();
     schemaInitialized = true;
   } catch {
     // Mock D1 instances in unit tests may only implement targeted prepared statements; ignore safely.

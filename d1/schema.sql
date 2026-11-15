@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS ai_cache (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS ai_model_cooldowns (
+  model TEXT PRIMARY KEY,
+  cooldown_until INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  failure_count INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
