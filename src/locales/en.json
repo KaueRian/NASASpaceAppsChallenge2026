@@ -582,5 +582,13 @@
       "currentLocation": "Current selected location"
     },
     "staleNotice": "Filters were changed manually; run a new AI question to refresh the narrative."
+  },
+  "pagination": {
+    "summary": "Showing {{start}}–{{end}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "pageLabel": "Page {{page}}",
+    "casesNavLabel": "Investigations pagination",
+    "dossiersNavLabel": "Recent dossiers pagination"
   }
 }

@@ -582,5 +582,13 @@
       "currentLocation": "Local atual selecionado"
     },
     "staleNotice": "Os filtros foram ajustados manualmente; faça uma nova pergunta à IA para atualizar a síntese."
+  },
+  "pagination": {
+    "summary": "Mostrando {{start}}–{{end}} de {{total}}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "pageLabel": "Página {{page}}",
+    "casesNavLabel": "Paginação de investigações",
+    "dossiersNavLabel": "Paginação de dossiês recentes"
   }
 }

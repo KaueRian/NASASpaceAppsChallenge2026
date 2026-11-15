@@ -7,6 +7,7 @@ import {
 } from "../data/investigations";
 import { CASE_PRESETS } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
+import { clampPage, paginateSlice } from "../lib/pagination";
 import { DIRECTION_ARROW, DIRECTION_COLOR } from "../lib/resultDisplay";
 import { roundCoord, type ValidatedInvestigateQuery } from "../lib/validation/investigate";
 import {
@@ -19,10 +20,14 @@ import {
   VARIABLE_IDS,
   type VariableId,
 } from "../types/investigation";
+import { PaginationControls } from "./PaginationControls";
+
+export const CASES_PAGE_SIZE = 8;
 
 interface CasesGridProps {
   activePresetId: CasePresetId;
   activeLiveQuery?: ValidatedInvestigateQuery | null;
+  initialPage?: number;
   onSelectPreset: (id: CasePresetId) => void;
   onSelectInvestigation?: (query: ValidatedInvestigateQuery) => void;
 }
@@ -81,6 +86,7 @@ function isCatalogItemActive(
 export function CasesGrid({
   activePresetId,
   activeLiveQuery = null,
+  initialPage = 1,
   onSelectPreset,
   onSelectInvestigation,
 }: CasesGridProps) {
@@ -92,6 +98,9 @@ export function CasesGrid({
   const [variableFilter, setVariableFilter] = useState<"all" | VariableId>("all");
   const [seasonFilter, setSeasonFilter] = useState<"all" | SeasonId>("all");
   const [searchFilter, setSearchFilter] = useState("");
+  const [page, setPage] = useState<number>(() =>
+    clampPage(initialPage, Math.ceil(INVESTIGATION_CATALOG.length / CASES_PAGE_SIZE)),
+  );
 
   useEffect(() => {
     if (!activeLiveQuery) {
@@ -116,6 +125,16 @@ export function CasesGrid({
       ])
     : [...INVESTIGATION_CATALOG];
 
+  const totalPages = Math.ceil(filteredItems.length / CASES_PAGE_SIZE);
+  const safePage = clampPage(page, totalPages);
+  const { items: pagedItems, pagination } = paginateSlice(filteredItems, safePage, CASES_PAGE_SIZE);
+
+  useEffect(() => {
+    if (page !== safePage) {
+      setPage(safePage);
+    }
+  }, [page, safePage]);
+
   const hasActiveFilters =
     scaleFilter !== "all" ||
     variableFilter !== "all" ||
@@ -127,6 +146,7 @@ export function CasesGrid({
     setVariableFilter("all");
     setSeasonFilter("all");
     setSearchFilter("");
+    setPage(1);
   };
 
   const handleCardSelect = (item: CatalogInvestigation) => {
@@ -170,7 +190,10 @@ export function CasesGrid({
                 key={scaleOption}
                 type="button"
                 aria-pressed={selected}
-                onClick={() => setScaleFilter(scaleOption)}
+                onClick={() => {
+                  setScaleFilter(scaleOption);
+                  setPage(1);
+                }}
                 className={`border px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide transition-colors motion-reduce:transition-none ${
                   selected
                     ? "border-accent bg-bg text-accent"
@@ -187,7 +210,10 @@ export function CasesGrid({
           <select
             aria-label={t("cases.filters.variableLabel")}
             value={variableFilter}
-            onChange={(e) => setVariableFilter(e.target.value as "all" | VariableId)}
+            onChange={(e) => {
+              setVariableFilter(e.target.value as "all" | VariableId);
+              setPage(1);
+            }}
             className="border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text"
           >
             <option value="all">{t("cases.filters.allVariables")}</option>
@@ -201,7 +227,10 @@ export function CasesGrid({
           <select
             aria-label={t("cases.filters.seasonLabel")}
             value={seasonFilter}
-            onChange={(e) => setSeasonFilter(e.target.value as "all" | SeasonId)}
+            onChange={(e) => {
+              setSeasonFilter(e.target.value as "all" | SeasonId);
+              setPage(1);
+            }}
             className="border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text"
           >
             <option value="all">{t("cases.filters.allSeasons")}</option>
@@ -216,7 +245,10 @@ export function CasesGrid({
             type="search"
             aria-label={t("cases.filters.searchLabel")}
             value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
+            onChange={(e) => {
+              setSearchFilter(e.target.value);
+              setPage(1);
+            }}
             placeholder={t("cases.filters.searchPlaceholder")}
             className="min-w-44 flex-1 border border-border bg-bg px-2.5 py-1.5 font-sans text-xs text-text placeholder:text-text-muted focus:border-accent focus:outline-none"
           />
@@ -245,73 +277,83 @@ export function CasesGrid({
           </button>
         </div>
       ) : (
-        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredItems.map((item) => {
-            const preset = item.presetId
-              ? CASE_PRESETS.find((candidate) => candidate.id === item.presetId)
-              : undefined;
-            const isActive = isCatalogItemActive(item, activePresetId, activeLiveQuery);
-            const isViewed = item.presetId ? viewedIds.includes(item.presetId) : false;
+        <>
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {pagedItems.map((item) => {
+              const preset = item.presetId
+                ? CASE_PRESETS.find((candidate) => candidate.id === item.presetId)
+                : undefined;
+              const isActive = isCatalogItemActive(item, activePresetId, activeLiveQuery);
+              const isViewed = item.presetId ? viewedIds.includes(item.presetId) : false;
 
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleCardSelect(item)}
-                aria-pressed={isActive}
-                className={`flex flex-col justify-between border px-4 py-3.5 text-left transition-colors motion-reduce:transition-none ${
-                  isActive ? "border-accent bg-surface" : "border-border hover:border-text-muted"
-                }`}
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-mono text-[11px] text-text-muted">
-                      {item.presetId
-                        ? t(`cases.scaleBadge.${SCALE_BADGE_KEY[item.presetId]}`)
-                        : `${t(`cases.scaleShortBadge.${item.scale}`)} · ${t(`cases.topics.${item.topic}`)}`}
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleCardSelect(item)}
+                  aria-pressed={isActive}
+                  className={`flex flex-col justify-between border px-4 py-3.5 text-left transition-colors motion-reduce:transition-none ${
+                    isActive ? "border-accent bg-surface" : "border-border hover:border-text-muted"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-mono text-[11px] text-text-muted">
+                        {item.presetId
+                          ? t(`cases.scaleBadge.${SCALE_BADGE_KEY[item.presetId]}`)
+                          : `${t(`cases.scaleShortBadge.${item.scale}`)} · ${t(`cases.topics.${item.topic}`)}`}
+                      </p>
+                      {isViewed ? (
+                        <span className="shrink-0 border border-border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                          ✓ {t("cases.alreadyViewed")}
+                        </span>
+                      ) : (
+                        <span className="shrink-0 border border-border/70 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                          {t(
+                            item.presetId
+                              ? "cases.filters.offlineReady"
+                              : "cases.filters.liveQuery",
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1.5 font-display text-base text-text">{t(item.titleKey)}</p>
+                    <p className="mt-0.5 font-mono text-[10px] text-text-muted">
+                      {t(item.regionKey)}
                     </p>
-                    {isViewed ? (
-                      <span className="shrink-0 border border-border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                        ✓ {t("cases.alreadyViewed")}
-                      </span>
-                    ) : (
-                      <span className="shrink-0 border border-border/70 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                        {t(
-                          item.presetId ? "cases.filters.offlineReady" : "cases.filters.liveQuery",
-                        )}
-                      </span>
-                    )}
+                    <p className="mt-2 font-sans text-xs leading-relaxed text-text-muted">
+                      {t(item.hookKey)}
+                    </p>
                   </div>
-                  <p className="mt-1.5 font-display text-base text-text">{t(item.titleKey)}</p>
-                  <p className="mt-0.5 font-mono text-[10px] text-text-muted">
-                    {t(item.regionKey)}
-                  </p>
-                  <p className="mt-2 font-sans text-xs leading-relaxed text-text-muted">
-                    {t(item.hookKey)}
-                  </p>
-                </div>
 
-                <div className="mt-3 border-t border-border/50 pt-2">
-                  {preset ? (
-                    <p
-                      className={`font-mono text-[11px] uppercase tracking-wide ${DIRECTION_COLOR[preset.result.stats.direction]}`}
-                    >
-                      {DIRECTION_ARROW[preset.result.stats.direction]}{" "}
-                      {t(`variables.${item.variable}.shortLabel`)}
+                  <div className="mt-3 border-t border-border/50 pt-2">
+                    {preset ? (
+                      <p
+                        className={`font-mono text-[11px] uppercase tracking-wide ${DIRECTION_COLOR[preset.result.stats.direction]}`}
+                      >
+                        {DIRECTION_ARROW[preset.result.stats.direction]}{" "}
+                        {t(`variables.${item.variable}.shortLabel`)}
+                      </p>
+                    ) : (
+                      <p className="font-mono text-[11px] uppercase tracking-wide text-accent">
+                        → {t(`variables.${item.variable}.shortLabel`)}
+                      </p>
+                    )}
+                    <p className="mt-0.5 font-mono text-[10px] text-text-muted">
+                      {t(`seasons.${item.season}`)} · {item.startYear}–{item.endYear}
                     </p>
-                  ) : (
-                    <p className="font-mono text-[11px] uppercase tracking-wide text-accent">
-                      → {t(`variables.${item.variable}.shortLabel`)}
-                    </p>
-                  )}
-                  <p className="mt-0.5 font-mono text-[10px] text-text-muted">
-                    {t(`seasons.${item.season}`)} · {item.startYear}–{item.endYear}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={setPage}
+            ariaLabel={t("pagination.casesNavLabel")}
+          />
+        </>
       )}
     </section>
   );

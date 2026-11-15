@@ -3,6 +3,7 @@ import { validateCatalogFilterParams } from "../../data/investigations.ts";
 import { aggregateMonthlySeries } from "../../lib/nasa/aggregate.ts";
 import { fetchNasaPowerMonthly } from "../../lib/nasa/powerClient.ts";
 import { normalizeSearchText } from "../../lib/nasa/smartInvestigation.ts";
+import { buildPaginationMetadata, paginateSlice } from "../../lib/pagination.ts";
 import { analyzeTrend } from "../../lib/stats/analyzeTrend.ts";
 import {
   buildNasaCacheKey,
@@ -270,6 +271,7 @@ export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }
     season: c.req.query("season"),
     q: c.req.query("q"),
     limit: c.req.query("limit"),
+    page: c.req.query("page"),
   });
 
   if (!filterValidation.ok) {
@@ -291,7 +293,7 @@ export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }
     );
   }
 
-  const { variable, season, q, limit = 10 } = filterValidation.data;
+  const { variable, season, q, limit = 10, page = 1 } = filterValidation.data;
   const normalizedQ = q ? normalizeSearchText(q) : "";
 
   if (c.env?.DB) {
@@ -318,32 +320,75 @@ export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }
       }
 
       const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
-      const sqlLimit = normalizedQ ? Math.max(limit * 5, 50) : limit;
-      const queryResult = await c.env.DB.prepare(
-        `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`,
-      )
-        .bind(...bindings, sqlLimit)
+      const mapRowToDossier = (row: DossierRow): SavedDossier => ({
+        id: row.id,
+        createdAt: row.created_at,
+        result: JSON.parse(row.result_json) as InvestigationResult,
+      });
+
+      if (normalizedQ) {
+        const scanLimit = Math.min(1000, Math.max(limit * page * 5, 200));
+        const queryResult = await c.env.DB.prepare(
+          `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`,
+        )
+          .bind(...bindings, scanLimit)
+          .all<DossierRow>();
+
+        const matched = (queryResult.results ?? [])
+          .map(mapRowToDossier)
+          .filter((dossier) =>
+            normalizeSearchText(dossier.result.location.label).includes(normalizedQ),
+          );
+        const { items, pagination } = paginateSlice(matched, page, limit);
+        return c.json(
+          {
+            ok: true,
+            total: pagination.totalItems,
+            pagination,
+            dossiers: items,
+          },
+          200,
+        );
+      }
+
+      const countStmt = c.env.DB.prepare(`SELECT COUNT(*) AS total FROM dossiers ${whereSql}`);
+      const countResult = await (bindings.length > 0
+        ? countStmt.bind(...bindings)
+        : countStmt
+      ).all<{ total: number }>();
+      const totalItems = Number(countResult.results?.[0]?.total ?? 0);
+      const pagination = buildPaginationMetadata(totalItems, page, limit);
+      const offset = (pagination.page - 1) * pagination.pageSize;
+
+      const selectSql =
+        offset > 0
+          ? `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+          : `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`;
+      const selectBindings =
+        offset > 0
+          ? [...bindings, pagination.pageSize, offset]
+          : [...bindings, pagination.pageSize];
+
+      const queryResult = await c.env.DB.prepare(selectSql)
+        .bind(...selectBindings)
         .all<DossierRow>();
 
-      const items: SavedDossier[] = (queryResult.results ?? [])
-        .map((row) => ({
-          id: row.id,
-          createdAt: row.created_at,
-          result: JSON.parse(row.result_json) as InvestigationResult,
-        }))
-        .filter(
-          (dossier) =>
-            !normalizedQ ||
-            normalizeSearchText(dossier.result.location.label).includes(normalizedQ),
-        )
-        .slice(0, limit);
-      return c.json({ ok: true, dossiers: items }, 200);
+      const items = (queryResult.results ?? []).map(mapRowToDossier);
+      return c.json(
+        {
+          ok: true,
+          total: pagination.totalItems,
+          pagination,
+          dossiers: items,
+        },
+        200,
+      );
     } catch {
       // Fall back to in-memory isolate store
     }
   }
 
-  const items = Array.from(memoryDossiers.values())
+  const matched = Array.from(memoryDossiers.values())
     .reverse()
     .filter((dossier) => {
       const { result } = dossier;
@@ -355,7 +400,15 @@ export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }
         return false;
       }
       return true;
-    })
-    .slice(0, limit);
-  return c.json({ ok: true, dossiers: items }, 200);
+    });
+  const { items, pagination } = paginateSlice(matched, page, limit);
+  return c.json(
+    {
+      ok: true,
+      total: pagination.totalItems,
+      pagination,
+      dossiers: items,
+    },
+    200,
+  );
 }

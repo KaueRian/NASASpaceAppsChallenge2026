@@ -403,19 +403,52 @@ describe("R3 & R4 UI components", () => {
       }),
     );
     expect(html).toContain("20 de 20 investigações");
+    expect(html).toContain("Mostrando 1–8 de 20");
     expect(html).toContain('aria-label="Escala"');
     expect(html).toContain('aria-label="Variável"');
     expect(html).toContain('aria-label="Janela"');
     expect(html).toContain('aria-label="Buscar investigação"');
-    expect(html).toContain("Barreiras (MATOPIBA), BA, Brasil");
-    expect(html).toContain("Belém, PA, Brasil");
-    expect(html).toContain("Porto Alegre, RS, Brasil");
-    expect(html).toContain("Sevilha, Espanha");
+    expect(html).toContain("Vilhena, RO, Brasil");
+    expect(html).toContain("Manaus, AM, Brasil");
     expect(html).toContain("Rondônia &amp; Amazônia");
     expect(html).toContain("Caso offline");
     expect(html).toContain("Dados NASA");
+    expect(html).not.toContain("Barreiras (MATOPIBA), BA, Brasil");
     expect(html).not.toContain("AM-Oc");
     expect(html).not.toContain("NASA API");
+
+    const page2Html = renderWithI18n(
+      createElement(CasesGrid, {
+        activePresetId: "01",
+        initialPage: 2,
+        activeLiveQuery: {
+          lat: -12.09,
+          lon: -45.79,
+          variable: "GWETROOT",
+          season: "apr_sep",
+          startYear: 1981,
+          endYear: 2025,
+          label: "Barreiras (MATOPIBA), BA, Brazil",
+        },
+        onSelectPreset: () => {},
+        onSelectInvestigation: () => {},
+      }),
+    );
+    expect(page2Html).toContain("Mostrando 9–16 de 20");
+    expect(page2Html).toContain("Barreiras (MATOPIBA), BA, Brasil");
+    expect(page2Html).toContain("Belém, PA, Brasil");
+    expect(page2Html).toContain("Porto Alegre, RS, Brasil");
+
+    const page3Html = renderWithI18n(
+      createElement(CasesGrid, {
+        activePresetId: "01",
+        initialPage: 3,
+        onSelectPreset: () => {},
+        onSelectInvestigation: () => {},
+      }),
+    );
+    expect(page3Html).toContain("Mostrando 17–20 de 20");
+    expect(page3Html).toContain("Sevilha, Espanha");
 
     const liveInvestigationHtml = renderWithI18n(
       createElement(Investigation, {

@@ -194,5 +194,15 @@ describe("i18n dictionary key parity", () => {
     expect(en.cases.filters.offlineReady).toBe("Offline case");
     expect(pt.cases.filters.liveQuery).toBe("Dados NASA");
     expect(en.cases.filters.liveQuery).toBe("Live NASA");
+    expect(pt.pagination.summary).toBe("Mostrando {{start}}–{{end}} de {{total}}");
+    expect(en.pagination.summary).toBe("Showing {{start}}–{{end}} of {{total}}");
+    expect(pt.pagination.previous).toBe("Anterior");
+    expect(en.pagination.previous).toBe("Previous");
+    expect(pt.pagination.next).toBe("Próxima");
+    expect(en.pagination.next).toBe("Next");
+    expect(pt.pagination.casesNavLabel).toBe("Paginação de investigações");
+    expect(en.pagination.casesNavLabel).toBe("Investigations pagination");
+    expect(pt.pagination.dossiersNavLabel).toBe("Paginação de dossiês recentes");
+    expect(en.pagination.dossiersNavLabel).toBe("Recent dossiers pagination");
   });
 });

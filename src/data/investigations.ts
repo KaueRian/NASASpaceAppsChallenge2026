@@ -1,4 +1,5 @@
 import { normalizeSearchText } from "../lib/nasa/smartInvestigation.ts";
+import { parsePositivePageParam } from "../lib/pagination.ts";
 import type { ValidatedInvestigateQuery, ValidationResult } from "../lib/validation/investigate.ts";
 import {
   type CatalogInvestigation,
@@ -285,6 +286,7 @@ export interface CatalogFilterInput {
   q?: string;
   presetOnly?: string;
   limit?: string;
+  page?: string;
 }
 
 export interface ValidatedCatalogFilters {
@@ -295,6 +297,7 @@ export interface ValidatedCatalogFilters {
   q?: string;
   presetOnly?: boolean;
   limit?: number;
+  page?: number;
 }
 
 function normalizeOptionalFilterValue(raw?: string): string | undefined {
@@ -376,6 +379,15 @@ export function validateCatalogFilterParams(
     limit = parsedLimit;
   }
 
+  const pageValidation = parsePositivePageParam(input.page);
+  if (!pageValidation.ok) {
+    return {
+      ok: false,
+      code: "INVALID_FILTER",
+      message: pageValidation.message,
+    };
+  }
+
   const trimmedQuery = input.q?.trim();
 
   return {
@@ -388,6 +400,7 @@ export function validateCatalogFilterParams(
       ...(trimmedQuery ? { q: trimmedQuery.slice(0, 80) } : {}),
       ...(presetOnly !== undefined ? { presetOnly } : {}),
       ...(limit !== undefined ? { limit } : {}),
+      ...(pageValidation.page !== undefined ? { page: pageValidation.page } : {}),
     },
   };
 }
@@ -425,6 +438,12 @@ export function filterInvestigationCatalog(
 
     return true;
   });
+
+  if (filters.page !== undefined) {
+    const pageSize = filters.limit ?? 8;
+    const offset = (filters.page - 1) * pageSize;
+    return matched.slice(offset, offset + pageSize);
+  }
 
   return filters.limit !== undefined ? matched.slice(0, filters.limit) : matched;
 }

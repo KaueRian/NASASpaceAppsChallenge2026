@@ -161,6 +161,15 @@ export interface SavedDossier {
   result: InvestigationResult;
 }
 
+export interface PaginationMetadata {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+}
+
 export interface CatalogInvestigation {
   id: string;
   presetId?: CasePresetId;
