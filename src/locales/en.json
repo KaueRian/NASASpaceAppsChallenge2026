@@ -163,6 +163,17 @@
     "legendAnomaly": "Anomaly (|z| > 1.5)",
     "anomalyTag": "Anomaly"
   },
+  "stripes": {
+    "zScoreLabel": "z = {{z}}",
+    "extremeAnomalyTag": "Extreme anomaly (|z| > 1.5)",
+    "scaleLowTemp": "Cooler (−z)",
+    "scaleHighTemp": "Warmer (+z)",
+    "scaleLowHydro": "Drier (−z)",
+    "scaleHighHydro": "Wetter (+z)",
+    "scaleMean": "Mean (z ≈ 0)",
+    "explainTemp": "How to read: each vertical stripe represents one year in chronological order. Blue tones indicate years cooler than the period mean; neutral stripes sit near the mean; crimson tones mark warmer years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values.",
+    "explainHydro": "How to read: each vertical stripe represents one year or seasonal window in chronological order. Ochre tones indicate years drier than the period mean; neutral stripes sit near the mean; teal tones mark wetter years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values."
+  },
   "investigation": {
     "yearsLabel": "Years",
     "ciPerYear": "95% CI (per year)",
