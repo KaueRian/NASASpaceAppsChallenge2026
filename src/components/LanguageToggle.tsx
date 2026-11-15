@@ -1,11 +1,15 @@
 import { useI18n } from "../i18n/i18n";
 
 export function LanguageToggle() {
-  const { locale, setLocale } = useI18n();
+  const { locale, setLocale, t } = useI18n();
 
   return (
     // biome-ignore lint/a11y/useSemanticElements: a <fieldset> would need a visible <legend>, heavier than this compact toggle needs — role="group" + aria-label is the intentional choice.
-    <div className="font-mono text-xs tracking-wide" role="group" aria-label="Language">
+    <div
+      className="font-mono text-xs tracking-wide"
+      role="group"
+      aria-label={t("nav.languageLabel")}
+    >
       <button
         type="button"
         onClick={() => setLocale("en")}

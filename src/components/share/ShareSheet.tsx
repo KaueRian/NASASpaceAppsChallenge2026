@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { type Locale, useResolvedI18n } from "../../i18n/i18n.tsx";
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import { buildCitationText, downloadDossierCsv } from "../../lib/export/dossierExport.ts";
 import type { TemperatureUnit } from "../../lib/temperatureUnit.ts";
@@ -7,7 +8,7 @@ import { downloadEvidenceCardPng, EvidenceCard, type EvidenceCardAspect } from "
 
 export interface ShareSheetProps {
   result: InvestigationResult;
-  locale?: "en" | "pt";
+  locale?: Locale;
   tempUnit?: TemperatureUnit;
   onClose?: () => void;
 }
@@ -27,7 +28,8 @@ export function buildInvestigationDeepLink(result: InvestigationResult, origin =
   return `${base}/investigate?${params.toString()}`;
 }
 
-export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSheetProps) {
+export function ShareSheet({ result, locale, tempUnit, onClose }: ShareSheetProps) {
+  const { locale: resolvedLocale, t } = useResolvedI18n(locale);
   const contextTempUnit = useOptionalTemperatureUnit();
   const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const [aspect, setAspect] = useState<EvidenceCardAspect>("story");
@@ -73,7 +75,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
   }
 
   async function handleCopyCitation() {
-    const text = buildCitationText(result, locale, resolvedTempUnit);
+    const text = buildCitationText(result, resolvedLocale, resolvedTempUnit);
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
       setCopiedCitation(true);
@@ -86,7 +88,13 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
       try {
         await navigator.share({
           title: `GeoTrend — ${result.location.label}`,
-          text: `${result.location.label} (${result.variable}, ${result.stats.startYear}–${result.stats.endYear}): ${result.stats.verdict}`,
+          text: t("share.nativeShareSummary", {
+            location: result.location.label,
+            variable: t(`variables.${result.variable}.label`),
+            startYear: result.stats.startYear,
+            endYear: result.stats.endYear,
+            verdict: t(`share.card.verdictShort.${result.stats.verdict}`),
+          }),
           url: shareUrl,
         });
       } catch {
@@ -97,15 +105,15 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
 
   return (
     <section
-      aria-label="Export and Share Forensic Evidence Card"
+      aria-label={t("share.sheetAriaLabel")}
       className="rounded-sm border border-[#2E2E30] bg-[#1C1C1E] p-5 text-[#EDEDEA] shadow-2xl"
     >
       <div className="mb-4 flex items-center justify-between border-b border-[#2E2E30] pb-3">
         <div>
           <span className="font-mono text-[11px] uppercase tracking-widest text-[#C1472E]">
-            EVIDENCE EXPORT · SHARE DOSSIER
+            {t("share.eyebrow")}
           </span>
-          <h4 className="font-display text-lg font-bold">Evidence Card & Data Export</h4>
+          <h4 className="font-display text-lg font-bold">{t("share.title")}</h4>
         </div>
         {onClose && (
           <button
@@ -113,7 +121,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
             onClick={onClose}
             className="rounded border border-[#2E2E30] px-2.5 py-1 font-mono text-xs text-[#9B9B98] hover:border-[#C1472E] hover:text-[#EDEDEA]"
           >
-            ESC / CLOSE
+            {t("share.closeButton")}
           </button>
         )}
       </div>
@@ -127,7 +135,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
               aspect === "story" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
             }`}
           >
-            Story 9:16
+            {t("share.aspectStory")}
           </button>
           <button
             type="button"
@@ -136,31 +144,33 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
               aspect === "square" ? "bg-[#C1472E] font-bold text-[#EDEDEA]" : "text-[#9B9B98]"
             }`}
           >
-            Square 1:1
+            {t("share.aspectSquare")}
           </button>
         </div>
 
         <div className="flex flex-wrap gap-2 font-mono text-xs">
           <button
             type="button"
-            onClick={() => downloadEvidenceCardPng(result, aspect, shareUrl, resolvedTempUnit)}
+            onClick={() =>
+              downloadEvidenceCardPng(result, aspect, shareUrl, resolvedTempUnit, resolvedLocale)
+            }
             className="rounded bg-[#C1472E] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:opacity-90"
           >
-            Download PNG
+            {t("actions.downloadPng")}
           </button>
           <button
             type="button"
             onClick={() => downloadDossierCsv(result, resolvedTempUnit)}
             className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
           >
-            Download CSV
+            {t("actions.downloadCsv")}
           </button>
           <button
             type="button"
             onClick={handleCopyCitation}
             className="rounded border border-[#2E2E30] bg-[#121212] px-3.5 py-1.5 font-bold text-[#EDEDEA] hover:border-[#C1472E]"
           >
-            {copiedCitation ? "Citation Copied!" : "Copy Citation"}
+            {copiedCitation ? t("actions.citationCopied") : t("actions.copyCitation")}
           </button>
           <button
             type="button"
@@ -168,7 +178,11 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
             disabled={savingLink}
             className="rounded border border-[#C1472E] px-3.5 py-1.5 font-bold text-[#C1472E] hover:bg-[#C1472E]/10"
           >
-            {copied ? "Link Copied!" : savingLink ? "Saving..." : "Copy Share Link"}
+            {copied
+              ? t("actions.linkCopied")
+              : savingLink
+                ? t("share.savingLink")
+                : t("actions.copyLink")}
           </button>
           {typeof navigator !== "undefined" && "share" in navigator && (
             <button
@@ -176,7 +190,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
               onClick={handleNativeShare}
               className="rounded border border-[#2E2E30] px-3 py-1.5 text-[#EDEDEA] hover:border-[#EDEDEA]"
             >
-              Share…
+              {t("share.nativeShare")}
             </button>
           )}
         </div>
@@ -187,6 +201,7 @@ export function ShareSheet({ result, locale = "en", tempUnit, onClose }: ShareSh
           result={result}
           aspect={aspect}
           shortUrl={shareUrl}
+          locale={resolvedLocale}
           tempUnit={resolvedTempUnit}
         />
       </div>

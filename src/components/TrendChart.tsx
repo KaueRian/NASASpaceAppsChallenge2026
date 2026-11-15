@@ -127,7 +127,12 @@ export function TrendChart({ series, unit, variable = "T2M" }: TrendChartProps) 
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             className="w-full"
             role="img"
-            aria-label={`Chart (${viewMode}): observed values${unitSuffix ? ` in ${unitSuffix}` : ""} from ${first.label} to ${last.label}, with the Sen's Slope trend line and marked anomalies.`}
+            aria-label={t("chart.ariaLabel", {
+              mode: viewMode === "line" ? t("form.viewLine") : t("form.viewBars"),
+              unitClause: unitSuffix ? t("chart.unitClause", { unit: unitSuffix }) : "",
+              start: first.label,
+              end: last.label,
+            })}
           >
             {[min, (min + max) / 2, max].map((value) => (
               <g key={value}>

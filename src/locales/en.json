@@ -4,6 +4,7 @@
     "investigate": "Investigate",
     "cases": "Cases",
     "methods": "Methods",
+    "languageLabel": "Language",
     "temperatureUnitLabel": "Temperature unit"
   },
   "hero": {
@@ -276,9 +277,13 @@
     "legendObserved": "Observed",
     "legendTrend": "Sen's trend",
     "legendAnomaly": "Anomaly (|z| > 1.5)",
-    "anomalyTag": "Anomaly"
+    "anomalyTag": "Anomaly",
+    "unitClause": " in {{unit}}",
+    "ariaLabel": "Chart ({{mode}}): observed values{{unitClause}} from {{start}} to {{end}}, with the Sen's Slope trend line and marked anomalies."
   },
   "stripes": {
+    "ariaLabel": "Climate anomaly stripes from {{start}} to {{end}}",
+    "captionLabel": "ANOMALY STRIPES (Z-SCORE)",
     "zScoreLabel": "z = {{z}}",
     "extremeAnomalyTag": "Extreme anomaly (|z| > 1.5)",
     "scaleLowTemp": "Cooler (−z)",
@@ -288,6 +293,39 @@
     "scaleMean": "Mean (z ≈ 0)",
     "explainTemp": "How to read: each vertical stripe represents one year in chronological order. Blue tones indicate years cooler than the period mean; neutral stripes sit near the mean; crimson tones mark warmer years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values.",
     "explainHydro": "How to read: each vertical stripe represents one year or seasonal window in chronological order. Ochre tones indicate years drier than the period mean; neutral stripes sit near the mean; teal tones mark wetter years (|z| > 1.5 flags extreme anomalies). Hover or tap any stripe for exact values."
+  },
+  "share": {
+    "sheetAriaLabel": "Export and Share Forensic Evidence Card",
+    "eyebrow": "EVIDENCE EXPORT · SHARE DOSSIER",
+    "title": "Evidence Card & Data Export",
+    "closeButton": "ESC / CLOSE",
+    "aspectStory": "Story 9:16",
+    "aspectSquare": "Square 1:1",
+    "savingLink": "Saving…",
+    "nativeShare": "Share…",
+    "nativeShareSummary": "{{location}} ({{variable}}, {{startYear}}–{{endYear}}): {{verdict}}",
+    "card": {
+      "headerLabel": "GEOTREND · CASE FILE",
+      "pngHeaderLabel": "GEOTREND // FORENSIC CASE FILE",
+      "totalShiftDom": "TOTAL SHIFT ({{nYears}} YRS)",
+      "totalShiftPng": "TOTAL SHIFT ({{nYears}} YEARS)",
+      "senSlopeDom": "SEN'S SLOPE / DECADE",
+      "senSlopePng": "SEN'S SLOPE PER DECADE",
+      "mannKendallPValue": "MANN-KENDALL P-VALUE",
+      "confidenceDom": "CONFIDENCE",
+      "confidencePng": "STATISTICAL CONFIDENCE",
+      "inconclusive": "Inconclusive",
+      "coordinates": "COORDINATES",
+      "sourcePrefix": "SOURCE:",
+      "retrievedPrefix": "RETRIEVED:",
+      "pngDataLine": "DATA: {{provider}} ({{retrievedAt}})",
+      "qrAriaLabel": "Case file verification code",
+      "verdictShort": {
+        "STRONG_EVIDENCE": "STRONG EVIDENCE",
+        "EVIDENCE_CONFIRMED": "EVIDENCE CONFIRMED",
+        "INSUFFICIENT_EVIDENCE": "INSUFFICIENT EVIDENCE"
+      }
+    }
   },
   "investigation": {
     "yearsLabel": "Years",

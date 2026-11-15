@@ -1,3 +1,4 @@
+import { type Locale, translateForLocale } from "../../i18n/translate.ts";
 import type { InvestigationResult } from "../../types/investigation.ts";
 import {
   convertInvestigationResultForDisplay,
@@ -86,7 +87,7 @@ export function downloadDossierCsv(
  */
 export function buildCitationText(
   result: InvestigationResult,
-  locale: "en" | "pt" = "en",
+  locale: Locale = "en",
   tempUnit: TemperatureUnit = "C",
 ): string {
   const displayResult = convertInvestigationResultForDisplay(result, tempUnit);
@@ -94,16 +95,21 @@ export function buildCitationText(
   const unitDisplay = getDisplayUnitLabel(unit, tempUnit);
   const sign = stats.totalChangeOverPeriod > 0 ? "+" : "";
   const decSign = stats.senSlopePerDecade > 0 ? "+" : "";
+  const variableLabel = `${translateForLocale(locale, `variables.${variable}.label`)} (${variable})`;
+  const seasonLabel = translateForLocale(locale, `seasons.${season}`);
+  const verdictLabel = translateForLocale(locale, `share.card.verdictShort.${stats.verdict}`);
   const ciPart =
     stats.senSlopeCiLowerPerDecade !== undefined && stats.senSlopeCiUpperPerDecade !== undefined
-      ? ` (95% CI: [${stats.senSlopeCiLowerPerDecade.toFixed(2)}, ${stats.senSlopeCiUpperPerDecade.toFixed(2)}] ${unitDisplay}/decade)`
+      ? locale === "pt"
+        ? ` (IC 95%: [${stats.senSlopeCiLowerPerDecade.toFixed(2)}, ${stats.senSlopeCiUpperPerDecade.toFixed(2)}] ${unitDisplay}/década)`
+        : ` (95% CI: [${stats.senSlopeCiLowerPerDecade.toFixed(2)}, ${stats.senSlopeCiUpperPerDecade.toFixed(2)}] ${unitDisplay}/decade)`
       : "";
 
   if (locale === "pt") {
     return (
       `Análise gerada via GeoTrend para ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
-      `variável ${variable} (${season}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
-      `Teste não-paramétrico de Mann-Kendall: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${stats.verdict}). ` +
+      `variável ${variableLabel} (${seasonLabel}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
+      `Teste não-paramétrico de Mann-Kendall: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${verdictLabel}). ` +
       `Estimador de Sen's Slope: ${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/década${ciPart}, mudança total de ${sign}${stats.totalChangeOverPeriod.toFixed(2)} ${unitDisplay} no período. ` +
       `Nota metodológica: a significância estatística comprova tendência direcional nos dados observados, sem implicar atribuição causal isolada. ` +
       `Fonte: ${source.provider} (${source.resolution}), consultado em ${source.retrievedAt}.`
@@ -112,8 +118,8 @@ export function buildCitationText(
 
   return (
     `Analysis generated via GeoTrend for ${location.label} (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°), ` +
-    `variable ${variable} (${season}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
-    `Mann-Kendall non-parametric test: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${stats.verdict}). ` +
+    `variable ${variableLabel} (${seasonLabel}, ${stats.startYear}–${stats.endYear}, n=${stats.nYears}). ` +
+    `Mann-Kendall non-parametric test: S=${stats.mannKendallS}, Z=${stats.zScore.toFixed(2)}, p=${stats.pValue.toFixed(6)} (${verdictLabel}). ` +
     `Sen's Slope estimator: ${decSign}${stats.senSlopePerDecade.toFixed(2)} ${unitDisplay}/decade${ciPart}, total shift of ${sign}${stats.totalChangeOverPeriod.toFixed(2)} ${unitDisplay} over the period. ` +
     `Methodological note: statistical significance confirms a directional trend in observed reanalysis data, not single-cause physical attribution. ` +
     `Source: ${source.provider} (${source.resolution}), retrieved ${source.retrievedAt}.`

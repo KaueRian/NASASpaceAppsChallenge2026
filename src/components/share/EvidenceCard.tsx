@@ -1,10 +1,11 @@
+import { type Locale, translateForLocale, useResolvedI18n } from "../../i18n/i18n.tsx";
 import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import {
   convertDeltaValue,
   getEvidenceUnitSuffix,
   type TemperatureUnit,
 } from "../../lib/temperatureUnit.ts";
-import type { InvestigationResult, VerdictLevel } from "../../types/investigation.ts";
+import type { InvestigationResult } from "../../types/investigation.ts";
 import { ClimateStripes, getStripeColor } from "./ClimateStripes.tsx";
 
 export type EvidenceCardAspect = "story" | "square";
@@ -13,21 +14,9 @@ export interface EvidenceCardProps {
   result: InvestigationResult;
   aspect?: EvidenceCardAspect;
   shortUrl?: string;
+  locale?: Locale;
   tempUnit?: TemperatureUnit;
 }
-
-const VERDICT_LABEL: Record<VerdictLevel, string> = {
-  STRONG_EVIDENCE: "STRONG EVIDENCE",
-  EVIDENCE_CONFIRMED: "EVIDENCE CONFIRMED",
-  INSUFFICIENT_EVIDENCE: "INSUFFICIENT EVIDENCE",
-};
-
-const VARIABLE_NAME: Record<InvestigationResult["variable"], string> = {
-  T2M: "2m Mean Temperature",
-  T2M_MIN: "2m Minimum Temperature",
-  PRECTOTCORR: "Corrected Precipitation",
-  GWETROOT: "Root-Zone Soil Wetness",
-};
 
 function formatSigned(
   value: number,
@@ -86,7 +75,14 @@ function buildQrCells(seedText: string): Array<{ id: string; x: number; y: numbe
   return cells;
 }
 
-export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: EvidenceCardProps) {
+export function EvidenceCard({
+  result,
+  aspect = "story",
+  shortUrl,
+  locale,
+  tempUnit,
+}: EvidenceCardProps) {
+  const { locale: resolvedLocale, t } = useResolvedI18n(locale);
   const contextTempUnit = useOptionalTemperatureUnit();
   const resolvedTempUnit = tempUnit ?? contextTempUnit;
   const { location, variable, unit, season, stats, series, source } = result;
@@ -97,6 +93,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
       : stats.verdict === "EVIDENCE_CONFIRMED"
         ? "#D4A84F"
         : "#5C5346";
+  const qrLabel = t("share.card.qrAriaLabel");
 
   return (
     <article
@@ -106,14 +103,14 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
     >
       <header className="border-b border-[#14110F]/20 pb-3">
         <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#5C5346]">
-          <span>GEOTREND · CASE FILE</span>
+          <span>{t("share.card.headerLabel")}</span>
           <span>
             {stats.startYear}–{stats.endYear}
           </span>
         </div>
         <h3 className="mt-1 font-serif text-xl font-bold leading-tight">{location.label}</h3>
         <p className="font-mono text-xs text-[#5C5346]">
-          {VARIABLE_NAME[variable]} ({variable}) · {season.toUpperCase()}
+          {t(`variables.${variable}.label`)} ({variable}) · {t(`seasons.${season}`)}
         </p>
       </header>
 
@@ -121,7 +118,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
         <div className="flex items-center justify-between gap-2">
           <div>
             <span className="block font-mono text-[10px] uppercase tracking-wider text-[#5C5346]">
-              TOTAL SHIFT ({stats.nYears} YRS)
+              {t("share.card.totalShiftDom", { nYears: stats.nYears })}
             </span>
             <span className="font-mono text-3xl font-extrabold tracking-tight">
               {formatSigned(stats.totalChangeOverPeriod, unit, resolvedTempUnit)}
@@ -131,7 +128,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
             className="rotate-[-4deg] border-2 px-2.5 py-1 font-mono text-xs font-bold uppercase tracking-widest"
             style={{ borderColor: stampColor, color: stampColor }}
           >
-            {VERDICT_LABEL[stats.verdict]}
+            {t(`share.card.verdictShort.${stats.verdict}`)}
           </span>
         </div>
 
@@ -139,6 +136,7 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
           series={series}
           variable={variable}
           unit={unit}
+          locale={resolvedLocale}
           tempUnit={resolvedTempUnit}
           height={isStory ? 72 : 48}
         />
@@ -146,25 +144,35 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
         {isStory && (
           <dl className="grid grid-cols-2 gap-2 border-t border-[#14110F]/15 pt-3 font-mono text-xs">
             <div className="rounded bg-[#E8DFD1] p-2">
-              <dt className="text-[10px] uppercase text-[#5C5346]">SEN&apos;S SLOPE / DECADE</dt>
+              <dt className="text-[10px] uppercase text-[#5C5346]">
+                {t("share.card.senSlopeDom")}
+              </dt>
               <dd className="mt-0.5 font-bold">
                 {formatSigned(stats.senSlopePerDecade, unit, resolvedTempUnit)}
               </dd>
             </div>
             <div className="rounded bg-[#E8DFD1] p-2">
-              <dt className="text-[10px] uppercase text-[#5C5346]">MANN-KENDALL P-VALUE</dt>
+              <dt className="text-[10px] uppercase text-[#5C5346]">
+                {t("share.card.mannKendallPValue")}
+              </dt>
               <dd className="mt-0.5 font-bold">
                 p = {stats.pValue < 0.0001 ? "< 0.0001" : stats.pValue.toFixed(4)}
               </dd>
             </div>
             <div className="rounded bg-[#E8DFD1] p-2">
-              <dt className="text-[10px] uppercase text-[#5C5346]">CONFIDENCE</dt>
+              <dt className="text-[10px] uppercase text-[#5C5346]">
+                {t("share.card.confidenceDom")}
+              </dt>
               <dd className="mt-0.5 font-bold">
-                {stats.confidenceLevel > 0 ? `${stats.confidenceLevel}%` : "Inconclusive"}
+                {stats.confidenceLevel > 0
+                  ? `${stats.confidenceLevel}%`
+                  : t("share.card.inconclusive")}
               </dd>
             </div>
             <div className="rounded bg-[#E8DFD1] p-2">
-              <dt className="text-[10px] uppercase text-[#5C5346]">COORDINATES</dt>
+              <dt className="text-[10px] uppercase text-[#5C5346]">
+                {t("share.card.coordinates")}
+              </dt>
               <dd className="mt-0.5 font-bold">
                 {location.lat.toFixed(2)}°, {location.lon.toFixed(2)}°
               </dd>
@@ -176,8 +184,12 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
       <footer className="border-t border-[#14110F]/20 pt-2 font-mono text-[10px] text-[#5C5346]">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <div>SOURCE: {source.provider}</div>
-            <div>RETRIEVED: {source.retrievedAt}</div>
+            <div>
+              {t("share.card.sourcePrefix")} {source.provider}
+            </div>
+            <div>
+              {t("share.card.retrievedPrefix")} {source.retrievedAt}
+            </div>
             {shortUrl && <div className="mt-0.5 truncate text-[#14110F]">{shortUrl}</div>}
           </div>
           {isStory && (
@@ -185,9 +197,9 @@ export function EvidenceCard({ result, aspect = "story", shortUrl, tempUnit }: E
               viewBox="0 0 11 11"
               className="h-10 w-10 shrink-0 border border-[#14110F] bg-[#F4EFE6] p-0.5"
               role="img"
-              aria-label="Case file verification code"
+              aria-label={qrLabel}
             >
-              <title>Case file verification code</title>
+              <title>{qrLabel}</title>
               {buildQrCells(shortUrl ?? location.label).map((cell) => (
                 <rect key={cell.id} x={cell.x} y={cell.y} width={1} height={1} fill="#14110F" />
               ))}
@@ -207,7 +219,10 @@ export function downloadEvidenceCardPng(
   aspect: EvidenceCardAspect = "story",
   shortUrl?: string,
   tempUnit: TemperatureUnit = "C",
+  locale: Locale = "en",
 ): void {
+  const tr = (key: string, params?: Record<string, string | number>) =>
+    translateForLocale(locale, key, params);
   const width = 1080;
   const height = aspect === "story" ? 1920 : 1080;
   const canvas = document.createElement("canvas");
@@ -226,7 +241,7 @@ export function downloadEvidenceCardPng(
   // Header metadata
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 26px monospace";
-  ctx.fillText("GEOTREND // FORENSIC CASE FILE", 72, 100);
+  ctx.fillText(tr("share.card.pngHeaderLabel"), 72, 100);
   ctx.fillText(`${result.stats.startYear}-${result.stats.endYear}`, width - 220, 100);
 
   // Location title
@@ -237,15 +252,16 @@ export function downloadEvidenceCardPng(
   ctx.fillStyle = "#5C5346";
   ctx.font = "500 30px monospace";
   ctx.fillText(
-    `${VARIABLE_NAME[result.variable]} (${result.variable}) · ${result.season.toUpperCase()}`,
+    `${tr(`variables.${result.variable}.label`)} (${result.variable}) · ${tr(`seasons.${result.season}`)}`,
     72,
     238,
+    width - 144,
   );
 
   // Headline shift + Verdict stamp
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 24px monospace";
-  ctx.fillText(`TOTAL SHIFT (${result.stats.nYears} YEARS)`, 72, 330);
+  ctx.fillText(tr("share.card.totalShiftPng", { nYears: result.stats.nYears }), 72, 330);
 
   ctx.fillStyle = "#14110F";
   ctx.font = "bold 92px monospace";
@@ -257,15 +273,17 @@ export function downloadEvidenceCardPng(
       : result.stats.verdict === "EVIDENCE_CONFIRMED"
         ? "#D4A84F"
         : "#5C5346";
+  const verdictStamp = tr(`share.card.verdictShort.${result.stats.verdict}`);
   ctx.save();
-  ctx.translate(width - 420, 355);
+  ctx.font = "bold 26px monospace";
+  const stampWidth = Math.max(340, Math.ceil(ctx.measureText(verdictStamp).width) + 44);
+  ctx.translate(width - 72 - stampWidth, 355);
   ctx.rotate(-0.06);
   ctx.strokeStyle = stampColor;
   ctx.lineWidth = 6;
-  ctx.strokeRect(0, 0, 340, 74);
+  ctx.strokeRect(0, 0, stampWidth, 74);
   ctx.fillStyle = stampColor;
-  ctx.font = "bold 26px monospace";
-  ctx.fillText(VERDICT_LABEL[result.stats.verdict], 22, 46);
+  ctx.fillText(verdictStamp, 22, 46);
   ctx.restore();
 
   // Climate Stripes bar
@@ -286,18 +304,23 @@ export function downloadEvidenceCardPng(
     const metricsTop = stripeTop + stripeHeight + 80;
     const rows: Array<[string, string]> = [
       [
-        "SEN'S SLOPE PER DECADE",
+        tr("share.card.senSlopePng"),
         formatSigned(result.stats.senSlopePerDecade, result.unit, tempUnit),
       ],
       [
-        "MANN-KENDALL P-VALUE",
+        tr("share.card.mannKendallPValue"),
         `p = ${result.stats.pValue < 0.0001 ? "< 0.0001" : result.stats.pValue.toFixed(5)}`,
       ],
       [
-        "STATISTICAL CONFIDENCE",
-        result.stats.confidenceLevel > 0 ? `${result.stats.confidenceLevel}%` : "Inconclusive",
+        tr("share.card.confidencePng"),
+        result.stats.confidenceLevel > 0
+          ? `${result.stats.confidenceLevel}%`
+          : tr("share.card.inconclusive"),
       ],
-      ["COORDINATES", `${result.location.lat.toFixed(2)}°, ${result.location.lon.toFixed(2)}°`],
+      [
+        tr("share.card.coordinates"),
+        `${result.location.lat.toFixed(2)}°, ${result.location.lon.toFixed(2)}°`,
+      ],
     ];
 
     rows.forEach(([label, val], idx) => {
@@ -306,7 +329,7 @@ export function downloadEvidenceCardPng(
       ctx.fillRect(72, y, width - 144, 120);
       ctx.fillStyle = "#5C5346";
       ctx.font = "600 24px monospace";
-      ctx.fillText(label, 100, y + 44);
+      ctx.fillText(label, 100, y + 44, width - 200);
       ctx.fillStyle = "#14110F";
       ctx.font = "bold 42px monospace";
       ctx.fillText(val, 100, y + 96);
@@ -316,7 +339,15 @@ export function downloadEvidenceCardPng(
   // Footer attribution & QR matrix on Story card
   ctx.fillStyle = "#5C5346";
   ctx.font = "600 24px monospace";
-  ctx.fillText(`DATA: ${result.source.provider} (${result.source.retrievedAt})`, 72, height - 110);
+  ctx.fillText(
+    tr("share.card.pngDataLine", {
+      provider: result.source.provider,
+      retrievedAt: result.source.retrievedAt,
+    }),
+    72,
+    height - 110,
+    width - 280,
+  );
   if (shortUrl) {
     ctx.fillStyle = "#14110F";
     ctx.fillText(shortUrl.slice(0, 48), 72, height - 68);
