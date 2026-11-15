@@ -7,12 +7,14 @@ export type SectionId = "investigation" | "cases";
 interface AppHeaderProps {
   onNavigateSection: (id: SectionId) => void;
   onNavigateMethods: () => void;
+  onNavigateExplore: () => void;
   onNavigateHome: () => void;
 }
 
 export function AppHeader({
   onNavigateSection,
   onNavigateMethods,
+  onNavigateExplore,
   onNavigateHome,
 }: AppHeaderProps) {
   const { t } = useI18n();
@@ -45,6 +47,13 @@ export function AppHeader({
           </button>
           <button type="button" onClick={onNavigateMethods} className="hover:text-text">
             {t("nav.methods")}
+          </button>
+          <button
+            type="button"
+            onClick={onNavigateExplore}
+            className="rounded-full border border-accent px-3 py-1 font-mono text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-bg"
+          >
+            {t("nav.explore")}
           </button>
         </nav>
 

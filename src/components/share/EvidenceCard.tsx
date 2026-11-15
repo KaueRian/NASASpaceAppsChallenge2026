@@ -29,7 +29,7 @@ function formatSigned(
   return `${sign}${converted.toFixed(2)}${suffix}`;
 }
 
-function buildQrMatrix(seedText: string, size = 11): boolean[][] {
+export function buildQrMatrix(seedText: string, size = 11): boolean[][] {
   let hash = 2166136261;
   for (let i = 0; i < seedText.length; i++) {
     hash ^= seedText.charCodeAt(i);

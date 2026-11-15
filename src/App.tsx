@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader, type SectionId } from "./components/AppHeader";
 import { CasesGrid } from "./components/CasesGrid";
+import { ExplorePage } from "./components/ExplorePage";
 import { Hero } from "./components/Hero";
 import { Investigation } from "./components/Investigation";
 import { MethodsPage } from "./components/MethodsPage";
@@ -9,6 +10,7 @@ import { SharedDossierView } from "./components/share";
 import {
   type AppRoute,
   buildDossierPath,
+  buildExplorePath,
   buildHomePath,
   buildInvestigatePath,
   buildMethodsPath,
@@ -85,6 +87,14 @@ export function App() {
     }
   };
 
+  const navigateExplore = () => {
+    setRoute({ view: "explore" });
+    pushHistoryUrl(buildExplorePath());
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  };
+
   const navigateDossier = (dossierId: string) => {
     setRoute({ view: "dossier", dossierId });
     pushHistoryUrl(buildDossierPath(dossierId));
@@ -127,11 +137,14 @@ export function App() {
       <AppHeader
         onNavigateSection={navigateSection}
         onNavigateMethods={navigateMethods}
+        onNavigateExplore={navigateExplore}
         onNavigateHome={() => navigateHome()}
       />
       <main className="mx-auto max-w-5xl">
         {route.view === "methods" ? (
           <MethodsPage onNavigateHome={() => navigateHome()} />
+        ) : route.view === "explore" ? (
+          <ExplorePage onNavigateHome={() => navigateHome()} />
         ) : route.view === "dossier" ? (
           <SharedDossierView
             dossierId={route.dossierId}

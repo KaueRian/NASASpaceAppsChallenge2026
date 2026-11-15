@@ -118,6 +118,7 @@ describe("Temperature unit toggle (°C | °F) and conversions", () => {
           createElement(AppHeader, {
             onNavigateSection: () => {},
             onNavigateMethods: () => {},
+            onNavigateExplore: () => {},
             onNavigateHome: () => {},
           }),
         ),

@@ -19,6 +19,7 @@ export type AppRoute =
       scrollToInvestigation?: boolean;
     }
   | { view: "methods" }
+  | { view: "explore" }
   | { view: "dossier"; dossierId: string };
 
 function isPresetId(value: string | null): value is CasePresetId {
@@ -50,6 +51,10 @@ export function parseAppRoute(pathname: string, search: string): AppRoute {
 
   if (pathname === "/methods" || pathname === "/methods/") {
     return { view: "methods" };
+  }
+
+  if (pathname === "/explore" || pathname === "/explore/") {
+    return { view: "explore" };
   }
 
   const params = new URLSearchParams(search);
@@ -135,6 +140,10 @@ export function buildInvestigateApiPath(query: ValidatedInvestigateQuery): strin
 
 export function buildMethodsPath(): string {
   return "/methods";
+}
+
+export function buildExplorePath(): string {
+  return "/explore";
 }
 
 export function buildDossierPath(dossierId: string): string {
