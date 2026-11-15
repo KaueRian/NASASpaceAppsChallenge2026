@@ -8,6 +8,7 @@ import {
   VARIABLE_UNIT_MAP,
   type VariableId,
 } from "../../types/investigation.ts";
+import { buildInvestigateApiPath } from "../routing.ts";
 import { analyzeTrend } from "../stats/analyzeTrend.ts";
 import { roundCoord, validateInvestigateQuery } from "../validation/investigate.ts";
 import { aggregateMonthlySeries } from "./aggregate.ts";
@@ -27,6 +28,7 @@ export interface ClientInvestigateOptions {
 interface CachedMonthlyEntry {
   rawMonthly: Record<string, number>;
   retrievedAt: string;
+  endYear?: number;
 }
 
 const MEMORY_CACHE = new Map<string, CachedMonthlyEntry>();
@@ -143,34 +145,40 @@ export async function investigateClientSide(
   const roundLon = roundCoord(lon);
   const cacheKey = getCacheKey(roundLat, roundLon, variable);
   const cachedEntry = readBrowserCache(cacheKey);
+  const cachedEndYear = cachedEntry?.endYear ?? DEFAULT_END_YEAR;
+  const cacheCoversWindow = Boolean(cachedEntry?.rawMonthly) && cachedEndYear >= endYear;
 
-  let rawMonthly: Record<string, number> | null = cachedEntry?.rawMonthly ?? null;
+  let rawMonthly: Record<string, number> | null = cacheCoversWindow
+    ? (cachedEntry?.rawMonthly ?? null)
+    : null;
   let retrievedAt = cachedEntry?.retrievedAt ?? new Date().toISOString().slice(0, 10);
   const cached = Boolean(rawMonthly);
 
   if (!rawMonthly) {
+    const fetchEndYear = Math.max(DEFAULT_END_YEAR, endYear);
     try {
       rawMonthly = await fetchNasaPowerMonthly({
         lat: roundLat,
         lon: roundLon,
         variable,
         startYear: DEFAULT_START_YEAR,
-        endYear: DEFAULT_END_YEAR,
+        endYear: fetchEndYear,
       });
       retrievedAt = new Date().toISOString().slice(0, 10);
-      writeBrowserCache(cacheKey, { rawMonthly, retrievedAt });
+      writeBrowserCache(cacheKey, { rawMonthly, retrievedAt, endYear: fetchEndYear });
     } catch (err) {
       if (options.enableWorkerFallback !== false) {
-        const params = new URLSearchParams({
-          lat: String(lat),
-          lon: String(lon),
-          label: resolvedLabel,
-          variable,
-          season,
-          startYear: String(startYear),
-          endYear: String(endYear),
-        });
-        const fallbackResp = await fetch(`/api/investigate?${params.toString()}`);
+        const fallbackResp = await fetch(
+          buildInvestigateApiPath({
+            lat,
+            lon,
+            label: resolvedLabel,
+            variable,
+            season,
+            startYear,
+            endYear,
+          }),
+        );
         if (fallbackResp.ok) {
           return (await fallbackResp.json()) as InvestigationResult;
         }

@@ -1,6 +1,8 @@
 import { CASE_PRESETS } from "../data/presets";
 import { useI18n } from "../i18n/i18n";
-import { DIRECTION_COLOR, UNIT_SUFFIX } from "../lib/resultDisplay";
+import { useOptionalTemperatureUnit } from "../i18n/temperatureUnit";
+import { DIRECTION_COLOR } from "../lib/resultDisplay";
+import { convertDeltaValue, getDisplayUnitLabel } from "../lib/temperatureUnit";
 
 interface MethodsPageProps {
   onNavigateHome: () => void;
@@ -8,6 +10,7 @@ interface MethodsPageProps {
 
 export function MethodsPage({ onNavigateHome }: MethodsPageProps) {
   const { t, formatNumber } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
 
   const limitationItems = [
     t("methods.limitations.gridItem"),
@@ -95,10 +98,17 @@ export function MethodsPage({ onNavigateHome }: MethodsPageProps) {
               <tbody>
                 {CASE_PRESETS.map((preset) => {
                   const { stats, variable, season, unit } = preset.result;
-                  const unitSuffix = UNIT_SUFFIX[unit]?.trim() ?? "";
-                  const sign = stats.senSlopePerDecade > 0 ? "+" : "";
-                  const ciLower = stats.senSlopeCiLowerPerDecade;
-                  const ciUpper = stats.senSlopeCiUpperPerDecade;
+                  const unitSuffix = getDisplayUnitLabel(unit, tempUnit);
+                  const slopeDecade = convertDeltaValue(stats.senSlopePerDecade, unit, tempUnit);
+                  const sign = slopeDecade > 0 ? "+" : "";
+                  const ciLower =
+                    stats.senSlopeCiLowerPerDecade !== undefined
+                      ? convertDeltaValue(stats.senSlopeCiLowerPerDecade, unit, tempUnit)
+                      : undefined;
+                  const ciUpper =
+                    stats.senSlopeCiUpperPerDecade !== undefined
+                      ? convertDeltaValue(stats.senSlopeCiUpperPerDecade, unit, tempUnit)
+                      : undefined;
                   return (
                     <tr key={preset.id} className="border-b border-border/60 last:border-b-0">
                       <td className="py-2 pr-4 text-text">{t(`cases.${preset.id}.title`)}</td>
@@ -107,8 +117,7 @@ export function MethodsPage({ onNavigateHome }: MethodsPageProps) {
                       </td>
                       <td className={`py-2 pr-4 ${DIRECTION_COLOR[stats.direction]}`}>
                         {sign}
-                        {formatNumber(stats.senSlopePerDecade, { maximumFractionDigits: 2 })}{" "}
-                        {unitSuffix}/dec
+                        {formatNumber(slopeDecade, { maximumFractionDigits: 2 })} {unitSuffix}/dec
                         {ciLower !== undefined && ciUpper !== undefined && (
                           <span className="block text-[11px] text-text-muted">
                             [{formatNumber(ciLower, { maximumFractionDigits: 2 })},{" "}

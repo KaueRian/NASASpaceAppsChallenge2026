@@ -25,6 +25,10 @@ describe("smartInvestigation helpers", () => {
     const filtered = getQuickCitySuggestions("ariquemes");
     expect(filtered).toHaveLength(1);
     expect(filtered[0]?.label).toBe("Ariquemes, RO, Brazil");
+
+    expect(getQuickCitySuggestions("sao paulo")[0]?.label).toBe("São Paulo, SP, Brazil");
+    expect(getQuickCitySuggestions("belem")[0]?.label).toBe("Belém, PA, Brazil");
+    expect(getQuickCitySuggestions("barreiras")[0]?.label).toBe("Barreiras (MATOPIBA), BA, Brazil");
   });
 
   it("searches cities via /api/geocode and falls back gracefully when offline", async () => {

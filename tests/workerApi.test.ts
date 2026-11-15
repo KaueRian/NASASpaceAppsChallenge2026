@@ -38,7 +38,7 @@ describe("Worker API routes", () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as { ok: boolean; service: string };
     expect(json.ok).toBe(true);
-    expect(json.service).toBe("earthtrend-detective");
+    expect(json.service).toBe("geotrend");
   });
 
   it("GET /api/investigate rejects invalid coordinates with 400", async () => {
@@ -241,5 +241,121 @@ describe("Worker API routes", () => {
 
     const missingRes = await app.request("/api/dossiers/et-0000000000", {}, buildMockEnv());
     expect(missingRes.status).toBe(404);
+
+    const filteredMatch = await app.request(
+      "/api/dossiers?variable=T2M&season=annual&q=vilhena&startYear=1981&endYear=2025",
+      {},
+      buildMockEnv(),
+    );
+    expect(filteredMatch.status).toBe(200);
+    const filteredMatchJson = (await filteredMatch.json()) as {
+      ok: boolean;
+      dossiers: Array<{ id: string }>;
+    };
+    expect(filteredMatchJson.dossiers.some((d) => d.id === created.id)).toBe(true);
+
+    const filteredMiss = await app.request(
+      "/api/dossiers?variable=PRECTOTCORR",
+      {},
+      buildMockEnv(),
+    );
+    expect(filteredMiss.status).toBe(200);
+    const filteredMissJson = (await filteredMiss.json()) as {
+      ok: boolean;
+      dossiers: Array<{ id: string }>;
+    };
+    expect(filteredMissJson.dossiers.some((d) => d.id === created.id)).toBe(false);
+
+    const badDossierFilter = await app.request(
+      "/api/dossiers?variable=INVALID",
+      {},
+      buildMockEnv(),
+    );
+    expect(badDossierFilter.status).toBe(400);
+    const badDossierErr = (await badDossierFilter.json()) as ApiErrorResponse;
+    expect(badDossierErr.code).toBe("INVALID_VARIABLE");
+
+    const badYearFilter = await app.request("/api/dossiers?startYear=1970", {}, buildMockEnv());
+    expect(badYearFilter.status).toBe(400);
+    const badYearErr = (await badYearFilter.json()) as ApiErrorResponse;
+    expect(badYearErr.code).toBe("INVALID_FILTER");
+  });
+
+  it("GET /api/dossiers passes SQL WHERE filters to D1 when DB binding is present", async () => {
+    const allMock = vi.fn().mockResolvedValue({ results: [] });
+    const bindMock = vi.fn().mockReturnValue({ all: allMock });
+    const prepareMock = vi.fn().mockReturnValue({ bind: bindMock });
+    const fakeDb = { prepare: prepareMock } as unknown as D1Database;
+
+    const res = await app.request(
+      "/api/dossiers?variable=GWETROOT&season=apr_sep&startYear=1990&endYear=2025&limit=5",
+      {},
+      buildMockEnv(fakeDb),
+    );
+    expect(res.status).toBe(200);
+    expect(prepareMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "WHERE variable = ? AND season = ? AND start_year >= ? AND end_year <= ?",
+      ),
+    );
+    expect(bindMock).toHaveBeenCalledWith("GWETROOT", "apr_sep", 1990, 2025, 5);
+  });
+
+  it("GET /api/investigations returns filtered catalog entries with calibrated API paths and validates filter params", async () => {
+    const allRes = await app.request("/api/investigations", {}, buildMockEnv());
+    expect(allRes.status).toBe(200);
+    const allJson = (await allRes.json()) as {
+      ok: boolean;
+      total: number;
+      investigations: Array<{
+        id: string;
+        scale: string;
+        query: { variable: string; season: string; startYear: number; endYear: number };
+        investigateApiPath: string;
+        investigateAppPath: string;
+      }>;
+    };
+    expect(allJson.ok).toBe(true);
+    expect(allJson.total).toBe(20);
+    expect(allJson.investigations[0]?.investigateApiPath).toContain("/api/investigate?");
+
+    const soilDryRes = await app.request(
+      "/api/investigations?variable=GWETROOT&season=apr_sep",
+      {},
+      buildMockEnv(),
+    );
+    expect(soilDryRes.status).toBe(200);
+    const soilDryJson = (await soilDryRes.json()) as typeof allJson;
+    expect(soilDryJson.investigations.map((i) => i.id)).toEqual([
+      "ro-ji-parana",
+      "ba-matopiba",
+      "df-brasilia",
+    ]);
+
+    const searchRes = await app.request("/api/investigations?q=sao%20paulo", {}, buildMockEnv());
+    expect(searchRes.status).toBe(200);
+    const searchJson = (await searchRes.json()) as typeof allJson;
+    expect(searchJson.investigations.map((i) => i.id)).toEqual(["sp-sao-paulo"]);
+
+    const presetsLimitRes = await app.request(
+      "/api/investigations?presetOnly=true&limit=2",
+      {},
+      buildMockEnv(),
+    );
+    expect(presetsLimitRes.status).toBe(200);
+    const presetsLimitJson = (await presetsLimitRes.json()) as typeof allJson;
+    expect(presetsLimitJson.investigations.map((i) => i.id)).toEqual(["01", "02"]);
+
+    const badScale = await app.request("/api/investigations?scale=mars", {}, buildMockEnv());
+    expect(badScale.status).toBe(400);
+    expect(((await badScale.json()) as ApiErrorResponse).code).toBe("INVALID_FILTER");
+
+    const badVar = await app.request("/api/investigations?variable=WIND", {}, buildMockEnv());
+    expect(badVar.status).toBe(400);
+    expect(((await badVar.json()) as ApiErrorResponse).code).toBe("INVALID_VARIABLE");
+
+    const badSeason = await app.request("/api/investigations?season=winter", {}, buildMockEnv());
+    expect(badSeason.status).toBe(400);
+    expect(((await badSeason.json()) as ApiErrorResponse).code).toBe("INVALID_SEASON");
   });
 });

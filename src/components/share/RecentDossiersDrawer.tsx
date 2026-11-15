@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
+import { useI18n } from "../../i18n/i18n.tsx";
 import type { SavedDossier } from "../../types/investigation.ts";
 
 export interface RecentDossiersDrawerProps {
   onSelectDossier?: (dossier: SavedDossier) => void;
+  onOpenPermalink?: (dossierId: string) => void;
 }
 
-export function RecentDossiersDrawer({ onSelectDossier }: RecentDossiersDrawerProps) {
+export function RecentDossiersDrawer({
+  onSelectDossier,
+  onOpenPermalink,
+}: RecentDossiersDrawerProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [dossiers, setDossiers] = useState<SavedDossier[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,70 +39,82 @@ export function RecentDossiersDrawer({ onSelectDossier }: RecentDossiersDrawerPr
   }, [open]);
 
   return (
-    <div className="inline-block">
+    <div className="w-full sm:w-auto">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="rounded border border-[#D4A84F]/50 bg-[#1B1613] px-3 py-1.5 font-mono text-xs text-[#F4EFE6] hover:border-[#D4A84F]"
+        aria-expanded={open}
+        className="border border-border bg-bg px-4 py-2 font-mono text-xs uppercase tracking-wide text-text-muted hover:border-accent hover:text-text"
       >
-        {open ? "Close Recent Files" : "Recent Case Files"}
+        {open ? t("dossier.recentClose") : t("dossier.recentButton")}
       </button>
 
       {open && (
         <aside
-          aria-label="Recent Case Files"
-          className="mt-2 w-80 rounded-sm border border-[#D4A84F]/40 bg-[#1B1613] p-4 text-[#F4EFE6] shadow-2xl"
+          aria-label={t("dossier.recentTitle")}
+          className="mt-3 w-full max-w-md border border-border bg-surface p-4 text-text sm:w-80"
         >
-          <div className="mb-2 flex items-center justify-between border-b border-[#F4EFE6]/15 pb-2">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#D4A84F]">
-              RECENT CASE FILES (D1 ARCHIVE)
+          <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-accent">
+              {t("dossier.recentTitle")}
             </span>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="font-mono text-xs text-[#F4EFE6]/70 hover:text-[#F4EFE6]"
+              aria-label={t("dossier.recentClose")}
+              className="font-mono text-xs text-text-muted hover:text-text"
             >
               ✕
             </button>
           </div>
 
           {loading ? (
-            <p className="py-4 font-mono text-xs text-[#F4EFE6]/70">Loading archived dossiers…</p>
+            <p className="py-4 font-mono text-xs text-text-muted">{t("dossier.recentLoading")}</p>
           ) : dossiers.length === 0 ? (
-            <p className="py-4 font-mono text-xs text-[#F4EFE6]/70">
-              No shared case files recorded yet.
-            </p>
+            <p className="py-4 font-mono text-xs text-text-muted">{t("dossier.recentEmpty")}</p>
           ) : (
             <ul className="space-y-2">
               {dossiers.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded border border-[#F4EFE6]/15 bg-[#12100E] p-2.5 font-mono text-xs"
+                  className="border border-border bg-bg p-2.5 font-mono text-xs text-text"
                 >
-                  <div className="font-sans font-semibold text-[#F4EFE6]">
+                  <div className="font-sans font-medium text-text">
                     {item.result.location.label}
                   </div>
-                  <div className="mt-0.5 text-[11px] text-[#D4A84F]">
-                    {item.result.variable} · {item.result.stats.verdict}
+                  <div className="mt-0.5 text-[11px] text-accent">
+                    {t(`variables.${item.result.variable}.shortLabel`)} ·{" "}
+                    {t(`verdict.${item.result.stats.verdict}`)}
                   </div>
-                  <div className="mt-1.5 flex items-center justify-between">
-                    <span className="text-[10px] text-[#F4EFE6]/60">{item.id}</span>
-                    {onSelectDossier ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onSelectDossier(item);
-                          setOpen(false);
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                    <span className="text-text-muted">{item.id}</span>
+                    <div className="flex items-center gap-3">
+                      {onSelectDossier && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectDossier(item);
+                            setOpen(false);
+                          }}
+                          className="text-text hover:text-accent hover:underline"
+                        >
+                          {t("dossier.recentInspect")} →
+                        </button>
+                      )}
+                      <a
+                        href={`/dossier/${item.id}`}
+                        onClick={(e) => {
+                          if (onOpenPermalink) {
+                            e.preventDefault();
+                            setOpen(false);
+                            onOpenPermalink(item.id);
+                          }
                         }}
-                        className="underline hover:text-[#D4A84F]"
+                        className="text-text-muted hover:text-accent hover:underline"
                       >
-                        Inspect →
-                      </button>
-                    ) : (
-                      <a href={`/dossier/${item.id}`} className="underline hover:text-[#D4A84F]">
-                        Open →
+                        {t("dossier.recentOpenLink")} ↗
                       </a>
-                    )}
+                    </div>
                   </div>
                 </li>
               ))}

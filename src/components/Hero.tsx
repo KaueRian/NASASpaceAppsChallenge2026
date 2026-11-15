@@ -52,7 +52,7 @@ export function Hero() {
               {featuredPreset.result.stats.startYear}–{featuredPreset.result.stats.endYear}
             </span>
           </div>
-          <div className="overflow-hidden">
+          <div className="relative">
             <ClimateStripes
               series={featuredPreset.result.series}
               variable={featuredPreset.variable}

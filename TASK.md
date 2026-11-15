@@ -1,7 +1,7 @@
 # 📋 Master Task Board & Single Source of Truth (`TASK.md`)
 
 > **Challenge:** `Be An Earth System Trend Detective!` (NASA Space Apps Challenge 2026 — Vilhena, RO, Brazil)  
-> **Project Name:** **EarthTrend Detective**  
+> **Project Name:** **GeoTrend** *(rebranded from EarthTrend Detective; D1 database binding `earthtrend-db` and `localStorage` prefixes `etd.*` / `earthtrend:power:v1:` preserved for zero-downtime backwards compatibility)*  
 > **Official Team Name / ID:** `TBD — Fill on Saturday morning`  
 > **Repository:** `KaueRian/NASASpaceAppsChallenge2026`  
 > **Slides / Media Workspace (Canva / Drive):** `TBD — Add link here`  
@@ -62,10 +62,11 @@
 ## 🤝 Collaboration & Git Workflow
 1. **Single Source of Truth:** every code, doc, copy, or config change maps to a task here. Add a task first if one does not exist.
 2. **Status Legend:** `[ ]` Pending | `[~] (<Name>)` In progress (claim before editing!) | `[x]` Done
-3. **Branching (`feature/*` -> `dev` -> `main`):** never commit directly to `main`; `main` only receives release merges from `dev`.
-4. **TDD** for critical logic (stats, aggregation, `-999` filtering, validation) — see [`AGENTS.md`](AGENTS.md).
-5. **Local Dev:** `npm` (Node 20+) + `wrangler dev` + local D1 (no Cloudflare login needed for Mylena).
-6. **English only in repo** (UI strings live in `src/locales/en.json` and `src/locales/pt.json`; `docs/submission/` may contain the PT-BR pitch script).
+3. **Mandatory Priority Property (`[priority: low | medium | high]`):** Every open (`[ ]` / `[~]`) or new task MUST declare `[priority: high]`, `[priority: medium]`, or `[priority: low]` (synced as `[prioridade: alta | média | baixa]` in root PT-BR docs). Either the user defines it or the active agent assigns it based on hackathon deadlines and judging impact.
+4. **Branching (`feature/*` -> `dev` -> `main`):** never commit directly to `main`; `main` only receives release merges from `dev`.
+5. **TDD** for critical logic (stats, aggregation, `-999` filtering, validation) — see [`AGENTS.md`](AGENTS.md).
+6. **Local Dev:** `npm` (Node 20+) + `wrangler dev` + local D1 (no Cloudflare login needed for Mylena).
+7. **English only in repo** (UI strings live in `src/locales/en.json` and `src/locales/pt.json`; `docs/submission/` may contain the PT-BR pitch script).
 
 ---
 
@@ -144,7 +145,7 @@
 - [x] **(Mylena)** "Derived from Case #0X" mode when editing a loaded case's variable/season, with `Restore original case`
   - *Note (Mylena):* any successful live submit while a preset is loaded flips to "derived" (banner + restore button, using Kauê's existing `cases.derivedBanner`/`cases.restoreAction` copy) — not just variable/season specifically, since editing location/years counts too.
 - [x] **(Higor & Luis)** Copy for all error/empty states and form labels (EN + PT) (`src/locales/en.json` & `src/locales/pt.json`)
-- [ ] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point)
+- [x] **(Kauê)** 🚀 **Release R2:** merge `dev -> main`, deploy, test live searches (Manaus, Cuiabá, Tokyo, ocean point — verified live against `https://nasaspaceappschallenge2026.kauerian342.workers.dev`, D1 cache `lat_round`/`lon_round` fixed & active)
 
 ## 🎬 R3 — Showtime (target Sun 08:30, before UI Freeze)
 - [x] **(Mylena)** `<Hero />` real/attention-grabbing version (`src/components/Hero.tsx` featuring Vilhena Case #01 `<ClimateStripes tone="dark" />` + `prefers-reduced-motion` smooth scroll & transitions)
@@ -154,7 +155,7 @@
 - [x] **(Kauê)** `POST /api/dossiers` + `GET /api/dossiers/:id` (structured fields only, no free text) — **backed by D1** — + read-only shared-result page with a CTA (`src/worker/routes/dossiers.ts` + `<SharedDossierView />` in `src/components/share/SharedDossierView.tsx`)
 - [x] **(Kauê)** `<ShareSheet />` ready to wire into `<Investigation />`'s actions row: `Copy Share Link` (auto-save via the endpoint above), `Download PNG`, `Download CSV`, `Copy Citation` (`src/lib/export/dossierExport.ts`), native `navigator.share` on mobile (`src/components/share/ShareSheet.tsx`)
 - [x] **(Higor & Luis)** Logo/wordmark, favicon, static OG image in `public/brand/` (`public/favicon.svg`, `public/brand/favicon.svg`, `public/brand/logo-wordmark.svg`, `public/brand/og-card.svg`)
-- [ ] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze Sun 09:00**
+- [x] **(Kauê)** 🚀 **Release R3:** merge `dev -> main`, deploy → **UI Freeze ready** (`https://nasaspaceappschallenge2026.kauerian342.workers.dev`)
 
 ## 🗂️ R4 — Credibility & Extras (target Sun 13:30)
 *Should first, then Could. Stop at 13:30 no matter what.*
@@ -174,13 +175,31 @@
   - *Note 9 (Mylena):* hub polish: dropped the trailing "— mais modos em breve"/"— more modes coming soon" from the hub subtitle (redundant with the "Em breve" badges already on the 2 inactive tiles); the "Explorar" hub heading now reads as an actual page title (`font-display text-3xl`) instead of a small eyebrow label; and the 3 module-tile emoji (🎂 ⚽ 🎵) were replaced with small hand-rolled line-art SVG icons (`ClockIcon`/`TrophyIcon`/`MusicNoteIcon` in `ExplorePage.tsx`, clock chosen over a literal timeline glyph after discussion) — emoji read as unpolished for this product's tone, and the codebase already hand-rolls all its other icons/charts as inline SVG rather than using an icon library.
 - [x] **(Kauê)** **Could:** QR code + short URL on the share image (`src/components/share/EvidenceCard.tsx`)
 - [x] **(Kauê)** **Could:** `GET /api/dossiers` "Recent shared results" list (structured fields only) + drawer UI (`src/worker/routes/dossiers.ts` + `<RecentDossiersDrawer />` in `src/components/share/RecentDossiersDrawer.tsx`)
-- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` & `MODIS_Terra_NDVI_8Day`, `2000–2025`) with a **Play/Pause year-by-year timeline scrubber**
-- [ ] **(Kauê)** Upgrade `<SatelliteTimelapse />` with a default-open **"Before vs. After" (`2000` vs. `2025` side-by-side comparison)** + Timelapse mode toggle (`True Color` & `NDVI`), Dark Editorial styling, full PT/EN i18n, and wire it directly below `<TrendChart />` inside `<Investigation />`
+- [x] **(Kauê)** **Could:** `<SatelliteTimelapse />` base panel (`src/components/share/SatelliteTimelapse.tsx`): **NASA GIBS / Worldview WMTS** (`MODIS_Terra_CorrectedReflectance_TrueColor` `Aug 29` & `MODIS_Terra_L3_NDVI_Monthly` `Aug 01`, `2000–2025`, 100% HTTP 200 coverage) with a **Play/Pause year-by-year timeline scrubber**
+- [x] **(Kauê)** Upgrade `<SatelliteTimelapse />` with a default-open **"Before vs. After" (`2000` vs. `2025` side-by-side comparison)** + Timelapse mode toggle (`True Color` & `NDVI`), Dark Editorial styling, full PT/EN i18n, and wire it directly below `<TrendChart />` inside `<Investigation />` — plus wire deep-link SPA routing (`src/lib/routing.ts` for `/dossier/:id`, `/?case=`, `/investigate?...`), `<SharedDossierView />`, `<RecentDossiersDrawer />`, lazy-load Leaflet (`LocationPicker`), `db:migrate:remote --yes`, and live Worker + D1 deployment (`https://nasaspaceappschallenge2026.kauerian342.workers.dev`)
 - [x] **(Kauê)** Create formal scientific provenance & audit document (`docs/science/AUDIT.md`) + upgrade `README.md` to Global Winner format (scientific scope disclaimer, *Signature Moment*, 4-scale verified table, 3-tier offline-first architecture, mathematical provenance matrix)
-- [ ] **(Kauê)** Register custom domain via GoDaddy Global Offer (`earthtrend.us` / `earthtrend.co` / `earthtrend.space`) and bind Custom Domain in Cloudflare Workers (`wrangler.jsonc`)
-- [~] **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` and full scientific `README.md` created; final live URL/screenshots added at Code Freeze)
-- [ ] **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
-- [ ] **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
+- [x] **(Antigravity — Mylena / Kauê)** **Could:** Temperature unit toggle (`°C | °F`) alongside `EN | PT` in `<AppHeader />` (persisted preference in `localStorage`), converting `T2M` / `T2M_MIN` (`unit === "C"`) across UI, `<TrendChart />`, `<Investigation />` (headline + FDR scan + CI), `<MethodsPage />` empirical table, `<EvidenceCard />`, `<SharedDossierView />`, and `dossierExport.ts` CSV/citation exports (absolute temperatures `°C × 9/5 + 32` vs. slopes/deltas/stdDev `Δ°C × 9/5` without `+32` offset; `PRECTOTCORR` `mm` and `GWETROOT` `%` unchanged) + Vitest unit coverage
+- [x] **(Antigravity — Mylena / Kauê)** **Could:** Interactive hover & visual explanation on `<ClimateStripes />` (`src/components/share/ClimateStripes.tsx`, rendered in `<TrendChart />` `stripes` view and `<Hero />`): floating Dark Editorial hover tooltip matching `Barras Sazonais` (showing year/window label, formatted value + unit, z-score, extreme anomaly tag `|z| > 1.5`, and active stripe highlight) + compact color-scale legend & plain-language PT/EN caption explaining how each vertical stripe encodes yearly z-score anomalies relative to the period mean (`TEMP_PALETTE` cooling blue ↔ warming crimson; `HYDRO_PALETTE` drought ochre ↔ moisture teal)
+- [x] **(Kauê)** **Could:** AI Natural-Language Investigation Assistant (`POST /api/ai/translate` + `POST /api/ai/interpret` backed by Gemini API `responseJsonSchema` + `thinkingLevel`, server-side `GEMINI_API_KEY` secret + D1/isolate caching + input/rate bounds, AI-first prompt bar in `<Investigation />` with synchronized editable manual filters under `Advanced options`, Layer 2 execution through existing geocode + NASA POWER + BH FDR scan pipeline, non-empty unhappy-path scope/error recovery, scientific synthesis card + Layer 1 JSON disclosure inside expanded method panel) + TDD Vitest coverage
+- [x] **(Antigravity — Kauê)** **Could (Follow-up):** AI outage resilient fallback mode (client-side deterministic semantic parser + local statistical synthesis summary when Gemini routes return `503`/`429` or no `GEMINI_API_KEY` is configured)
+- [x] **(Antigravity — Kauê)** Configure explicit `vars` (`GEMINI_MODEL`) and non-inheritable `previews` bindings (`vars` + `d1_databases`) in `wrangler.jsonc`, plus `.dev.vars.example` template for local `wrangler dev` (keeping secret `GEMINI_API_KEY` out of Git)
+- [x] **(Antigravity — Mylena / Kauê)** **Could (Share UI & Site-Wide i18n Audit):** Localize `<ShareSheet />` (including the Share card title, format toggles, PNG/CSV/citation/link buttons, close button, `aria-label`, and native share summary), `<EvidenceCard />` (DOM preview & HTML5 Canvas PNG export — verdict, variable, season, stat headers, source metadata, and verification QR label), `<ClimateStripes />` (localized caption `FAIXAS DE ANOMALIA (Z-SCORE)` / `ANOMALY STRIPES (Z-SCORE)`, SVG `aria-label`, and formatted/°F-aware stripe `<title>`), `<LanguageToggle />` `aria-label`, `<TrendChart />` SVG `aria-label`, and `buildCitationText()` PT confidence interval (`IC 95%` / `/década`) + localized variable/season/verdict labels in `dossierExport.ts`, plus full PT/EN regression tests
+- [ ] **[priority: high]** **(Kauê)** **Release Gate:** Promote validated `dev` integration (Gemini 4 AI assistant, 20-investigation catalog + API filters, and NASA GIBS tile preloading) to `main` after manual testing on `dev` (CI/CD production deploy)
+- [ ] **[priority: low]** **(Kauê / Mylena)** **Could (Academic Share & Satellite Visual Evidence Sharing):** Upgrade the share & export experience in `src/components/share/` and `src/lib/export/dossierExport.ts`:
+  - **Academic Share Modes (`Slides 16:9` & `Paper / Article` alongside `Story 9:16` & `Square 1:1`):** add publication-ready `Paper / Article` (high-contrast figure layout with full statistical provenance: Sen's Slope + 95% CI, Mann-Kendall $S/Z/p$, $n$ years, OLS $R^2$, correlation ≠ causation caveat, coordinates, and NASA POWER / MERRA-2 source) and `Slide 16:9` (widescreen presentation deck layout) presets in `EvidenceCard.tsx` / `ShareSheet.tsx`, plus ready-to-copy academic citation formats (BibTeX, ABNT, APA) alongside existing CSV, PNG, and dossier link actions.
+  - **Satellite Evidence Sharing (`SatelliteTimelapse.tsx`):** add share & export controls to NASA GIBS satellite visual evidence (`Before vs. After` comparison or selected Timelapse year, `MODIS True Color` / `NDVI` layer, coordinates, and NASA GIBS / Worldview attribution), supporting shareable deep links preserving satellite layer/mode/year, copyable NASA GIBS figure caption/citation, native `navigator.share`, and downloadable side-by-side PNG figure export (with CORS-safe tile handling/fallback).
+- [ ] **[priority: high]** **(Antigravity — Kauê / Mylena)** **UI Simplification (Remove AI Step-by-Step Tracker):** Remove the 3-step pipeline tracker rendered below the question bar after submitting a query (`showTracker`, `resolveStepStates`, `stepClassName`, `StepState`, and the `1. AI Filters` → `2. NASA + Mann-Kendall` → `3. AI Synthesis` grid in `src/components/AiAssistantBar.tsx`):
+  - Keep only the existing busy state on the submit button (`isBusy` / `ai.runningButton`) and replace `t("ai.steps.interpret")` in `src/components/AiSynthesisPanel.tsx` loading placeholder with a dedicated synthesis-loading label (removing unused `ai.steps` keys in `src/locales/en.json` and `src/locales/pt.json` and evaluating whether `stage: AiPipelineStage` in `Investigation.tsx` can be simplified alongside tests in `tests/r3r4Components.test.ts` and `tests/aiFallback.test.ts`).
+- [ ] **[priority: high]** **(Higor & Luis / Mylena / Kauê)** **Could (Professional UI Copy & Unambiguous Status UX):** Audit and polish all user-facing messages, badges, and state indicators so the app never exposes internal engineering/debug jargon (such as `local-statistical-fallback`, `local-deterministic-fallback`, `"sem chave configurada"`, `"Modo Resiliente Local Ativo"`, `"Camada 1"`, `"D1"`, or abbreviated developer labels) and always makes it crystal clear *how* results were produced:
+  - Replace raw fallback model IDs (`local-*-fallback`) and outage/debug wording with concise, authoritative scientific copy (e.g., clearly distinguishing **AI Synthesis (Gemini)** vs. **Automated Statistical Summary (Local)** without exposing API-key internals or alarming users).
+  - Update the provenance badge in `AiSynthesisPanel.tsx` and assistant status banners in `AiAssistantBar.tsx` so local statistical mode and Gemini AI mode are clearly labeled without internal debug phrasing.
+  - Perform a full copywriting pass across `Investigation.tsx`, `RecentDossiersDrawer`, `CasesGrid`, `SatelliteTimelapse`, and `src/locales/*.json` (PT + EN) to elevate tone, clarity, and scientific readability across every feature.
+- [x] **[priority: high]** **(Antigravity — All)** **Establish mandatory `priority` property across all tasks & AI guides:** document required `[priority: low | medium | high]` (`AGENTS.md`, `CLAUDE.md`, `TASK.md`, plus PT-BR root docs) and tag all open `[ ]` / `[~]` tasks
+- [x] **(Antigravity — All)** **Rebrand software name from `EarthTrend Detective` to `GeoTrend`:** update user-facing brand copy (`index.html`, `src/locales/en.json`, `src/locales/pt.json`), SVG brand assets (`public/brand/logo-wordmark.svg`, `og-card.svg`, `favicon.svg`, `public/favicon.svg`), exports/cards (`EvidenceCard.tsx`, `ShareSheet.tsx`, `dossierExport.ts` PNG/CSV filenames & citations), `src/worker/index.ts` `service` field + affected tests (`contract.test.ts`, `workerApi.test.ts`, `shareHelpers.test.ts`), project/submission docs (`README.md`, `DESIGN.md`, `AGENTS.md`, `CLAUDE.md`, `TASK.md`, `docs/science/AUDIT.md`, `docs/submission/*`), and evaluate safe/backwards-compatible handling for `localStorage` keys (`etd.*` / `earthtrend:power:v1:`), custom domain selection, and keeping existing Cloudflare D1 resource `earthtrend-db` binding intact without breaking live prod data
+- [ ] **[priority: medium]** **(Kauê)** Register custom domain via GoDaddy Global Offer (`geotrend.*` / `earthtrend.*`) and bind Custom Domain in Cloudflare Workers (`wrangler.jsonc`)
+- [~] **[priority: medium]** **(Kauê)** Add MIT `LICENSE`; finalize `README.md` (`LICENSE` and full scientific `README.md` created; final live URL/screenshots added at Code Freeze)
+- [ ] **[priority: high]** **(Kauê)** Make repository public on GitHub and enable branch protection on `main` and `dev`
+- [ ] **[priority: high]** **(Kauê)** 🚀 **Code Freeze Sun 14:00:** final `dev -> main` deploy, incognito + projector/TV test
 
 **Won't (this hackathon):** 3D globe, daily data, extra NASA datasets, accounts/login, free-text notes.
 
@@ -191,11 +210,11 @@
 - [x] **(Higor & Luis)** 30-second video script (EN) in `docs/submission/video-script-30s.md` (0–5s hero/intro, 5–15s a Featured Case result, 15–25s live investigation, 25–30s impact + share image)
 - [x] **(Higor & Luis)** 3-minute pitch script (PT-BR) in `docs/submission/pitch-script-pt.md` + 5–7 slide structure
 - [x] **(Higor & Luis)** Draft NASA portal fields (EN) in `docs/submission/nasa-portal-copy.md`
-- [ ] **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
-- [ ] **(Higor & Luis)** Capture 4–7 English UI screenshots after UI Freeze
-- [ ] **(Higor & Luis)** Record/edit the 30s video (≤ 30s, EN audio or PT audio + EN subtitles) and upload to YouTube; verify playback
-- [ ] **(Higor & Luis)** Final PDF slides (PT-BR) + offline copy of slides, demo video and screenshots on the stage laptop
-- [ ] **(Higor & Luis + Stage Rep)** Rehearse the 3-minute pitch at least twice
-- [ ] **(All)** Submit local HUBEE deliverables (15:00–15:30)
-- [ ] **(Stage Rep)** Deliver the 3-minute pitch (15:30–17:00)
-- [ ] **(All 4)** Verify repo, live URL, video, screenshots, English fields → submit on the NASA portal before Sun 21:30
+- [ ] **[priority: medium]** **(Higor & Luis)** Attend HUBEE Pitch Workshop (Sun 09:00–09:45)
+- [ ] **[priority: high]** **(Higor & Luis)** Capture 4–7 English UI screenshots after UI Freeze
+- [ ] **[priority: high]** **(Higor & Luis)** Record/edit the 30s video (≤ 30s, EN audio or PT audio + EN subtitles) and upload to YouTube; verify playback
+- [ ] **[priority: high]** **(Higor & Luis)** Final PDF slides (PT-BR) + offline copy of slides, demo video and screenshots on the stage laptop
+- [ ] **[priority: high]** **(Higor & Luis + Stage Rep)** Rehearse the 3-minute pitch at least twice
+- [ ] **[priority: high]** **(All)** Submit local HUBEE deliverables (15:00–15:30)
+- [ ] **[priority: high]** **(Stage Rep)** Deliver the 3-minute pitch (15:30–17:00)
+- [ ] **[priority: high]** **(All 4)** Verify repo, live URL, video, screenshots, English fields → submit on the NASA portal before Sun 21:30

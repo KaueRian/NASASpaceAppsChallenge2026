@@ -1,6 +1,8 @@
 import type { Context } from "hono";
+import { validateCatalogFilterParams } from "../../data/investigations.ts";
 import { aggregateMonthlySeries } from "../../lib/nasa/aggregate.ts";
 import { fetchNasaPowerMonthly } from "../../lib/nasa/powerClient.ts";
+import { normalizeSearchText } from "../../lib/nasa/smartInvestigation.ts";
 import { analyzeTrend } from "../../lib/stats/analyzeTrend.ts";
 import {
   buildNasaCacheKey,
@@ -252,25 +254,108 @@ export async function handleGetDossier(c: Context<{ Bindings: WorkerBindings }>)
   return errorResponse(c, 404, "DOSSIER_NOT_FOUND", "Dossier not found.");
 }
 
+function parseOptionalYearFilter(raw?: string): number | null | "invalid" {
+  if (raw === undefined || raw.trim() === "") return null;
+  const parsed = Number(raw);
+  const maxYear = new Date().getUTCFullYear();
+  if (!Number.isInteger(parsed) || parsed < 1981 || parsed > maxYear) {
+    return "invalid";
+  }
+  return parsed;
+}
+
 export async function handleListDossiers(c: Context<{ Bindings: WorkerBindings }>) {
+  const filterValidation = validateCatalogFilterParams({
+    variable: c.req.query("variable"),
+    season: c.req.query("season"),
+    q: c.req.query("q"),
+    limit: c.req.query("limit"),
+  });
+
+  if (!filterValidation.ok) {
+    return errorResponse(c, 400, filterValidation.code, filterValidation.message);
+  }
+
+  const startYearFilter = parseOptionalYearFilter(c.req.query("startYear"));
+  const endYearFilter = parseOptionalYearFilter(c.req.query("endYear"));
+  if (
+    startYearFilter === "invalid" ||
+    endYearFilter === "invalid" ||
+    (startYearFilter !== null && endYearFilter !== null && startYearFilter > endYearFilter)
+  ) {
+    return errorResponse(
+      c,
+      400,
+      "INVALID_FILTER",
+      "Invalid startYear/endYear filter for dossiers list.",
+    );
+  }
+
+  const { variable, season, q, limit = 10 } = filterValidation.data;
+  const normalizedQ = q ? normalizeSearchText(q) : "";
+
   if (c.env?.DB) {
     await ensureD1Schema(c.env.DB);
     try {
-      const queryResult = await c.env.DB.prepare(
-        "SELECT id, created_at, result_json FROM dossiers ORDER BY created_at DESC LIMIT 10",
-      ).all<DossierRow>();
+      const clauses: string[] = [];
+      const bindings: Array<string | number> = [];
 
-      const items: SavedDossier[] = (queryResult.results ?? []).map((row) => ({
-        id: row.id,
-        createdAt: row.created_at,
-        result: JSON.parse(row.result_json) as InvestigationResult,
-      }));
+      if (variable) {
+        clauses.push("variable = ?");
+        bindings.push(variable);
+      }
+      if (season) {
+        clauses.push("season = ?");
+        bindings.push(season);
+      }
+      if (startYearFilter !== null) {
+        clauses.push("start_year >= ?");
+        bindings.push(startYearFilter);
+      }
+      if (endYearFilter !== null) {
+        clauses.push("end_year <= ?");
+        bindings.push(endYearFilter);
+      }
+
+      const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
+      const sqlLimit = normalizedQ ? Math.max(limit * 5, 50) : limit;
+      const queryResult = await c.env.DB.prepare(
+        `SELECT id, created_at, result_json FROM dossiers ${whereSql} ORDER BY created_at DESC LIMIT ?`,
+      )
+        .bind(...bindings, sqlLimit)
+        .all<DossierRow>();
+
+      const items: SavedDossier[] = (queryResult.results ?? [])
+        .map((row) => ({
+          id: row.id,
+          createdAt: row.created_at,
+          result: JSON.parse(row.result_json) as InvestigationResult,
+        }))
+        .filter(
+          (dossier) =>
+            !normalizedQ ||
+            normalizeSearchText(dossier.result.location.label).includes(normalizedQ),
+        )
+        .slice(0, limit);
       return c.json({ ok: true, dossiers: items }, 200);
     } catch {
       // Fall back to in-memory isolate store
     }
   }
 
-  const items = Array.from(memoryDossiers.values()).slice(-10).reverse();
+  const items = Array.from(memoryDossiers.values())
+    .reverse()
+    .filter((dossier) => {
+      const { result } = dossier;
+      if (variable && result.variable !== variable) return false;
+      if (season && result.season !== season) return false;
+      if (startYearFilter !== null && result.stats.startYear < startYearFilter) return false;
+      if (endYearFilter !== null && result.stats.endYear > endYearFilter) return false;
+      if (normalizedQ && !normalizeSearchText(result.location.label).includes(normalizedQ)) {
+        return false;
+      }
+      return true;
+    })
+    .slice(0, limit);
   return c.json({ ok: true, dossiers: items }, 200);
 }

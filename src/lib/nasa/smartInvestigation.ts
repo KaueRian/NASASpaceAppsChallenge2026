@@ -85,7 +85,112 @@ export const QUICK_CITY_SUGGESTIONS: readonly GeocodeCandidate[] = [
     lon: 15.65,
     label: "Svalbard, Arctic",
   },
+  {
+    name: "Cerejeiras",
+    admin1: "Rondônia",
+    country: "Brazil",
+    lat: -13.19,
+    lon: -60.81,
+    label: "Cerejeiras, RO, Brazil",
+  },
+  {
+    name: "Rio Branco",
+    admin1: "Acre",
+    country: "Brazil",
+    lat: -9.97,
+    lon: -67.81,
+    label: "Rio Branco, AC, Brazil",
+  },
+  {
+    name: "Belém",
+    admin1: "Pará",
+    country: "Brazil",
+    lat: -1.46,
+    lon: -48.5,
+    label: "Belém, PA, Brazil",
+  },
+  {
+    name: "Sorriso",
+    admin1: "Mato Grosso",
+    country: "Brazil",
+    lat: -12.54,
+    lon: -55.72,
+    label: "Sorriso, MT, Brazil",
+  },
+  {
+    name: "Barreiras",
+    admin1: "Bahia",
+    country: "Brazil",
+    lat: -12.09,
+    lon: -45.79,
+    label: "Barreiras (MATOPIBA), BA, Brazil",
+  },
+  {
+    name: "Brasília",
+    admin1: "Distrito Federal",
+    country: "Brazil",
+    lat: -15.79,
+    lon: -47.88,
+    label: "Brasília, DF, Brazil",
+  },
+  {
+    name: "São Paulo",
+    admin1: "São Paulo",
+    country: "Brazil",
+    lat: -23.55,
+    lon: -46.63,
+    label: "São Paulo, SP, Brazil",
+  },
+  {
+    name: "Petrolina",
+    admin1: "Pernambuco",
+    country: "Brazil",
+    lat: -9.39,
+    lon: -40.5,
+    label: "Petrolina, PE, Brazil",
+  },
+  {
+    name: "Porto Alegre",
+    admin1: "Rio Grande do Sul",
+    country: "Brazil",
+    lat: -30.03,
+    lon: -51.23,
+    label: "Porto Alegre, RS, Brazil",
+  },
+  {
+    name: "Sevilla",
+    admin1: "Andalusia",
+    country: "Spain",
+    lat: 37.39,
+    lon: -5.99,
+    label: "Sevilla, Spain",
+  },
+  {
+    name: "Tokyo",
+    admin1: "Tokyo",
+    country: "Japan",
+    lat: 35.68,
+    lon: 139.77,
+    label: "Tokyo, Japan",
+  },
+  {
+    name: "Niamey",
+    admin1: "Niamey",
+    country: "Niger",
+    lat: 13.51,
+    lon: 2.11,
+    label: "Niamey (Sahel), Niger",
+  },
 ];
+
+/** Normalizes text for accent- and case-insensitive search filtering. */
+export function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
 /**
  * Returns the scientifically recommended seasonal window for a given variable and latitude:
@@ -101,19 +206,19 @@ export function getRecommendedSeason(variable: VariableId, lat: number): SeasonI
 }
 
 /**
- * Filters curated quick-access cities by case-insensitive substring, or returns all when empty.
+ * Filters curated quick-access cities by accent-insensitive substring, or returns all when empty.
  */
 export function getQuickCitySuggestions(filterQuery = ""): GeocodeCandidate[] {
-  const normalized = filterQuery.trim().toLowerCase();
+  const normalized = normalizeSearchText(filterQuery);
   if (!normalized) {
     return [...QUICK_CITY_SUGGESTIONS];
   }
   return QUICK_CITY_SUGGESTIONS.filter(
     (c) =>
-      c.label.toLowerCase().includes(normalized) ||
-      c.name.toLowerCase().includes(normalized) ||
-      (c.admin1?.toLowerCase().includes(normalized) ?? false) ||
-      c.country.toLowerCase().includes(normalized),
+      normalizeSearchText(c.label).includes(normalized) ||
+      normalizeSearchText(c.name).includes(normalized) ||
+      (c.admin1 ? normalizeSearchText(c.admin1).includes(normalized) : false) ||
+      normalizeSearchText(c.country).includes(normalized),
   );
 }
 

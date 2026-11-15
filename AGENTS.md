@@ -1,6 +1,6 @@
 # 🤖 AI Agent Operating Guide (`AGENTS.md`)
 
-This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective** software for the **NASA Space Apps Challenge 2026** (`Be An Earth System Trend Detective!` — Vilhena, RO, Brazil).
+This repository (`NASASpaceAppsChallenge2026`) hosts the **GeoTrend** software for the **NASA Space Apps Challenge 2026** (`Be An Earth System Trend Detective!` — Vilhena, RO, Brazil).
 
 ---
 
@@ -11,6 +11,7 @@ This repository (`NASASpaceAppsChallenge2026`) hosts the **EarthTrend Detective*
 - **Always read [`DESIGN.md`](DESIGN.md) before designing or editing any UI/UX or frontend component** (it holds the full Old NY Noir Detective Office aesthetic, color tokens, 3-room layout, and *Show Your Stripes* card specs so no context is lost across sessions).
 - **Every change—no matter how minimal—MUST correspond to a task in `TASK.md`.**
   - If no task exists for the change you are about to make, **add a new task to `TASK.md` first** before writing code or modifying files.
+  - **Mandatory Priority Property (`priority` / PT-BR `prioridade`):** Every open (`[ ]` / `[~]`) or newly created task MUST declare a priority tag: `[priority: low]`, `[priority: medium]`, or `[priority: high]` in `TASK.md` (matching `[prioridade: baixa]`, `[prioridade: média]`, or `[prioridade: alta]` in the PT-BR root checklists `SPACE_APPS_2026.md` and `task.md`). The user may specify the priority explicitly, or the agent must assign one autonomously based on hackathon deadline urgency, rubric impact, and release dependencies.
   - Mark the task as `[~] (<YourName/Agent>)` while in progress and `[x]` upon completion.
 - Respect task ownership so the two developers do not collide on the same files.
 - **Release Ladder ("always shippable"):** work on tasks top-down by release (`R0` → `R4` in `TASK.md`). Never start a later release while the current one is unfinished, and never leave `main` broken — `main` always holds the latest complete release.

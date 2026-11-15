@@ -1,12 +1,22 @@
 import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { AiAssistantBar } from "../src/components/AiAssistantBar";
+import { AiSynthesisPanel } from "../src/components/AiSynthesisPanel";
 import { CasesGrid, markCaseViewed, readViewedCases } from "../src/components/CasesGrid";
 import { Hero } from "../src/components/Hero";
+import { Investigation } from "../src/components/Investigation";
 import { MethodsPage } from "../src/components/MethodsPage";
+import {
+  RecentDossiersDrawer,
+  resolveGibsComparisonWindow,
+  SatelliteTimelapse,
+  SharedDossierView,
+} from "../src/components/share";
 import { TrendChart } from "../src/components/TrendChart";
 import { getCasePresetById } from "../src/data/presets";
 import { I18nProvider } from "../src/i18n/i18n";
+import { parseAppRoute } from "../src/lib/routing";
 
 function renderWithI18n(node: ReactElement): string {
   return renderToStaticMarkup(createElement(I18nProvider, null, node));
@@ -17,7 +27,7 @@ describe("R3 & R4 UI components", () => {
     const html = renderWithI18n(createElement(Hero));
     expect(html).toContain("Vilhena, RO, Brazil");
     expect(html).toContain("1981–2025");
-    expect(html).toContain("ANOMALY STRIPES (Z-SCORE)");
+    expect(html).toContain("FAIXAS DE ANOMALIA (Z-SCORE)");
   });
 
   it("renders TrendChart with the 3 View As mode buttons", () => {
@@ -78,5 +88,268 @@ describe("R3 & R4 UI components", () => {
     expect(html).toContain("Ariquemes, RO, Brasil");
     expect(html).toContain("Corumbá (Pantanal), MS, Brasil");
     expect(html).toContain("Svalbard, Ártico");
+  });
+
+  it("renders SatelliteTimelapse Before vs. After (2000 vs. 2025) open by default", () => {
+    expect(resolveGibsComparisonWindow(1981, 2025)).toEqual({
+      beforeYear: 2000,
+      afterYear: 2025,
+      startsBeforeArchive: true,
+    });
+    expect(resolveGibsComparisonWindow(1981, 1995)).toEqual({
+      beforeYear: 2000,
+      afterYear: 2025,
+      startsBeforeArchive: true,
+    });
+
+    const preset = getCasePresetById("01").result;
+    const html = renderWithI18n(
+      createElement(SatelliteTimelapse, {
+        location: preset.location,
+        startYear: preset.stats.startYear,
+        endYear: preset.stats.endYear,
+      }),
+    );
+    expect(html).toContain("Antes vs. Depois");
+    expect(html).toContain("ANTES · 2000");
+    expect(html).toContain("DEPOIS · 2025");
+    expect(html).toContain("MODIS_Terra_CorrectedReflectance_TrueColor");
+    expect(html).toContain("/2000-08-29/");
+    expect(html).toContain("/2025-08-29/");
+    expect(html).toContain('loading="eager"');
+    expect(html).toContain('decoding="async"');
+  });
+
+  it("wires SatelliteTimelapse and RecentDossiersDrawer directly inside Investigation", () => {
+    const html = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(html).toContain("ANTES · 2000");
+    expect(html).toContain("DEPOIS · 2025");
+    expect(html).toContain("Dossiês recentes");
+  });
+
+  it("parses deep links for presets, live queries, methods, and shared dossiers", () => {
+    expect(parseAppRoute("/", "")).toEqual({
+      view: "home",
+      presetId: "01",
+      scrollToInvestigation: false,
+    });
+    expect(parseAppRoute("/", "?case=03")).toEqual({
+      view: "home",
+      presetId: "03",
+      scrollToInvestigation: true,
+    });
+    expect(parseAppRoute("/dossier/et-0123456789", "")).toEqual({
+      view: "dossier",
+      dossierId: "et-0123456789",
+    });
+    expect(parseAppRoute("/methods", "")).toEqual({ view: "methods" });
+
+    const live = parseAppRoute(
+      "/investigate",
+      "?lat=-3.1190&lon=-60.0217&variable=T2M&season=annual&label=Manaus",
+    );
+    expect(live.view).toBe("home");
+    if (live.view === "home") {
+      expect(live.scrollToInvestigation).toBe(true);
+      expect(live.initialLiveQuery).toEqual({
+        lat: -3.119,
+        lon: -60.0217,
+        variable: "T2M",
+        season: "annual",
+        startYear: 1981,
+        endYear: 2025,
+        label: "Manaus",
+      });
+    }
+  });
+
+  it("renders SharedDossierView and RecentDossiersDrawer with Dark Editorial i18n", () => {
+    const sharedHtml = renderWithI18n(
+      createElement(SharedDossierView, {
+        dossierId: "et-abcdef1234",
+      }),
+    );
+    expect(sharedHtml).toContain("et-abcdef1234");
+
+    const drawerHtml = renderWithI18n(createElement(RecentDossiersDrawer));
+    expect(drawerHtml).toContain("Dossiês recentes");
+  });
+
+  it("renders AI-first search bar by default, collapses manual filters under Advanced, and warns on invalid spans", () => {
+    const defaultHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(defaultHtml).toContain('aria-label="Faça uma pergunta investigativa sobre o clima"');
+    expect(defaultHtml).toContain('aria-expanded="false"');
+    expect(defaultHtml).toContain("45 anos");
+    expect(defaultHtml).not.toContain('aria-label="Ano Inicial"');
+
+    const advancedHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        defaultAdvancedOpen: true,
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(advancedHtml).toContain('aria-expanded="true"');
+    expect(advancedHtml).toContain('aria-label="Ano Inicial"');
+    expect(advancedHtml).toContain('aria-label="Ano Final"');
+    expect(advancedHtml).not.toContain('type="number"');
+
+    const shortHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        initialLiveQuery: {
+          lat: -12.74,
+          lon: -60.14,
+          variable: "T2M",
+          season: "annual",
+          startYear: 2015,
+          endYear: 2025,
+          label: "Vilhena, RO, Brazil",
+        },
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(shortHtml).toContain("Período selecionado: 11 anos (2015–2025)");
+    expect(shortHtml).toContain('disabled=""');
+
+    const reversedHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        initialLiveQuery: {
+          lat: -12.74,
+          lon: -60.14,
+          variable: "T2M",
+          season: "annual",
+          startYear: 2020,
+          endYear: 2005,
+          label: "Vilhena, RO, Brazil",
+        },
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(reversedHtml).toContain(
+      "O ano inicial (2020) precisa ser menor ou igual ao ano final (2005).",
+    );
+  });
+
+  it("renders AiAssistantBar unhappy-path recovery states and AiSynthesisPanel grounding cards", () => {
+    const outOfScopeHtml = renderWithI18n(
+      createElement(AiAssistantBar, {
+        question: "Vai chover amanhã em Manaus?",
+        onQuestionChange: () => {},
+        onAskQuestion: () => {},
+        stage: "done",
+        isBusy: false,
+        translation: {
+          ok: true,
+          inScope: false,
+          outOfScopeMessage: "A ferramenta analisa séries históricas de longo prazo (>= 15 anos).",
+          suggestedValidQuestions: ["Como mudou a chuva em Manaus desde 1981?"],
+          reasoning: "Short-term forecast requested.",
+          initialHypothesis: "",
+          filters: {
+            reuseCurrentLocation: false,
+            locationQuery: "Manaus",
+            variable: "PRECTOTCORR",
+            season: "annual",
+            startYear: 1981,
+            endYear: 2025,
+            runMultiVariableScan: false,
+          },
+          model: "gemini-4-hydrogen",
+          cached: false,
+        },
+        errorCode: "AI_NOT_CONFIGURED",
+        hasScanApplied: false,
+        filterSummaryLine: "PRECTOTCORR · Vilhena · 1981–2025",
+        advancedOpen: false,
+        onToggleAdvanced: () => {},
+        onOpenAdvancedForRecovery: () => {},
+      }),
+    );
+    expect(outOfScopeHtml).toContain("Fora do escopo histórico da ferramenta");
+    expect(outOfScopeHtml).toContain("Como mudou a chuva em Manaus desde 1981?");
+    expect(outOfScopeHtml).toContain("Abrir filtros manuais (Avançado)");
+
+    const synthesisHtml = renderWithI18n(
+      createElement(AiSynthesisPanel, {
+        interpretation: {
+          ok: true,
+          directAnswer: "A precipitação seca em Vilhena caiu 234,5 mm (1981–2025).",
+          keyFindings: ["Tendência significativa p = 0,000131"],
+          hypotheses: [
+            { title: "Cobertura do solo", description: "Evapotranspiração regional alterada." },
+            { title: "Oscilações oceânicas", description: "Modulação ENOS / Atlântico Tropical." },
+          ],
+          causalityWarning: "Correlação estatística não prova causalidade isolada.",
+          followUpQuestions: ["Comparar com a estação chuvosa em Vilhena?"],
+          model: "gemini-4-hydrogen",
+          cached: false,
+        },
+        isInterpreting: false,
+        onSelectFollowUp: () => {},
+      }),
+    );
+    expect(synthesisHtml).toContain("Síntese Científica da IA");
+    expect(synthesisHtml).toContain("Cobertura do solo");
+    expect(synthesisHtml).toContain("Correlação estatística não prova causalidade isolada.");
+    expect(synthesisHtml).toContain("Comparar com a estação chuvosa em Vilhena?");
+  });
+
+  it("renders expanded 20-case investigation catalog with filter controls and live active state", () => {
+    const html = renderWithI18n(
+      createElement(CasesGrid, {
+        activePresetId: "01",
+        activeLiveQuery: {
+          lat: -12.09,
+          lon: -45.79,
+          variable: "GWETROOT",
+          season: "apr_sep",
+          startYear: 1981,
+          endYear: 2025,
+          label: "Barreiras (MATOPIBA), BA, Brazil",
+        },
+        onSelectPreset: () => {},
+        onSelectInvestigation: () => {},
+      }),
+    );
+    expect(html).toContain("20 de 20 investigações");
+    expect(html).toContain('aria-label="Escala"');
+    expect(html).toContain('aria-label="Variável"');
+    expect(html).toContain('aria-label="Janela"');
+    expect(html).toContain('aria-label="Buscar investigação"');
+    expect(html).toContain("Barreiras (MATOPIBA), BA, Brasil");
+    expect(html).toContain("Belém, PA, Brasil");
+    expect(html).toContain("Porto Alegre, RS, Brasil");
+    expect(html).toContain("Sevilha, Espanha");
+
+    const liveInvestigationHtml = renderWithI18n(
+      createElement(Investigation, {
+        presetId: "01",
+        initialLiveQuery: {
+          lat: -12.09,
+          lon: -45.79,
+          variable: "GWETROOT",
+          season: "apr_sep",
+          startYear: 1981,
+          endYear: 2025,
+          label: "Barreiras (MATOPIBA), BA, Brazil",
+        },
+        onNavigateMethods: () => {},
+      }),
+    );
+    expect(liveInvestigationHtml).toContain("Barreiras (MATOPIBA), BA, Brazil");
+    expect(liveInvestigationHtml).toContain("Estação Seca (Abr–Set)");
+    expect(liveInvestigationHtml).not.toContain("Derivado do Caso #01");
   });
 });

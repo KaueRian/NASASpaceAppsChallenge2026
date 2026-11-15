@@ -7,7 +7,7 @@
 
 ## 📊 Estrutura dos 7 Slides (PDF Local)
 
-1. **Slide 1 — Capa & Gancho:** `EarthTrend Detective` — *Anomalia passageira ou tendência climática comprovada? Investigando 45 anos de dados da NASA em Rondônia e no mundo.*
+1. **Slide 1 — Capa & Gancho:** `GeoTrend` — *Anomalia passageira ou tendência climática comprovada? Investigando 45 anos de dados da NASA em Rondônia e no mundo.*
 2. **Slide 2 — O Problema:** Gráficos comuns enganam. Produtores rurais, gestores hídricos e escolas não têm como separar o ruído de um único ano atípico (El Niño) de uma mudança estrutural de longo prazo.
 3. **Slide 3 — As 4 Perguntas do Desafio & O Nosso Motor Científico:**
    - *O que mudou?* (`T2M`, `T2M_MIN`, `PRECTOTCORR`, `GWETROOT` via **NASA POWER / MERRA-2**).
@@ -19,10 +19,10 @@
    - **Caso #02 — Ariquemes, RO (Noites Tropicais, `T2M_MIN`):** **`+1,82 °C`** nas temperaturas mínimas noturnas ($p = 0,000001$).
    - **Caso #03 — Corumbá / Pantanal, MS (Brasil, `GWETROOT`):** **`-5,60 pontos (%)`** de umidade na zona radicular ($p = 0,000024$).
    - **Caso #04 — Svalbard (Contraste Ártico Global, `T2M`):** **`+3,50 °C`** — provando como processos globais geram velocidades e direções diferentes em cada região.
-5. **Slide 5 — Demonstração Visual (`<ForensicDossier />` + `<SatelliteTimelapse />` + `<EvidenceCard />`):**
-   - Print de alto contraste do Dossiê em papel, busca ao vivo para qualquer município brasileiro (Sugestão #2 do Manual da Banca) e Timelapse de Satélite NASA GIBS.
+5. **Slide 5 — Demonstração Visual (`<Investigation />` + `<TrendChart />` + `<SatelliteTimelapse />` + `<EvidenceCard />`):**
+   - Visualização no tema Dark Editorial com alternância *Linha / Barras / Faixas Climáticas*, busca ao vivo em frase natural para qualquer município brasileiro (Sugestão #2 do Manual da Banca) + Opções avançadas com varredura FDR das 4 variáveis, comparação orbital **Antes vs. Depois (`2000` vs. `2025`)** no NASA GIBS / MODIS e Cartão de Evidência arquival em PNG com QR Code.
 6. **Slide 6 — Rigor Científico (`Correlação ≠ Causalidade`) & Missão Amazônia (ODS 6, 13 e 15):**
-   - Nosso **Methods File** ensina em sala de aula que significância estatística prova tendência direcional observada, sem confundir correlação com causa única isolada, dialogando com dados de cobertura vegetal (*MapBiomas*).
+   - Nossa página **Metodologia Completa (`<MethodsPage />`, seções `01–07`)** ensina em sala de aula que significância estatística prova tendência direcional observada, sem confundir correlação com causa única isolada, dialogando com dados de cobertura vegetal (*MapBiomas*).
 7. **Slide 7 — Encerramento & Chamada para Ação:** QR Code do app ao vivo + Cartão *Show Your Stripes* de Vilhena.
 
 ---
@@ -32,7 +32,7 @@
 ### [0:00 – 0:30] 1. O Gancho Local (Slide 1 e 2)
 > "Boa tarde, jurados! Todo produtor rural aqui de Vilhena e todo morador de Rondônia já fez a mesma pergunta nos últimos anos: *'A estação seca está ficando mais longa? As noites estão mais quentes? Ou isso é só um ano atípico de El Niño?'*  
 > Olhar para um gráfico comum não responde isso, porque o olho humano confunde oscilação normal com tendência — e dados brutos de satélite da NASA são complexos demais para quem está no campo ou na sala de aula.  
-> Para resolver esse desafio, nós criamos o **EarthTrend Detective**."
+> Para resolver esse desafio, nós criamos o **GeoTrend**."
 
 ### [0:30 – 1:15] 2. Como Funciona & Rigor Estatístico (Slide 3)
 > "Em vez de mais um dashboard genérico, construímos uma bancada de perícia climática.  
@@ -52,5 +52,5 @@
 
 ### [2:40 – 3:00] 5. Fechamento (Slide 7)
 > "Com um clique, o usuário baixa o **Cartão de Evidência com as Climate Stripes** da sua cidade para usar na escola, na cooperativa ou na gestão pública.  
-> O **EarthTrend Detective** já está no ar, em português e inglês, com 100% dos cálculos auditados por testes automatizados.  
+> O **GeoTrend** já está no ar, em português e inglês, com 100% dos cálculos auditados por testes automatizados.  
 > Contra o achismo climático, nós entregamos perícia científica com dados da NASA. Muito obrigado!"

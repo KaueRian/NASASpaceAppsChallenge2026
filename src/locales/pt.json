@@ -1,10 +1,12 @@
 {
   "nav": {
-    "wordmark": "EarthTrend Detective",
+    "wordmark": "GeoTrend",
     "investigate": "Investigar",
     "cases": "Casos",
     "methods": "Método",
-    "explore": "Explorar"
+    "explore": "Explorar",
+    "languageLabel": "Idioma",
+    "temperatureUnitLabel": "Unidade de temperatura"
   },
   "hero": {
     "eyebrow": "NASA POWER / MERRA-2 · 1981–2025 · MOTOR DE EVIDÊNCIA ESTATÍSTICA",
@@ -15,18 +17,132 @@
     "stripesCaption": "Caso #01 · Vilhena, RO · Código de Barras de Anomalia de Chuva Abr–Set (1981–2025 · −234,5 mm · p = 0,000131)"
   },
   "cases": {
-    "sectionTitle": "Casos em Destaque",
-    "sectionSubtitle": "Quatro investigações reais de 45 anos (1981–2025) cobrindo Vilhena, Rondônia, Brasil e o Ártico — uma para cada variável da NASA POWER.",
+    "sectionTitle": "Casos em Destaque & Investigações Sugeridas",
+    "sectionSubtitle": "20 investigações curadas (4 casos base disponíveis offline + 16 buscas frequentes via NASA POWER) com filtros por escala, variável climática e janela sazonal.",
     "scaleBadge": {
       "local": "Caso #01 · Escala Local Sede (Vilhena, RO)",
       "state": "Caso #02 · Escala Estadual (Rondônia)",
       "national": "Caso #03 · Escala Nacional (Brasil)",
       "global": "Caso #04 · Referência Global (Ártico)"
     },
+    "scaleShortBadge": {
+      "local": "Cone Sul · RO",
+      "state": "Rondônia & AM-Oc",
+      "national": "Brasil & Biomas",
+      "global": "Global"
+    },
+    "topics": {
+      "agro": "Agro & Safra",
+      "warming": "Tendência Térmica",
+      "hydrology": "Água & Solo",
+      "urban": "Calor Urbano",
+      "benchmark": "Marco Global"
+    },
+    "filters": {
+      "scaleLabel": "Escala",
+      "allScales": "Todas (20)",
+      "local": "Cone Sul RO",
+      "state": "Rondônia & Amazônia",
+      "national": "Brasil & Biomas",
+      "global": "Global",
+      "variableLabel": "Variável",
+      "allVariables": "Todas as variáveis",
+      "seasonLabel": "Janela",
+      "allSeasons": "Todas as janelas",
+      "searchLabel": "Buscar investigação",
+      "searchPlaceholder": "Filtrar cidade, bioma ou tema (ex.: soja, café, COP30)…",
+      "clearButton": "Limpar filtros",
+      "countSummary": "{{shown}} de {{total}} investigações",
+      "emptyTitle": "Nenhuma investigação encontrada para esses filtros.",
+      "offlineReady": "Offline",
+      "liveQuery": "NASA API"
+    },
     "openAction": "Carregar Investigação",
     "alreadyViewed": "Revisado",
     "derivedBanner": "Derivado do Caso #{{id}}",
     "restoreAction": "Restaurar caso original",
+    "catalog": {
+      "ro-cerejeiras": {
+        "title": "Cerejeiras, RO, Brasil",
+        "region": "Fronteira Agrícola do Cone Sul de Rondônia",
+        "hook": "A chuva de transição (Abr–Set) na fronteira soja/safrinha do Cone Sul também está caindo?"
+      },
+      "ro-porto-velho": {
+        "title": "Porto Velho, RO, Brasil",
+        "region": "Bacia do Rio Madeira · Capital de Rondônia",
+        "hook": "Qual foi a intensidade real do aquecimento médio anual na Bacia do Madeira desde 1981?"
+      },
+      "ro-ji-parana": {
+        "title": "Ji-Paraná, RO, Brasil",
+        "region": "Centro de Rondônia · Bacia do Rio Machado",
+        "hook": "A umidade do solo na estação seca está caindo nas bacias pecuárias do centro de RO?"
+      },
+      "ro-cacoal": {
+        "title": "Cacoal, RO, Brasil",
+        "region": "Polo do Café Robusta · Centro-Leste de Rondônia",
+        "hook": "Noites tropicais mais quentes ameaçam a fisiologia do café robusta em Cacoal?"
+      },
+      "ac-rio-branco": {
+        "title": "Rio Branco, AC, Brasil",
+        "region": "Vale do Acre · Sudoeste Amazônico",
+        "hook": "O calor médio da estação seca no Sudoeste da Amazônia acelerou nas últimas quatro décadas?"
+      },
+      "am-manaus": {
+        "title": "Manaus, AM, Brasil",
+        "region": "Amazônia Central · Encontro Rio Negro–Solimões",
+        "hook": "A temperatura média anual no coração da Amazônia Central subiu acima de 1 °C desde 1981?"
+      },
+      "pa-belem": {
+        "title": "Belém, PA, Brasil",
+        "region": "Foz do Amazonas · Sede da COP30",
+        "hook": "Como evoluíram as temperaturas mínimas noturnas na capital da Amazônia Oriental?"
+      },
+      "ba-matopiba": {
+        "title": "Barreiras (MATOPIBA), BA, Brasil",
+        "region": "Oeste Baiano · Nova Fronteira Agrícola do Cerrado",
+        "hook": "O ressecamento do solo radicular na estação seca atingiu níveis críticos no MATOPIBA?"
+      },
+      "df-brasilia": {
+        "title": "Brasília, DF, Brasil",
+        "region": "Planalto Central · Cerrado & Cabeceiras Hídricas",
+        "hook": "O solo do Cerrado Central na seca está perdendo retenção hídrica para recarga e reservatórios?"
+      },
+      "mt-sorriso": {
+        "title": "Sorriso, MT, Brasil",
+        "region": "Médio-Norte Mato-grossense · Capital Nacional da Soja",
+        "hook": "Caso contraste: a chuva Abr–Set na janela da safrinha em Sorriso tem tendência estatística confirmada?"
+      },
+      "sp-sao-paulo": {
+        "title": "São Paulo, SP, Brasil",
+        "region": "Região Metropolitana · Sudeste do Brasil",
+        "hook": "As noites mínimas na maior metrópole sul-americana estão ficando persistentemente mais quentes?"
+      },
+      "pe-petrolina": {
+        "title": "Petrolina, PE, Brasil",
+        "region": "Submédio São Francisco · Semiárido Nordestino",
+        "hook": "O aquecimento médio anual no Vale do São Francisco eleva a demanda evaporativa na fruticultura?"
+      },
+      "rs-porto-alegre": {
+        "title": "Porto Alegre, RS, Brasil",
+        "region": "Bacia do Guaíba · Região Sul do Brasil",
+        "hook": "Caso contraste: chuvas quentes Out–Mar no Sul têm tendência monotônica ou alta oscilação interanual?"
+      },
+      "es-sevilla": {
+        "title": "Sevilha, Espanha",
+        "region": "Vale do Guadalquivir · Verão Mediterrâneo (HN)",
+        "hook": "Qual é a velocidade do aquecimento nos verões boreais (Abr–Set) do Mediterrâneo europeu?"
+      },
+      "jp-tokyo": {
+        "title": "Tóquio, Japão",
+        "region": "Planície de Kanto · Megacidade do Pacífico",
+        "hook": "Como a temperatura mínima noturna evoluiu na maior área metropolitana da Ásia Oriental?"
+      },
+      "ne-niamey": {
+        "title": "Niamey (Sahel), Níger",
+        "region": "Cinturão Semidesértico do Sahel · África Ocidental",
+        "hook": "O aquecimento no Sahel africano apresenta tendência estatisticamente confirmada desde 1981?"
+      }
+    },
     "01": {
       "title": "Vilhena, RO, Brasil",
       "region": "Transição Cerrado–Amazônia (Chapada dos Parecis / Cone Sul)",
@@ -137,6 +253,11 @@
     "goButton": "Investigar",
     "phrasePrefix": "Investigar",
     "phraseIn": "em",
+    "phraseFrom": "de",
+    "phraseTo": "a",
+    "periodSpanYears": "{{count}} anos",
+    "periodOrderError": "O ano inicial ({{startYear}}) precisa ser menor ou igual ao ano final ({{endYear}}).",
+    "periodMinYearsError": "Período selecionado: {{years}} anos ({{startYear}}–{{endYear}}). Escolha ao menos {{minYears}} anos completos para calcular a tendência.",
     "quickLocationsTitle": "Locais sugeridos (1 clique)",
     "pickOnMapAction": "📍 Escolher ponto no mapa (Opções avançadas)",
     "seasonHintAuto": "Recorte: {{season}}",
@@ -157,7 +278,55 @@
     "legendObserved": "Observado",
     "legendTrend": "Tendência de Sen",
     "legendAnomaly": "Anomalia (|z| > 1,5)",
-    "anomalyTag": "Anomalia"
+    "anomalyTag": "Anomalia",
+    "unitClause": " em {{unit}}",
+    "ariaLabel": "Gráfico ({{mode}}): valores observados{{unitClause}} de {{start}} a {{end}}, com a linha de tendência de Sen e anomalias marcadas."
+  },
+  "stripes": {
+    "ariaLabel": "Faixas de anomalia climática de {{start}} a {{end}}",
+    "captionLabel": "FAIXAS DE ANOMALIA (Z-SCORE)",
+    "zScoreLabel": "z = {{z}}",
+    "extremeAnomalyTag": "Anomalia extrema (|z| > 1,5)",
+    "scaleLowTemp": "Mais frio (−z)",
+    "scaleHighTemp": "Mais quente (+z)",
+    "scaleLowHydro": "Mais seco (−z)",
+    "scaleHighHydro": "Mais úmido (+z)",
+    "scaleMean": "Média (z ≈ 0)",
+    "explainTemp": "Como ler: cada faixa vertical representa um ano da série em ordem cronológica. Tons azuis indicam anos mais frios que a média do período; faixas neutras ficam próximas à média; tons vermelhos indicam anos mais quentes (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos.",
+    "explainHydro": "Como ler: cada faixa vertical representa um ano ou janela sazonal da série em ordem cronológica. Tons ocre indicam anos mais secos que a média do período; faixas neutras ficam próximas à média; tons verde-água indicam anos mais úmidos (|z| > 1,5 marca anomalias extremas). Passe o mouse ou toque em uma faixa para ver os valores exatos."
+  },
+  "share": {
+    "sheetAriaLabel": "Exportar e Compartilhar Card de Evidência Científica",
+    "eyebrow": "EXPORTAÇÃO DE EVIDÊNCIA · COMPARTILHAR DOSSIÊ",
+    "title": "Card de Evidência & Exportação de Dados",
+    "closeButton": "ESC / FECHAR",
+    "aspectStory": "Story 9:16",
+    "aspectSquare": "Quadrado 1:1",
+    "savingLink": "Salvando…",
+    "nativeShare": "Compartilhar…",
+    "nativeShareSummary": "{{location}} ({{variable}}, {{startYear}}–{{endYear}}): {{verdict}}",
+    "card": {
+      "headerLabel": "GEOTREND · DOSSIÊ PERICIAL",
+      "pngHeaderLabel": "GEOTREND // DOSSIÊ PERICIAL",
+      "totalShiftDom": "VARIAÇÃO TOTAL ({{nYears}} ANOS)",
+      "totalShiftPng": "VARIAÇÃO TOTAL ({{nYears}} ANOS)",
+      "senSlopeDom": "DECLIVE DE SEN / DÉCADA",
+      "senSlopePng": "DECLIVE DE SEN POR DÉCADA",
+      "mannKendallPValue": "P-VALOR MANN-KENDALL",
+      "confidenceDom": "CONFIANÇA",
+      "confidencePng": "CONFIANÇA ESTATÍSTICA",
+      "inconclusive": "Inconclusiva",
+      "coordinates": "COORDENADAS",
+      "sourcePrefix": "FONTE:",
+      "retrievedPrefix": "CONSULTA:",
+      "pngDataLine": "DADOS: {{provider}} ({{retrievedAt}})",
+      "qrAriaLabel": "Código de verificação do dossiê",
+      "verdictShort": {
+        "STRONG_EVIDENCE": "EVIDÊNCIA FORTE",
+        "EVIDENCE_CONFIRMED": "EVIDÊNCIA CONFIRMADA",
+        "INSUFFICIENT_EVIDENCE": "EVIDÊNCIA INSUFICIENTE"
+      }
+    }
   },
   "investigation": {
     "yearsLabel": "Anos",
@@ -183,6 +352,7 @@
     "INVALID_COORDINATES": "Coordenadas inválidas. Informe latitude entre -90 e 90 e longitude entre -180 e 180.",
     "INVALID_VARIABLE": "Selecione uma das quatro variáveis suportadas da NASA POWER (T2M, T2M_MIN, PRECTOTCORR, GWETROOT).",
     "INVALID_SEASON": "Selecione um recorte sazonal válido (Anual, Out–Mar ou Abr–Set).",
+    "INVALID_FILTER": "Filtro inválido informado para a busca de investigações ou dossiês.",
     "INSUFFICIENT_YEARS": "Menos de 15 anos sazonais completos disponíveis neste intervalo. Amplie o período para executar o Mann-Kendall.",
     "NO_DATA_ALL_MISSING": "Sem observações válidas para esta variável neste ponto (a NASA POWER retornou -999, ex.: umidade do solo sobre o oceano).",
     "NASA_UPSTREAM_TIMEOUT": "O arquivo da NASA POWER demorou muito para responder. Tente novamente em alguns segundos.",
@@ -262,7 +432,7 @@
   },
   "methods": {
     "title": "Metodologia Científica e Limitações",
-    "subtitle": "Como o EarthTrend Detective processa os registros NASA POWER / MERRA-2 e avalia a significância estatística.",
+    "subtitle": "Como o GeoTrend processa os registros NASA POWER / MERRA-2 e avalia a significância estatística.",
     "teaser": "Todo resultado aqui vem dos mesmos dados da NASA e dos mesmos dois testes estatísticos, explicados por completo no",
     "backToHome": "← Voltar para a Investigação",
     "nasaData": {
@@ -297,7 +467,96 @@
       "gridItem": "Grade Espacial MERRA-2 (~50 km): Os valores representam uma célula regional de ~0,5° × 0,625°, e não um pluviômetro isolado de fazenda ou estação de microclima urbano.",
       "causationItem": "Correlação vs. Causalidade: Um p-valor significativo no teste de Mann-Kendall comprova que houve uma mudança direcional na série observada acima do ruído aleatório; ele não isola sozinho se a causa física é o efeito estufa global, o desmatamento regional ou oscilações oceânicas decadais.",
       "regionalItem": "Contraste Regional e Contexto Amazônico: Mudanças climáticas globais não atuam de forma uniforme — diferentes regiões e estações podem aquecer ou secar em ritmos distintos. Em Rondônia e no Pantanal, combinar as tendências climáticas da NASA POWER com séries de uso e cobertura da terra (como o MapBiomas) apoia a educação ambiental nas escolas e o planejamento territorial alinhado aos ODS 6 (Água Potável), 13 (Ação Climática) e 15 (Vida Terrestre).",
-      "autocorrelationItem": "Autocorrelação Serial e Período Mínimo: Autocorrelação positiva de lag-1 (`r1`) pode inflar o escore Z em séries curtas. O EarthTrend Detective exige o mínimo estrito de 15 anos (`n ≥ 15`) e sinaliza séries menores que 30 anos ou com alta autocorrelação lag-1."
+      "autocorrelationItem": "Autocorrelação Serial e Período Mínimo: Autocorrelação positiva de lag-1 (`r1`) pode inflar o escore Z em séries curtas. O GeoTrend exige o mínimo estrito de 15 anos (`n ≥ 15`) e sinaliza séries menores que 30 anos ou com alta autocorrelação lag-1."
     }
+  },
+  "satellite": {
+    "eyebrow": "ARQUIVO VISUAL ORBITAL · NASA GIBS / MODIS TERRA",
+    "title": "Evidência Visual por Satélite ({{beforeYear}} vs. {{afterYear}})",
+    "subtitle": "Composição de agosto (estação seca / céu limpo no MODIS Terra: Cor Real 29/ago e NDVI Mensal de ago) — observe mudanças reais na paisagem ao lado dos dados estatísticos.",
+    "showAction": "Mostrar imagens de satélite",
+    "hideAction": "Ocultar imagens de satélite",
+    "modeCompare": "Antes vs. Depois",
+    "modeTimelapse": "Timelapse ({{minYear}}–{{maxYear}})",
+    "layerTrueColor": "Cor Real",
+    "layerNdvi": "Vegetação (NDVI)",
+    "beforeLabel": "ANTES · {{year}}",
+    "afterLabel": "DEPOIS · {{year}}",
+    "monthTag": "AGO",
+    "archiveNote": "O arquivo MODIS Terra começa em 2000 (a série climática selecionada inicia em {{startYear}}).",
+    "play": "Reproduzir Timelapse",
+    "pause": "Pausar",
+    "buffering": "Carregando quadros ({{ready}}/{{total}})…",
+    "preloadProgress": "Pré-carregando mosaicos NASA GIBS: {{ready}} / {{total}} anos",
+    "preloadReady": "{{total}} / {{total}} anos em cache · Pronto para timelapse contínuo",
+    "frameUpdating": "Atualizando {{year}}…",
+    "worldviewLink": "Abrir no NASA Worldview ↗",
+    "tileAlt": "Mosaico de satélite NASA MODIS ({{layer}}) de {{year}}",
+    "zoomOut": "Reduzir zoom",
+    "zoomIn": "Ampliar zoom",
+    "zoomLabel": "Zoom {{zoom}}x"
+  },
+  "dossier": {
+    "recentButton": "Dossiês recentes",
+    "recentClose": "Fechar dossiês recentes",
+    "recentTitle": "Dossiês compartilhados recentes (D1)",
+    "recentLoading": "Carregando dossiês salvos…",
+    "recentEmpty": "Nenhum dossiê compartilhado foi salvo no D1 ainda.",
+    "recentInspect": "Abrir no console",
+    "recentOpenLink": "Link permanente",
+    "sharedLoading": "Carregando dossiê arquivado {{id}}…",
+    "sharedNotFoundTitle": "Dossiê Não Encontrado",
+    "sharedNotFoundBody": "Este link de investigação compartilhada não foi encontrado ou ainda não foi salvo.",
+    "sharedBackHome": "← Voltar aos Casos em Destaque",
+    "sharedBadge": "DOSSIÊ ARQUIVADO SOMENTE LEITURA · ID {{id}}",
+    "sharedOpenNew": "Abrir nova investigação →"
+  },
+  "ai": {
+    "eyebrow": "PERGUNTE EM LINGUAGEM NATURAL · NASA POWER + GEMINI",
+    "inputLabel": "Faça uma pergunta investigativa sobre o clima",
+    "placeholder": "Ex.: A estação seca em Vilhena está perdendo chuva desde 1990?",
+    "submitButton": "Investigar com IA",
+    "runningButton": "Investigando…",
+    "examplesLabel": "Sugestões:",
+    "examples": {
+      "vilhenaDry": "A estação seca em Vilhena ficou mais seca desde 1990?",
+      "ariquemesNights": "As noites em Ariquemes ficaram mais quentes?",
+      "manausScan": "Quais variáveis climáticas mudaram significativamente em Manaus?",
+      "arcticCompare": "Qual foi o ritmo de aquecimento em Svalbard desde 1981?"
+    },
+    "steps": {
+      "translate": "1. Filtros IA",
+      "compute": "2. NASA + Mann-Kendall",
+      "interpret": "3. Síntese IA"
+    },
+    "activeSummaryLabel": "Filtros ativos",
+    "openAdvancedFilters": "Avançado / Editar filtros manualmente",
+    "hideAdvancedFilters": "Ocultar filtros manuais",
+    "scanAppliedBadge": "Varredura 4 variáveis",
+    "outOfScopeTitle": "Fora do escopo histórico da ferramenta",
+    "limitationTitle": "Filtro equivalente mais próximo aplicado",
+    "tryValidQuestion": "Sugestões válidas em 1 clique:",
+    "errorTitle": "Assistente de IA indisponível no momento",
+    "openManualRecovery": "Abrir filtros manuais (Avançado)",
+    "fallbackTitle": "Modo Resiliente Local Ativo",
+    "fallbackBody": "O serviço Gemini está temporariamente indisponível ou sem chave configurada. A pergunta foi convertida localmente e a síntese abaixo usa os cálculos verificados da NASA POWER.",
+    "errors": {
+      "AI_INVALID_REQUEST": "Digite uma pergunta climática concisa (até 500 caracteres).",
+      "AI_NOT_CONFIGURED": "A chave Gemini ainda não está configurada neste servidor. Você pode investigar normalmente pelos filtros manuais em Avançado.",
+      "AI_RATE_LIMITED": "Limite temporário de requisições de IA atingido. Aguarde um instante ou use os filtros manuais em Avançado.",
+      "AI_TIMEOUT": "O serviço de IA demorou para responder. Tente novamente ou ajuste os filtros manualmente em Avançado.",
+      "AI_UPSTREAM_ERROR": "Não foi possível conectar ao Gemini agora. Os filtros manuais da NASA POWER continuam disponíveis em Avançado.",
+      "AI_BAD_RESPONSE": "A IA retornou um formato inesperado. Reformule a pergunta ou ajuste os filtros em Avançado."
+    },
+    "synthesisTitle": "Síntese Científica da IA",
+    "synthesisCached": "Em cache",
+    "findingsTitle": "Achados Estatísticos Observados",
+    "hypothesesTitle": "Hipóteses Científicas Plausíveis (Não Provam Causalidade)",
+    "followUpTitle": "Investigações sugeridas a seguir",
+    "layer1DetailsTitle": "Camada 1 · Parâmetros estruturados pela IA",
+    "layer1Hypothesis": "Hipótese inicial",
+    "layer1Reasoning": "Racional da tradução",
+    "layer1Model": "Modelo",
+    "staleNotice": "Os filtros foram ajustados manualmente; faça uma nova pergunta à IA para atualizar a síntese."
   }
 }

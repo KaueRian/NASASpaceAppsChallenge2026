@@ -3,7 +3,16 @@ export {
   buildDossierCsv,
   downloadDossierCsv,
 } from "../../lib/export/dossierExport.ts";
-export { ClimateStripes, type ClimateStripesProps, getStripeColor } from "./ClimateStripes.tsx";
+export {
+  ClimateStripes,
+  type ClimateStripesProps,
+  computeStripeTooltipAnchor,
+  formatSignedZScore,
+  getPaletteForVariable,
+  getStripeColor,
+  isTemperatureVariable,
+  type StripeTooltipAnchor,
+} from "./ClimateStripes.tsx";
 export {
   BirthdayCard,
   type BirthdayCardCopy,
@@ -25,10 +34,13 @@ export {
 export {
   buildNasaGibsTileUrl,
   buildNasaWorldviewUrl,
+  type GibsComparisonWindow,
   type GibsLayerId,
   latLonToTileXY,
+  resolveGibsComparisonWindow,
   SatelliteTimelapse,
   type SatelliteTimelapseProps,
+  type SatelliteViewMode,
 } from "./SatelliteTimelapse.tsx";
 export {
   SharedDossierView,

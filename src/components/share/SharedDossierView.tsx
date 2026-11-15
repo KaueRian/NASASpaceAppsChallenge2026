@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useI18n } from "../../i18n/i18n.tsx";
+import { useOptionalTemperatureUnit } from "../../i18n/temperatureUnit.tsx";
 import type { SavedDossier } from "../../types/investigation.ts";
 import { EvidenceCard } from "./EvidenceCard.tsx";
 import { SatelliteTimelapse } from "./SatelliteTimelapse.tsx";
@@ -9,14 +11,16 @@ export interface SharedDossierViewProps {
 }
 
 export function SharedDossierView({ dossierId, onStartNewInvestigation }: SharedDossierViewProps) {
+  const { t } = useI18n();
+  const tempUnit = useOptionalTemperatureUnit();
   const [dossier, setDossier] = useState<SavedDossier | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    setError(null);
+    setError(false);
 
     fetch(`/api/dossiers/${encodeURIComponent(dossierId)}`)
       .then(async (res) => {
@@ -33,7 +37,7 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
       })
       .catch(() => {
         if (active) {
-          setError("This forensic case file could not be found or has expired.");
+          setError(true);
           setLoading(false);
         }
       });
@@ -45,41 +49,50 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl rounded-sm border border-[#D4A84F]/40 bg-[#1B1613] p-8 text-center font-mono text-sm text-[#F4EFE6]">
-        Retrieving archived case file {dossierId}…
-      </div>
+      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="border border-border bg-surface p-8 text-center font-mono text-sm text-text-muted">
+          {t("dossier.sharedLoading", { id: dossierId })}
+        </div>
+      </section>
     );
   }
 
   if (error || !dossier) {
     return (
-      <div className="mx-auto max-w-2xl rounded-sm border border-[#C83E2B] bg-[#1B1613] p-8 text-center text-[#F4EFE6]">
-        <h2 className="font-serif text-xl font-bold">Case File Not Found</h2>
-        <p className="mt-2 font-mono text-xs text-[#F4EFE6]/80">{error}</p>
-        <a
-          href="/"
-          onClick={(e) => {
-            if (onStartNewInvestigation) {
-              e.preventDefault();
-              onStartNewInvestigation();
-            }
-          }}
-          className="mt-4 inline-block rounded bg-[#D4A84F] px-4 py-2 font-mono text-xs font-bold text-[#14110F]"
-        >
-          ← Return to Case Board
-        </a>
-      </div>
+      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="border border-accent bg-surface p-8 text-center text-text">
+          <h2 className="font-display text-2xl">{t("dossier.sharedNotFoundTitle")}</h2>
+          <p className="mt-2 font-sans text-sm text-text-muted">
+            {t("dossier.sharedNotFoundBody")}
+          </p>
+          <a
+            href="/"
+            onClick={(e) => {
+              if (onStartNewInvestigation) {
+                e.preventDefault();
+                onStartNewInvestigation();
+              }
+            }}
+            className="mt-5 inline-block border border-border bg-bg px-4 py-2 font-mono text-xs uppercase tracking-wider text-text hover:border-accent"
+          >
+            {t("dossier.sharedBackHome")}
+          </a>
+        </div>
+      </section>
     );
   }
 
+  const permalink =
+    typeof window !== "undefined" ? `${window.location.origin}/dossier/${dossier.id}` : undefined;
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-[#D4A84F]/40 bg-[#1B1613] p-4 text-[#F4EFE6]">
+    <section className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-surface p-4 text-text">
         <div>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-[#D4A84F]">
-            READ-ONLY ARCHIVED DOSSIER · ID {dossier.id}
+          <span className="font-mono text-[11px] uppercase tracking-widest text-accent">
+            {t("dossier.sharedBadge", { id: dossier.id })}
           </span>
-          <h2 className="font-serif text-lg font-bold">{dossier.result.location.label}</h2>
+          <h2 className="mt-1 font-display text-xl">{dossier.result.location.label}</h2>
         </div>
         <a
           href="/"
@@ -89,21 +102,27 @@ export function SharedDossierView({ dossierId, onStartNewInvestigation }: Shared
               onStartNewInvestigation();
             }
           }}
-          className="rounded bg-[#D4A84F] px-4 py-2 font-mono text-xs font-bold text-[#14110F] hover:bg-[#e0b861]"
+          className="bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-bg hover:opacity-90"
         >
-          Open Your Own Investigation →
+          {t("dossier.sharedOpenNew")}
         </a>
       </div>
 
-      <div className="flex justify-center">
-        <EvidenceCard result={dossier.result} aspect="story" />
+      <div className="flex justify-center overflow-x-auto">
+        <EvidenceCard
+          result={dossier.result}
+          aspect="story"
+          shortUrl={permalink}
+          tempUnit={tempUnit}
+        />
       </div>
 
       <SatelliteTimelapse
         location={dossier.result.location}
         startYear={dossier.result.stats.startYear}
         endYear={dossier.result.stats.endYear}
+        defaultExpanded
       />
-    </div>
+    </section>
   );
 }
